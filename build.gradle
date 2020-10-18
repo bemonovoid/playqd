@@ -1,0 +1,29 @@
+plugins {
+    id 'java'
+    id "io.spring.dependency-management" version "1.0.7.RELEASE"
+}
+
+allprojects {
+    apply plugin: 'java'
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+}
+
+subprojects {
+    apply plugin: 'java-library'
+    apply plugin: 'io.spring.dependency-management'
+
+    dependencyManagement {
+        imports {
+            mavenBom("org.springframework.boot:spring-boot-dependencies:2.3.2.RELEASE")
+            mavenBom("io.projectreactor:reactor-bom:Bismuth-RELEASE")
+        }
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+}
