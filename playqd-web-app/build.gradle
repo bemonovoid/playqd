@@ -35,6 +35,12 @@ jib {
     allowInsecureRegistries = 'true'
     from {
         image = 'openjdk:11-slim'
+        platforms {
+            platform {
+                architecture = 'arm64'
+                os = 'linux'
+            }
+        }
 
     }
     to {
