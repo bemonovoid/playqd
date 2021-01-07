@@ -1,3 +1,5 @@
 rootProject.name= 'playqd'
 
-include 'playqd-reactor'
+include 'playqd-core'
+include 'playqd-web-app'
+

@@ -1,6 +1,17 @@
+buildscript {
+    ext {
+        springDependencyVersion = '1.0.10.RELEASE'
+        springBootVersion = '2.4.1'
+        hsqldbVersion = '2.5.1'
+        jibPluginVersion = '2.7.1'
+        jUnit5PlatformVersion = '1.7.0'
+        jUnit5EngineVersion = '5.7.0'
+        mockitoVersion = '3.6.28'
+    }
+}
 plugins {
     id 'java'
-    id "io.spring.dependency-management" version "1.0.7.RELEASE"
+    id "io.spring.dependency-management" version "${springDependencyVersion}"
 }
 
 allprojects {
@@ -13,14 +24,23 @@ allprojects {
 }
 
 subprojects {
+    apply plugin: 'java'
     apply plugin: 'java-library'
     apply plugin: 'io.spring.dependency-management'
 
     dependencyManagement {
         imports {
-            mavenBom("org.springframework.boot:spring-boot-dependencies:2.3.2.RELEASE")
-            mavenBom("io.projectreactor:reactor-bom:Bismuth-RELEASE")
+            mavenBom("org.springframework.boot:spring-boot-dependencies:${springBootVersion}")
         }
+    }
+
+    dependencies {
+        testCompile("org.junit.platform:junit-platform-commons:${jUnit5PlatformVersion}")
+        testRuntime("org.junit.platform:junit-platform-engine:${jUnit5PlatformVersion}")
+        testRuntime("org.junit.platform:junit-platform-launcher:${jUnit5PlatformVersion}")
+        testRuntime("org.junit.jupiter:junit-jupiter-engine:${jUnit5EngineVersion}")
+        testCompile("org.junit.jupiter:junit-jupiter-api:${jUnit5EngineVersion}")
+        testCompile("org.mockito:mockito-core:${mockitoVersion}")
     }
 
     test {

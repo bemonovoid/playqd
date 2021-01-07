@@ -1,0 +1,51 @@
+plugins {
+    id 'com.google.cloud.tools.jib' version "${jibPluginVersion}"
+    id 'org.springframework.boot' version "${springBootVersion}"
+}
+
+repositories {
+    flatDir {
+        dirs 'libs'
+    }
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
+
+    implementation "org.hsqldb:hsqldb:${hsqldbVersion}"
+
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+
+//    implementation "net.jthink:jaudiotagger:2.2.6-SNAPSHOT"
+
+}
+
+jar {
+    enabled = true
+}
+
+bootJar {
+    archiveBaseName = 'playqd-web-app'
+    mainClass = 'com.bemonovoid.playqd.Application'
+}
+
+jib {
+    allowInsecureRegistries = 'true'
+    from {
+        image = 'openjdk:11-slim'
+
+    }
+    to {
+        image = 'playqd-app'
+        tags = ['1.0.0']
+    }
+    container {
+        mainClass = 'com.bemonovoid.playqd.Application'
+        ports = ['9585']
+        creationTime = "USE_CURRENT_TIMESTAMP"
+//        environment = []
+    }
+
+}

@@ -1,0 +1,23 @@
+server:
+  port: 9585
+
+spring:
+  datasource:
+    driver-class-name: "org.hsqldb.jdbc.JDBCDriver"
+    url: "jdbc:hsqldb:hsql://localhost/playqd_db"
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create
+    propersties:
+      hibernate:
+        jdbc:
+          batch_size: 100
+
+playqd:
+  library:
+    location: "D:/Music"
+logging:
+  level:
+    web: DEBUG
