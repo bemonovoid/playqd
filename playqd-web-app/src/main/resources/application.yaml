@@ -4,7 +4,7 @@ server:
 spring:
   datasource:
     driver-class-name: "org.hsqldb.jdbc.JDBCDriver"
-    url: "jdbc:hsqldb:hsql://localhost/playqd_db"
+    url: "jdbc:hsqldb:hsql://192.168.1.211/playqd_db"
     username: sa
     password:
   jpa:
