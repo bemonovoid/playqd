@@ -9,37 +9,63 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-@Table(name = "Song")
+@Table(name = SongEntity.TABLE_NAME)
 @Entity
 public class SongEntity {
 
+    public static final String TABLE_NAME = "SONG";
+
+    public static final String COL_PK_ID = "ID";
+    public static final String COL_NAME = "NAME";
+    public static final String COL_TRACK_ID = "TRACK_ID";
+    public static final String COL_DURATION = "DURATION";
+    public static final String COL_COMMENT = "COMMENT";
+    public static final String COL_FILE_NAME = "FILE_NAME";
+    public static final String COL_FILE_EXTENSION = "FILE_EXTENSION";
+    public static final String COL_FILE_LOCATION = "FILE_LOCATION";
+    public static final String COL_AUDIO_SAMPLE_RATE = "AUDIO_SAMPLE_RATE";
+    public static final String COL_AUDIO_ENCODING_TYPE = "AUDIO_ENCODING_TYPE";
+    public static final String COL_AUDIO_CHANNEL_TYPE = "AUDIO_CHANNEL_TYPE";
+    public static final String COL_AUDIO_BIT_RATE = "AUDIO_BIT_RATE";
+    public static final String COL_ARTIST_ID = "ARTIST_ID";
+    public static final String COL_ALBUM_ID = "ALBUM_ID";
+
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = COL_PK_ID)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(length = 1000)
+    @Column(name = COL_NAME, length = 1000)
     private String name;
 
+    @Column(name = COL_TRACK_ID)
     private String trackId;
 
+    @Column(name = COL_DURATION)
     private int duration;
 
+    @Column(name = COL_AUDIO_CHANNEL_TYPE)
     private String audioChannelType;
 
+    @Column(name = COL_AUDIO_SAMPLE_RATE)
     private String audioSampleRate;
 
+    @Column(name = COL_AUDIO_BIT_RATE)
     private String audioBitRate;
 
+    @Column(name = COL_AUDIO_ENCODING_TYPE)
     private String audioEncodingType;
 
+    @Column(name = COL_FILE_NAME)
     private String fileName;
 
-    @Column(length = 8000)
+    @Column(name = COL_FILE_LOCATION, length = 8000)
     private String fileLocation;
 
+    @Column(name = COL_FILE_EXTENSION)
     private String fileExtension;
 
-    @Column(length = 8000)
+    @Column(name = COL_COMMENT, length = 8000)
     private String comment;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -20,7 +20,7 @@ public abstract class AlbumHelper {
                 entity.getDate(),
                 secondsToMinutesAndSecondsString(totalSeconds),
                 new Artist(entity.getArtist().getId(), entity.getArtist().getName()),
-                new AlbumArt(new ArrayList<>(entity.getArtLocations()))
+                new AlbumArt(new ArrayList<>(entity.getArtLocation()))
         );
     }
 

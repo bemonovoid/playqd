@@ -9,10 +9,12 @@ import com.bemonovoid.playqd.library.service.MusicDirectoryScanner;
 import com.bemonovoid.playqd.library.service.impl.LibraryQueryServiceImpl;
 import com.bemonovoid.playqd.library.service.impl.MusicDirectoryImpl;
 import com.bemonovoid.playqd.library.service.impl.MusicDirectoryScannerImpl;
+import com.bemonovoid.playqd.library.service.impl.MusicDirectoryScannerImpl2;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.EnableAsync;
 
 @Configuration
@@ -32,8 +34,8 @@ class AppConfig {
     }
 
     @Bean
-    MusicDirectoryScanner refreshLibraryExecutor(ArtistDao artistDao, MusicDirectory musicDirectory) {
-        return new MusicDirectoryScannerImpl(artistDao, musicDirectory);
+    MusicDirectoryScanner refreshLibraryExecutor(JdbcTemplate jdbcTemplate, MusicDirectory musicDirectory) {
+        return new MusicDirectoryScannerImpl2(jdbcTemplate, musicDirectory);
     }
 
     @Bean

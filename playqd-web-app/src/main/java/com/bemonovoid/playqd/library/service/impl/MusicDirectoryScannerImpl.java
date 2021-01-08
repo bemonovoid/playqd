@@ -137,7 +137,7 @@ public class MusicDirectoryScannerImpl implements MusicDirectoryScanner {
                                 albumEntity.setGenre(audioFile.getTag().getFirst(FieldKey.GENRE));
                                 albumEntity.setDate(audioFile.getTag().getFirst(FieldKey.YEAR));
                             }
-                            albumEntity.setArtLocations(getAlbumArtLocations(audioFile.getFile().getParentFile()));
+                            albumEntity.setArtLocation(getAlbumArtLocations(audioFile.getFile().getParentFile()));
                             artistEntity.addAlbum(albumEntity);
                             albumEntity.addSong(songEntity);
                         });

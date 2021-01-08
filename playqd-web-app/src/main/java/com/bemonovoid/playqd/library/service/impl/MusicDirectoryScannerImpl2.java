@@ -1,0 +1,233 @@
+package com.bemonovoid.playqd.library.service.impl;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import com.bemonovoid.playqd.data.entity.AlbumEntity;
+import com.bemonovoid.playqd.data.entity.ArtistEntity;
+import com.bemonovoid.playqd.data.entity.SongEntity;
+import com.bemonovoid.playqd.library.service.MusicDirectory;
+import com.bemonovoid.playqd.library.service.MusicDirectoryScanner;
+import org.jaudiotagger.audio.AudioFile;
+import org.jaudiotagger.audio.AudioFileIO;
+import org.jaudiotagger.audio.AudioHeader;
+import org.jaudiotagger.audio.generic.Utils;
+import org.jaudiotagger.tag.FieldKey;
+import org.jaudiotagger.tag.Tag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
+import org.springframework.scheduling.annotation.Async;
+
+public class MusicDirectoryScannerImpl2 implements MusicDirectoryScanner {
+
+    private static final Logger LOG = LoggerFactory.getLogger(MusicDirectoryScannerImpl2.class);
+
+    private static final String UNKNOWN_ARTIST = "Unknown artist";
+    private static final String UNKNOWN_ALBUM = "Unknown album";
+
+    private static final Set<String> IMAGE_EXTENSIONS = Set.of("jpeg", "jpg", "bmp", "png");
+    private static final Set<String> AUDIO_EXTENSIONS = Set.of("flac", "m4a", "m4p", "mp3", "ogg", "wav", "wma");
+
+    private final BatchInsert songBatch;
+    private final BatchInsert albumArtBatch;
+
+    private final Map<String, Long> artists = new HashMap<>();
+    private final Map<String, Long> albums = new HashMap<>();
+
+    private final JdbcTemplate jdbcTemplate;
+    private final MusicDirectory musicDirectory;
+
+    public MusicDirectoryScannerImpl2(JdbcTemplate jdbcTemplate, MusicDirectory musicDirectory) {
+        this.jdbcTemplate = jdbcTemplate;
+        this.musicDirectory = musicDirectory;
+        this.songBatch = new SimpleBatchInsert(jdbcTemplate, 1000, SongEntity.TABLE_NAME, SongEntity.COL_PK_ID);
+        this.albumArtBatch = new SimpleBatchInsert(jdbcTemplate, 1000, AlbumEntity.TABLE_NAME_ART_LOCATION);
+    }
+
+    @Override
+    @Async
+    public void scan() {
+
+        try (Stream<Path> allPaths = Files.walk(musicDirectory.basePath(), 20)) {
+            allPaths
+                    .map(Path::toFile)
+                    .filter(File::isFile)
+                    .filter(f -> AUDIO_EXTENSIONS.contains(getFileExtension(f)))
+                    .forEach(this::scanFile);
+            songBatch.insertAll();
+            albumArtBatch.insertAll();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            LOG.info("Scan completed");
+        }
+    }
+
+    private void scanFile(File file) {
+        try {
+            scanAudioFile(AudioFileIO.read(file));
+        } catch (Exception e) {
+            LOG.error(String.format("Failed to refresh a file: %s", file.getAbsolutePath()), e);
+        }
+    }
+
+    private void scanAudioFile(AudioFile audiofile) {
+
+        long artistId = getArtistId(audiofile);
+        long albumId = getAlbumId(artistId, audiofile);
+
+        MapSqlParameterSource params = new MapSqlParameterSource();
+        String fileName = getFileNameWithoutExtension(audiofile.getFile());
+
+        if (audiofile.getTag() != null) {
+            Tag tag = audiofile.getTag();
+            String songName = tag.getFirst(FieldKey.TITLE);
+            if (songName == null || songName.isBlank()) {
+                songName = fileName;
+            }
+            params
+                    .addValue(SongEntity.COL_NAME, songName)
+                    .addValue(SongEntity.COL_TRACK_ID, tag.getFirst(FieldKey.TRACK))
+                    .addValue(SongEntity.COL_COMMENT, tag.getFirst(FieldKey.COMMENT));
+        } else {
+            params.addValue(SongEntity.COL_NAME, fileName);
+        }
+
+        AudioHeader audioHeader = audiofile.getAudioHeader();
+
+        params
+                .addValue(SongEntity.COL_ARTIST_ID, artistId)
+                .addValue(SongEntity.COL_ALBUM_ID, albumId)
+                .addValue(SongEntity.COL_AUDIO_ENCODING_TYPE, audioHeader.getEncodingType())
+                .addValue(SongEntity.COL_AUDIO_SAMPLE_RATE, audioHeader.getSampleRate())
+                .addValue(SongEntity.COL_AUDIO_BIT_RATE, audioHeader.getBitRate())
+                .addValue(SongEntity.COL_AUDIO_CHANNEL_TYPE, audioHeader.getChannels())
+                .addValue(SongEntity.COL_DURATION, audioHeader.getTrackLength())
+                .addValue(SongEntity.COL_FILE_NAME, fileName)
+                .addValue(SongEntity.COL_FILE_LOCATION, audiofile.getFile().getAbsolutePath())
+                .addValue(SongEntity.COL_FILE_EXTENSION, audiofile.getExt());
+
+        songBatch.insert(params);
+    }
+
+    private Long getArtistId(AudioFile audioFile) {
+        String name = getArtistName(audioFile);
+        String nameAsKey = name.toLowerCase();
+
+        if (artists.containsKey(nameAsKey)) {
+            return artists.get(nameAsKey);
+        } else {
+            SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate);
+            simpleJdbcInsert.withTableName(ArtistEntity.TABLE_NAME).usingGeneratedKeyColumns(ArtistEntity.COL_PK_ID);
+            SqlParameterSource params = new MapSqlParameterSource()
+                    .addValue(ArtistEntity.COL_NAME, name)
+                    .addValue(ArtistEntity.COL_SIMPLE_NAME, nameAsKey);
+            long artistId = simpleJdbcInsert.executeAndReturnKey(params).longValue();
+            artists.put(nameAsKey, artistId);
+            return artistId;
+        }
+    }
+
+    private Long getAlbumId(Long artistId, AudioFile audioFile) {
+        String name = getAlbumName(audioFile);
+        String nameAsKey = name.toLowerCase();
+
+        if (albums.containsKey(nameAsKey)) {
+            return albums.get(nameAsKey);
+        } else {
+            SimpleJdbcInsert albumJdbcInsert = new SimpleJdbcInsert(jdbcTemplate);
+            albumJdbcInsert.withTableName(AlbumEntity.TABLE_NAME).usingGeneratedKeyColumns(AlbumEntity.COL_PK_ID);
+            MapSqlParameterSource params = new MapSqlParameterSource()
+                    .addValue(AlbumEntity.COL_NAME, name)
+                    .addValue(AlbumEntity.COL_SIMPLE_NAME, nameAsKey)
+                    .addValue(AlbumEntity.COL_ARTIST_ID, artistId);
+            if (audioFile.getTag() != null) {
+                params
+                        .addValue(AlbumEntity.COL_GENRE, audioFile.getTag().getFirst(FieldKey.GENRE))
+                        .addValue(AlbumEntity.COL_DATE, audioFile.getTag().getFirst(FieldKey.YEAR));
+            }
+            Long albumId = albumJdbcInsert.executeAndReturnKey(params).longValue();
+
+            List<String> arts = getAlbumArtLocations(audioFile.getFile().getParentFile());
+            if (!arts.isEmpty()) {
+                long albId = albumId;
+                SimpleJdbcInsert albumArtJdbcInsert = new SimpleJdbcInsert(jdbcTemplate);
+                albumArtJdbcInsert.withTableName(AlbumEntity.TABLE_NAME_ART_LOCATION);
+                arts.forEach(art -> {
+                    SqlParameterSource artParams = new MapSqlParameterSource()
+                            .addValue(AlbumEntity.COL_ART_ALBUM_ENTITY_ID, albId)
+                            .addValue(AlbumEntity.COL_ART_LOCATION, art);
+                    albumArtBatch.insert(artParams);
+                });
+            }
+            albums.put(nameAsKey, albumId);
+            return albumId;
+        }
+    }
+
+    private static List<String> getAlbumArtLocations(File albumFolder) {
+        try (Stream<Path> albumDirPaths = Files.walk(albumFolder.toPath(), 2)) {
+            return albumDirPaths
+                    .map(Path::toFile)
+                    .filter(File::isFile)
+                    .filter(f -> IMAGE_EXTENSIONS.contains(getFileExtension(f)))
+                    .map(File::getAbsolutePath)
+                    .collect(Collectors.toList());
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to retrieve album art file(s)", e);
+        }
+    }
+
+    private static String getArtistName(AudioFile audioFile) {
+        String name = null;
+        Tag tag = audioFile.getTag();
+        if (tag != null) {
+            name = tag.getFirst(FieldKey.ARTIST);
+            if (name == null || name.isBlank()) {
+                name = tag.getFirst(FieldKey.ALBUM_ARTIST);
+            }
+            if (name == null || name.isBlank()) {
+                name = tag.getFirst(FieldKey.ORIGINAL_ARTIST);
+            }
+            if (name == null || name.isBlank()) {
+                name = tag.getFirst(FieldKey.COMPOSER);
+            }
+        }
+        if (name == null || name.isBlank()) {
+            name = UNKNOWN_ARTIST;
+        }
+        return name;
+    }
+
+    private static String getAlbumName(AudioFile audioFile) {
+        Tag tag = audioFile.getTag();
+        if (tag != null) {
+            String name = tag.getFirst(FieldKey.ALBUM);
+            if (name != null && !name.isBlank()) {
+                return name;
+            }
+        }
+        return UNKNOWN_ALBUM;
+    }
+
+    private static String getFileNameWithoutExtension(File file) {
+        String fileName = file.getName();
+        return fileName.substring(0, fileName.lastIndexOf("."));
+    }
+
+    private static String getFileExtension(File file) {
+        return Utils.getExtension(file);
+    }
+}

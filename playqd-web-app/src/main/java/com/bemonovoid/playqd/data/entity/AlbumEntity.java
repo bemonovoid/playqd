@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -14,22 +15,42 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-@Table(name = "Album")
+@Table(name = AlbumEntity.TABLE_NAME)
 @Entity
 public class AlbumEntity {
 
+    public static final String TABLE_NAME = "ALBUM";
+
+    public static final String COL_PK_ID = "ID";
+    public static final String COL_NAME = "NAME";
+    public static final String COL_SIMPLE_NAME = "SIMPLE_NAME";
+    public static final String COL_DATE = "DATE";
+    public static final String COL_GENRE = "GENRE";
+    public static final String COL_ARTIST_ID = "ARTIST_ID";
+
+    public static final String TABLE_NAME_ART_LOCATION = "ALBUM_ENTITY_ART_LOCATION";
+    public static final String COL_ART_ALBUM_ENTITY_ID = "ALBUM_ENTITY_ID";
+    public static final String COL_ART_LOCATION = "ART_LOCATION";
+
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = COL_PK_ID)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = COL_NAME)
     private String name;
 
+    @Column(name = COL_SIMPLE_NAME)
+    private String simpleName;
+
+    @Column(name = COL_DATE)
     private String date;
 
+    @Column(name = COL_GENRE)
     private String genre;
 
     @ElementCollection
-    private List<String> artLocations;
+    private List<String> artLocation;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     private ArtistEntity artist;
@@ -57,8 +78,8 @@ public class AlbumEntity {
         return artist;
     }
 
-    public List<String> getArtLocations() {
-        return artLocations;
+    public List<String> getArtLocation() {
+        return artLocation;
     }
 
     public List<SongEntity> getSongs() {
@@ -85,12 +106,20 @@ public class AlbumEntity {
         this.artist = artist;
     }
 
-    public void setArtLocations(List<String> artLocations) {
-        this.artLocations = artLocations;
+    public void setArtLocation(List<String> artLocation) {
+        this.artLocation = artLocation;
     }
 
     public void setSongs(List<SongEntity> songs) {
         this.songs = songs;
+    }
+
+    public String getSimpleName() {
+        return simpleName;
+    }
+
+    public void setSimpleName(String simpleName) {
+        this.simpleName = simpleName;
     }
 
     public void addSong(SongEntity songEntity) {
