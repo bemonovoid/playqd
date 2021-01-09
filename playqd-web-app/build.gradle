@@ -51,7 +51,6 @@ jib {
         mainClass = 'com.bemonovoid.playqd.Application'
         ports = ['9585']
         creationTime = "USE_CURRENT_TIMESTAMP"
-        volumes = ['/mnt/nvmedrive1/Music:/app/library', '/home/bemonovoid/app/config:/app/config']
         environment = [SPRING_CONFIG_LOCATION: "/app/config/application.yaml"]
     }
 
