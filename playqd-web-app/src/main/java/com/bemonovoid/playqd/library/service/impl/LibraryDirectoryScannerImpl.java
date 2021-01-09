@@ -1,14 +1,12 @@
 package com.bemonovoid.playqd.library.service.impl;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.bemonovoid.playqd.data.entity.AlbumEntity;
@@ -40,8 +38,10 @@ public class LibraryDirectoryScannerImpl implements LibraryDirectoryScanner {
     private static final Set<String> IMAGE_EXTENSIONS = Set.of("jpeg", "jpg", "bmp", "png");
     private static final Set<String> AUDIO_EXTENSIONS = Set.of("flac", "m4a", "m4p", "mp3", "ogg", "wav", "wma");
 
+    private static final List<String> TABLES = List.of(
+            SongEntity.TABLE_NAME, AlbumEntity.TABLE_NAME, ArtistEntity.TABLE_NAME);
+
     private final BatchInsert songBatch;
-    private final BatchInsert albumArtBatch;
 
     private final Map<String, Long> artists = new HashMap<>();
     private final Map<AlbumArtistKey, Long> artistAlbums = new HashMap<>();
@@ -53,12 +53,13 @@ public class LibraryDirectoryScannerImpl implements LibraryDirectoryScanner {
         this.jdbcTemplate = jdbcTemplate;
         this.libraryDirectory = libraryDirectory;
         this.songBatch = new SimpleBatchInsert(jdbcTemplate, 1000, SongEntity.TABLE_NAME, SongEntity.COL_PK_ID);
-        this.albumArtBatch = new SimpleBatchInsert(jdbcTemplate, 1000, AlbumEntity.TABLE_NAME_ART_LOCATION);
     }
 
     @Override
     @Async
     public void scan() {
+
+        deleteAllTAbles();
 
         try (Stream<Path> allPaths = Files.walk(libraryDirectory.basePath(), 20)) {
             allPaths
@@ -67,7 +68,6 @@ public class LibraryDirectoryScannerImpl implements LibraryDirectoryScanner {
                     .filter(f -> AUDIO_EXTENSIONS.contains(getFileExtension(f)))
                     .forEach(this::scanFile);
             songBatch.insertAll();
-            albumArtBatch.insertAll();
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
@@ -161,36 +161,23 @@ public class LibraryDirectoryScannerImpl implements LibraryDirectoryScanner {
                         .addValue(AlbumEntity.COL_DATE, audioFile.getTag().getFirst(FieldKey.YEAR));
             }
             Long albumId = albumJdbcInsert.executeAndReturnKey(params).longValue();
-
-            List<String> arts = getAlbumArtLocations(audioFile.getFile().getParentFile());
-            if (!arts.isEmpty()) {
-                long albId = albumId;
-                SimpleJdbcInsert albumArtJdbcInsert = new SimpleJdbcInsert(jdbcTemplate);
-                albumArtJdbcInsert.withTableName(AlbumEntity.TABLE_NAME_ART_LOCATION);
-                arts.forEach(art -> {
-                    SqlParameterSource artParams = new MapSqlParameterSource()
-                            .addValue(AlbumEntity.COL_ART_ALBUM_ENTITY_ID, albId)
-                            .addValue(AlbumEntity.COL_ART_LOCATION, art);
-                    albumArtBatch.insert(artParams);
-                });
-            }
             artistAlbums.put(artistAlbumKey, albumId);
             return albumId;
         }
     }
 
-    private static List<String> getAlbumArtLocations(File albumFolder) {
-        try (Stream<Path> albumDirPaths = Files.walk(albumFolder.toPath(), 2)) {
-            return albumDirPaths
-                    .map(Path::toFile)
-                    .filter(File::isFile)
-                    .filter(f -> IMAGE_EXTENSIONS.contains(getFileExtension(f)))
-                    .map(File::getAbsolutePath)
-                    .collect(Collectors.toList());
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to retrieve album art file(s)", e);
-        }
-    }
+//    private static List<String> getAlbumArtLocations(File albumFolder) {
+//        try (Stream<Path> albumDirPaths = Files.walk(albumFolder.toPath(), 2)) {
+//            return albumDirPaths
+//                    .map(Path::toFile)
+//                    .filter(File::isFile)
+//                    .filter(f -> IMAGE_EXTENSIONS.contains(getFileExtension(f)))
+//                    .map(File::getAbsolutePath)
+//                    .collect(Collectors.toList());
+//        } catch (IOException e) {
+//            throw new RuntimeException("Failed to retrieve album art file(s)", e);
+//        }
+//    }
 
     private static String getArtistName(AudioFile audioFile) {
         String name = null;
@@ -231,5 +218,11 @@ public class LibraryDirectoryScannerImpl implements LibraryDirectoryScanner {
 
     private static String getFileExtension(File file) {
         return Utils.getExtension(file);
+    }
+
+    private void deleteAllTAbles() {
+        TABLES.forEach(tableName -> {
+            jdbcTemplate.execute(String.format("TRUNCATE TABLE %s", tableName));
+        });
     }
 }

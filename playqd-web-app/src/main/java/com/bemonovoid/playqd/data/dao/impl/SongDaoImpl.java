@@ -2,6 +2,7 @@ package com.bemonovoid.playqd.data.dao.impl;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import com.bemonovoid.playqd.data.dao.SongDao;
 import com.bemonovoid.playqd.data.entity.SongEntity;
@@ -16,13 +17,18 @@ public class SongDaoImpl implements SongDao {
     }
 
     @Override
-    public SongEntity getOne(long id) {
-        return repository.findById(id).get();
+    public Optional<SongEntity> getOne(long id) {
+        return repository.findById(id);
     }
 
     @Override
     public List<SongEntity> getArtistSongs(long artistId) {
         return repository.findAllByArtistId(artistId);
+    }
+
+    @Override
+    public Optional<SongEntity> getFirstSongInAlbum(long albumId) {
+        return repository.findFirstByAlbumId(albumId);
     }
 
     @Override

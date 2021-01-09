@@ -6,6 +6,7 @@ import com.bemonovoid.playqd.library.model.query.AlbumSongsQuery;
 import com.bemonovoid.playqd.library.model.query.SongQuery;
 import com.bemonovoid.playqd.library.service.LibraryQueryService;
 import com.bemonovoid.playqd.utils.Endpoints;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,8 +23,10 @@ class SongsQueryController {
     }
 
     @GetMapping("/songs/{songId}")
-    Song getSong(@PathVariable long songId) {
-        return libraryQueryService.getSong(new SongQuery(songId));
+    ResponseEntity<Song> getSong(@PathVariable long songId) {
+        return libraryQueryService.getSong(new SongQuery(songId))
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/songs/album/{albumId}")

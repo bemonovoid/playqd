@@ -2,9 +2,6 @@ package com.bemonovoid.playqd.library.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import com.bemonovoid.playqd.library.model.Album;
-import com.bemonovoid.playqd.library.model.Artist;
-
 public class Song {
 
     private long id;

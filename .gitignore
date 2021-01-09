@@ -35,6 +35,8 @@ gradle-app.setting
 # Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
 !gradle-wrapper.jar
 
+!/playqd-web-app/src/main/resources/public/**
+
 # Cache of project
 .gradletasknamecache
 

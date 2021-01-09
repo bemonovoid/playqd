@@ -28,10 +28,6 @@ public class AlbumEntity {
     public static final String COL_GENRE = "GENRE";
     public static final String COL_ARTIST_ID = "ARTIST_ID";
 
-    public static final String TABLE_NAME_ART_LOCATION = "ALBUM_ENTITY_ART_LOCATION";
-    public static final String COL_ART_ALBUM_ENTITY_ID = "ALBUM_ENTITY_ID";
-    public static final String COL_ART_LOCATION = "ART_LOCATION";
-
     @Id
     @Column(name = COL_PK_ID)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -48,9 +44,6 @@ public class AlbumEntity {
 
     @Column(name = COL_GENRE)
     private String genre;
-
-    @ElementCollection
-    private List<String> artLocation;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     private ArtistEntity artist;
@@ -78,10 +71,6 @@ public class AlbumEntity {
         return artist;
     }
 
-    public List<String> getArtLocation() {
-        return artLocation;
-    }
-
     public List<SongEntity> getSongs() {
         return songs;
     }
@@ -104,10 +93,6 @@ public class AlbumEntity {
 
     public void setArtist(ArtistEntity artist) {
         this.artist = artist;
-    }
-
-    public void setArtLocation(List<String> artLocation) {
-        this.artLocation = artLocation;
     }
 
     public void setSongs(List<SongEntity> songs) {

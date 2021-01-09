@@ -2,6 +2,9 @@ package com.bemonovoid.playqd.library.service.impl;
 
 import java.util.Objects;
 
+/**
+ * Allows to correctly scan the albums with the same name for a different artist
+ */
 class AlbumArtistKey {
 
     private final long artistId;

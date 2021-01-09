@@ -17,17 +17,12 @@ public class SimpleBatchInsert implements BatchInsert {
     private final List<SqlParameterSource> batch;
     private final SimpleJdbcInsert simpleJdbcInsert;
 
-    public SimpleBatchInsert(JdbcTemplate jdbcTemplate, int batchSize, String targetTable) {
-        this(jdbcTemplate, batchSize, targetTable, null);
-    }
-
     public SimpleBatchInsert(JdbcTemplate jdbcTemplate, int batchSize, String targetTable, String generatedKeyColumn) {
         this.maxBatchSize = batchSize;
         this.batch = new ArrayList<>(maxBatchSize);
-        this.simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate).withTableName(targetTable);
-        if (generatedKeyColumn != null) {
-            this.simpleJdbcInsert.usingGeneratedKeyColumns(generatedKeyColumn);
-        }
+        this.simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
+                .withTableName(targetTable)
+                .usingGeneratedKeyColumns(generatedKeyColumn);
     }
 
     @Override

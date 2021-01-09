@@ -1,6 +1,9 @@
 package com.bemonovoid.playqd.library.service;
 
+import java.util.Optional;
+
 import com.bemonovoid.playqd.library.model.Album;
+import com.bemonovoid.playqd.library.model.AlbumArtwork;
 import com.bemonovoid.playqd.library.model.AlbumSongs;
 import com.bemonovoid.playqd.library.model.ArtistAlbums;
 import com.bemonovoid.playqd.library.model.Artists;
@@ -17,7 +20,11 @@ public interface LibraryQueryService {
 
     ArtistAlbums getArtistAlbums(ArtistAlbumsQuery query);
 
-    Song getSong(SongQuery query);
+    Optional<Song> getSong(SongQuery query);
+
+    Optional<AlbumArtwork> getArtworkByAlbumId(long albumId);
+
+    Optional<AlbumArtwork> getArtworkBySongId(long songId);
 
     AlbumSongs getAlbumSongs(AlbumSongsQuery query);
 }

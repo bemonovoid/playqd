@@ -45,40 +45,40 @@ class AudioFileController {
     @GetMapping("/open")
     Mono<ResponseEntity<byte[]>> openAudioFile(@RequestHeader(value = "Range", required = false) String range,
                                                @RequestParam long songId) {
-        Song song = libraryQueryService.getSong(new SongQuery(songId));
+        Song song = libraryQueryService.getSong(new SongQuery(songId)).get();
 //        String location = new String(Base64.getDecoder().decode(fileLocation.getBytes(StandardCharsets.UTF_8)));
         return Mono.just(getContent(song.getFileLocation(), range));
     }
 
 //    @GetMapping(value = "/open")
 //    @ResponseStatus(HttpStatus.PARTIAL_CONTENT)
-    Flux<DataBuffer> openAudioFile(@RequestHeader(value = "Range", required = false) String range,
-                                   @RequestParam long songId,
-                                   ServerHttpResponse serverHttpResponse) {
-        Song song = libraryQueryService.getSong(new SongQuery(songId));
-        Long fileSize = Optional.ofNullable(song.getFileLocation())
-            .map(file -> Paths.get(song.getFileLocation()))
-            .map(this::sizeFromFile)
-            .orElse(0L);
-
-        String fileExtension = song.getFileLocation().substring(song.getFileLocation().lastIndexOf(".") + 1);
-
-        if (range == null) {
-            serverHttpResponse.setStatusCode(HttpStatus.OK);
-            serverHttpResponse.getHeaders().add(HttpHeaders.CONTENT_TYPE, String.format("audio/%s", fileExtension));
-            serverHttpResponse.getHeaders().add(HttpHeaders.CONTENT_LENGTH, fileSize.toString());
-
-            return DataBufferUtils.read(
-                new FileSystemResource(song.getFileLocation()),
-                serverHttpResponse.bufferFactory(),
-                    BYTE_RANGE);
-        }
-
-        return DataBufferUtils.read(
-            new FileSystemResource(song.getFileLocation()),
-            serverHttpResponse.bufferFactory(),
-                BYTE_RANGE);
-    }
+//    Flux<DataBuffer> openAudioFile(@RequestHeader(value = "Range", required = false) String range,
+//                                   @RequestParam long songId,
+//                                   ServerHttpResponse serverHttpResponse) {
+//        Song song = libraryQueryService.getSong(new SongQuery(songId));
+//        Long fileSize = Optional.ofNullable(song.getFileLocation())
+//            .map(file -> Paths.get(song.getFileLocation()))
+//            .map(this::sizeFromFile)
+//            .orElse(0L);
+//
+//        String fileExtension = song.getFileLocation().substring(song.getFileLocation().lastIndexOf(".") + 1);
+//
+//        if (range == null) {
+//            serverHttpResponse.setStatusCode(HttpStatus.OK);
+//            serverHttpResponse.getHeaders().add(HttpHeaders.CONTENT_TYPE, String.format("audio/%s", fileExtension));
+//            serverHttpResponse.getHeaders().add(HttpHeaders.CONTENT_LENGTH, fileSize.toString());
+//
+//            return DataBufferUtils.read(
+//                new FileSystemResource(song.getFileLocation()),
+//                serverHttpResponse.bufferFactory(),
+//                    BYTE_RANGE);
+//        }
+//
+//        return DataBufferUtils.read(
+//            new FileSystemResource(song.getFileLocation()),
+//            serverHttpResponse.bufferFactory(),
+//                BYTE_RANGE);
+//    }
 
     private ResponseEntity<byte[]> getContent(String fileName, String range) {
         return getContent(fileName, range, "audio");
