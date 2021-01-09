@@ -3,13 +3,13 @@ package com.bemonovoid.playqd.library.service.impl;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import com.bemonovoid.playqd.library.service.MusicDirectory;
+import com.bemonovoid.playqd.library.service.LibraryDirectory;
 
-public class MusicDirectoryImpl implements MusicDirectory {
+public class LibraryDirectoryImpl implements LibraryDirectory {
 
     private final String baseLocation;
 
-    public MusicDirectoryImpl(String baseLocation) {
+    public LibraryDirectoryImpl(String baseLocation) {
         this.baseLocation = baseLocation;
     }
 

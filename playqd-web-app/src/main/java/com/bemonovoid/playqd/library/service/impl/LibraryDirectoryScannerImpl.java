@@ -14,8 +14,8 @@ import java.util.stream.Stream;
 import com.bemonovoid.playqd.data.entity.AlbumEntity;
 import com.bemonovoid.playqd.data.entity.ArtistEntity;
 import com.bemonovoid.playqd.data.entity.SongEntity;
-import com.bemonovoid.playqd.library.service.MusicDirectory;
-import com.bemonovoid.playqd.library.service.MusicDirectoryScanner;
+import com.bemonovoid.playqd.library.service.LibraryDirectory;
+import com.bemonovoid.playqd.library.service.LibraryDirectoryScanner;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.audio.AudioHeader;
@@ -30,9 +30,9 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.scheduling.annotation.Async;
 
-public class MusicDirectoryScannerImpl2 implements MusicDirectoryScanner {
+public class LibraryDirectoryScannerImpl implements LibraryDirectoryScanner {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MusicDirectoryScannerImpl2.class);
+    private static final Logger LOG = LoggerFactory.getLogger(LibraryDirectoryScannerImpl.class);
 
     private static final String UNKNOWN_ARTIST = "Unknown artist";
     private static final String UNKNOWN_ALBUM = "Unknown album";
@@ -44,14 +44,14 @@ public class MusicDirectoryScannerImpl2 implements MusicDirectoryScanner {
     private final BatchInsert albumArtBatch;
 
     private final Map<String, Long> artists = new HashMap<>();
-    private final Map<String, Long> albums = new HashMap<>();
+    private final Map<AlbumArtistKey, Long> artistAlbums = new HashMap<>();
 
     private final JdbcTemplate jdbcTemplate;
-    private final MusicDirectory musicDirectory;
+    private final LibraryDirectory libraryDirectory;
 
-    public MusicDirectoryScannerImpl2(JdbcTemplate jdbcTemplate, MusicDirectory musicDirectory) {
+    public LibraryDirectoryScannerImpl(JdbcTemplate jdbcTemplate, LibraryDirectory libraryDirectory) {
         this.jdbcTemplate = jdbcTemplate;
-        this.musicDirectory = musicDirectory;
+        this.libraryDirectory = libraryDirectory;
         this.songBatch = new SimpleBatchInsert(jdbcTemplate, 1000, SongEntity.TABLE_NAME, SongEntity.COL_PK_ID);
         this.albumArtBatch = new SimpleBatchInsert(jdbcTemplate, 1000, AlbumEntity.TABLE_NAME_ART_LOCATION);
     }
@@ -60,7 +60,7 @@ public class MusicDirectoryScannerImpl2 implements MusicDirectoryScanner {
     @Async
     public void scan() {
 
-        try (Stream<Path> allPaths = Files.walk(musicDirectory.basePath(), 20)) {
+        try (Stream<Path> allPaths = Files.walk(libraryDirectory.basePath(), 20)) {
             allPaths
                     .map(Path::toFile)
                     .filter(File::isFile)
@@ -71,6 +71,8 @@ public class MusicDirectoryScannerImpl2 implements MusicDirectoryScanner {
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
+            artists.clear();
+            artistAlbums.clear();
             LOG.info("Scan completed");
         }
     }
@@ -124,7 +126,7 @@ public class MusicDirectoryScannerImpl2 implements MusicDirectoryScanner {
 
     private Long getArtistId(AudioFile audioFile) {
         String name = getArtistName(audioFile);
-        String nameAsKey = name.toLowerCase();
+        String nameAsKey = name.toLowerCase().trim();
 
         if (artists.containsKey(nameAsKey)) {
             return artists.get(nameAsKey);
@@ -142,16 +144,16 @@ public class MusicDirectoryScannerImpl2 implements MusicDirectoryScanner {
 
     private Long getAlbumId(Long artistId, AudioFile audioFile) {
         String name = getAlbumName(audioFile);
-        String nameAsKey = name.toLowerCase();
+        AlbumArtistKey artistAlbumKey = new AlbumArtistKey(artistId, name.toLowerCase());
 
-        if (albums.containsKey(nameAsKey)) {
-            return albums.get(nameAsKey);
+        if (artistAlbums.containsKey(artistAlbumKey)) {
+            return artistAlbums.get(artistAlbumKey);
         } else {
             SimpleJdbcInsert albumJdbcInsert = new SimpleJdbcInsert(jdbcTemplate);
             albumJdbcInsert.withTableName(AlbumEntity.TABLE_NAME).usingGeneratedKeyColumns(AlbumEntity.COL_PK_ID);
             MapSqlParameterSource params = new MapSqlParameterSource()
                     .addValue(AlbumEntity.COL_NAME, name)
-                    .addValue(AlbumEntity.COL_SIMPLE_NAME, nameAsKey)
+                    .addValue(AlbumEntity.COL_SIMPLE_NAME, artistAlbumKey.getAlbumLoweCaseName())
                     .addValue(AlbumEntity.COL_ARTIST_ID, artistId);
             if (audioFile.getTag() != null) {
                 params
@@ -172,7 +174,7 @@ public class MusicDirectoryScannerImpl2 implements MusicDirectoryScanner {
                     albumArtBatch.insert(artParams);
                 });
             }
-            albums.put(nameAsKey, albumId);
+            artistAlbums.put(artistAlbumKey, albumId);
             return albumId;
         }
     }
@@ -208,7 +210,7 @@ public class MusicDirectoryScannerImpl2 implements MusicDirectoryScanner {
         if (name == null || name.isBlank()) {
             name = UNKNOWN_ARTIST;
         }
-        return name;
+        return name.trim();
     }
 
     private static String getAlbumName(AudioFile audioFile) {
@@ -216,7 +218,7 @@ public class MusicDirectoryScannerImpl2 implements MusicDirectoryScanner {
         if (tag != null) {
             String name = tag.getFirst(FieldKey.ALBUM);
             if (name != null && !name.isBlank()) {
-                return name;
+                return name.trim();
             }
         }
         return UNKNOWN_ALBUM;

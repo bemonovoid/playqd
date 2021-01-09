@@ -1,6 +1,6 @@
 package com.bemonovoid.playqd.library.controller;
 
-import com.bemonovoid.playqd.library.service.MusicDirectoryScanner;
+import com.bemonovoid.playqd.library.service.LibraryDirectoryScanner;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/playqd/library")
 class MusicDirectoryScannerController {
 
-    private final MusicDirectoryScanner directoryScanner;
+    private final LibraryDirectoryScanner directoryScanner;
 
-    MusicDirectoryScannerController(MusicDirectoryScanner directoryScanner) {
+    MusicDirectoryScannerController(LibraryDirectoryScanner directoryScanner) {
         this.directoryScanner = directoryScanner;
     }
 

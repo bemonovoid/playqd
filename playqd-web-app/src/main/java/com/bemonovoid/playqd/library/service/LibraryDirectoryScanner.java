@@ -1,6 +1,6 @@
 package com.bemonovoid.playqd.library.service;
 
-public interface MusicDirectoryScanner {
+public interface LibraryDirectoryScanner {
 
     void scan();
 }

@@ -2,8 +2,6 @@ package com.bemonovoid.playqd.library.controller;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -12,7 +10,6 @@ import java.util.List;
 import com.bemonovoid.playqd.library.model.Album;
 import com.bemonovoid.playqd.library.model.query.SongQuery;
 import com.bemonovoid.playqd.library.service.LibraryQueryService;
-import com.bemonovoid.playqd.library.service.MusicDirectory;
 import com.bemonovoid.playqd.utils.Endpoints;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;

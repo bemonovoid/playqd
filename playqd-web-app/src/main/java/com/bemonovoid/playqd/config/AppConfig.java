@@ -4,12 +4,11 @@ import com.bemonovoid.playqd.data.dao.AlbumDao;
 import com.bemonovoid.playqd.data.dao.ArtistDao;
 import com.bemonovoid.playqd.data.dao.SongDao;
 import com.bemonovoid.playqd.library.service.LibraryQueryService;
-import com.bemonovoid.playqd.library.service.MusicDirectory;
-import com.bemonovoid.playqd.library.service.MusicDirectoryScanner;
+import com.bemonovoid.playqd.library.service.LibraryDirectory;
+import com.bemonovoid.playqd.library.service.LibraryDirectoryScanner;
 import com.bemonovoid.playqd.library.service.impl.LibraryQueryServiceImpl;
-import com.bemonovoid.playqd.library.service.impl.MusicDirectoryImpl;
-import com.bemonovoid.playqd.library.service.impl.MusicDirectoryScannerImpl;
-import com.bemonovoid.playqd.library.service.impl.MusicDirectoryScannerImpl2;
+import com.bemonovoid.playqd.library.service.impl.LibraryDirectoryImpl;
+import com.bemonovoid.playqd.library.service.impl.LibraryDirectoryScannerImpl;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -29,19 +28,16 @@ class AppConfig {
     }
 
     @Bean
-    MusicDirectory musicDirectory(AppProperties appProperties) {
-        return new MusicDirectoryImpl(appProperties.getLibrary().getLocation());
+    LibraryDirectory musicDirectory(AppProperties appProperties) {
+        return new LibraryDirectoryImpl(appProperties.getLibrary().getLocation());
     }
 
     @Bean
-    MusicDirectoryScanner refreshLibraryExecutor(JdbcTemplate jdbcTemplate, MusicDirectory musicDirectory) {
-        return new MusicDirectoryScannerImpl2(jdbcTemplate, musicDirectory);
+    LibraryDirectoryScanner refreshLibraryExecutor(JdbcTemplate jdbcTemplate, LibraryDirectory libraryDirectory) {
+        return new LibraryDirectoryScannerImpl(jdbcTemplate, libraryDirectory);
     }
 
-    @Bean
-    LibraryQueryService libraryQueryService(ArtistDao artistDao,
-                                            AlbumDao albumDao,
-                                            SongDao songDao) {
+    @Bean LibraryQueryService libraryQueryService(ArtistDao artistDao, AlbumDao albumDao, SongDao songDao) {
         return new LibraryQueryServiceImpl(artistDao, albumDao, songDao);
     }
 }

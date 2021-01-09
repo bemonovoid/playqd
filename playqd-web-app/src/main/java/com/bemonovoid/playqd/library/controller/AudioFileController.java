@@ -3,17 +3,15 @@ package com.bemonovoid.playqd.library.controller;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Base64;
 import java.util.Optional;
 
 import com.bemonovoid.playqd.library.model.Song;
 import com.bemonovoid.playqd.library.model.query.SongQuery;
 import com.bemonovoid.playqd.library.service.LibraryQueryService;
-import com.bemonovoid.playqd.library.service.MusicDirectory;
+import com.bemonovoid.playqd.library.service.LibraryDirectory;
 import com.bemonovoid.playqd.utils.Endpoints;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.buffer.DataBuffer;
@@ -36,11 +34,11 @@ class AudioFileController {
 
     private static final int BYTE_RANGE = 128; // increase the byterange from here
 
-    private final MusicDirectory musicDirectory;
+    private final LibraryDirectory libraryDirectory;
     private final LibraryQueryService libraryQueryService;
 
-    AudioFileController(MusicDirectory musicDirectory, LibraryQueryService libraryQueryService) {
-        this.musicDirectory = musicDirectory;
+    AudioFileController(LibraryDirectory libraryDirectory, LibraryQueryService libraryQueryService) {
+        this.libraryDirectory = libraryDirectory;
         this.libraryQueryService = libraryQueryService;
     }
 

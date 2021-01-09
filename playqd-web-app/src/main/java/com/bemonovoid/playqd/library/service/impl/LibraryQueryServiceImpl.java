@@ -22,7 +22,6 @@ import com.bemonovoid.playqd.library.model.query.AlbumSongsQuery;
 import com.bemonovoid.playqd.library.model.query.ArtistAlbumsQuery;
 import com.bemonovoid.playqd.library.model.query.SongQuery;
 import com.bemonovoid.playqd.library.service.LibraryQueryService;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.transaction.annotation.Transactional;
 
 public class LibraryQueryServiceImpl implements LibraryQueryService {
@@ -39,7 +38,6 @@ public class LibraryQueryServiceImpl implements LibraryQueryService {
 
     @Override
     @Transactional
-    @Cacheable("artists")
     public Artists getArtists() {
         return new Artists(artistDao.getAll().stream()
                 .map(artistEntity -> new Artist(artistEntity.getId(), artistEntity.getName()))
@@ -55,7 +53,6 @@ public class LibraryQueryServiceImpl implements LibraryQueryService {
 
     @Override
     @Transactional
-    @Cacheable("artist-albums")
     public ArtistAlbums getArtistAlbums(ArtistAlbumsQuery query) {
         List<AlbumEntity> albumEntities = albumDao.getArtistAlbums(query.getArtistId());
         ArtistEntity artistEntity = albumEntities.get(0).getArtist();
@@ -75,7 +72,6 @@ public class LibraryQueryServiceImpl implements LibraryQueryService {
 
     @Override
     @Transactional
-    @Cacheable(cacheNames = "album-songs")
     public AlbumSongs getAlbumSongs(AlbumSongsQuery query) {
         AlbumEntity albumEntity = albumDao.getOne(query.getAlbumId());
         Album album = AlbumHelper.fromEntity(albumEntity);

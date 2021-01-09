@@ -17,7 +17,7 @@ spring:
 
 playqd:
   library:
-    location: "D:/Music"
+    location: "D:/Music/Downtempo/Aphex Twin/Aphex Twin/2003 - 26 Mixes For Cash (2xCD, Comp, Dig)"
 logging:
   level:
     web: DEBUG
