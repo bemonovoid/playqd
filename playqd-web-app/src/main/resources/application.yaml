@@ -4,7 +4,7 @@ server:
 spring:
   datasource:
     driver-class-name: "org.hsqldb.jdbc.JDBCDriver"
-    url: "jdbc:hsqldb:hsql://127.0.0.1/playqd_db"
+    url: "jdbc:hsqldb:hsql://localhost/playqd_db"
     username: sa
     password:
   jpa:
@@ -17,8 +17,7 @@ spring:
 
 playqd:
   library:
-    location: "/app/library"
-#    location: "D:/Music"
+    location: "D:/Music/Downtempo"
 logging:
   level:
     web: DEBUG
