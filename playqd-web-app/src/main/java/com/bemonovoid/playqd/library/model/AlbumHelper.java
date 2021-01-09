@@ -1,7 +1,6 @@
 package com.bemonovoid.playqd.library.model;
 
 import java.time.LocalTime;
-import java.util.ArrayList;
 
 import com.bemonovoid.playqd.data.entity.AlbumEntity;
 import com.bemonovoid.playqd.data.entity.SongEntity;
@@ -19,9 +18,7 @@ public abstract class AlbumHelper {
                 entity.getGenre(),
                 entity.getDate(),
                 secondsToMinutesAndSecondsString(totalSeconds),
-                new Artist(entity.getArtist().getId(), entity.getArtist().getName()),
-                new AlbumArt(new ArrayList<>(entity.getArtLocation()))
-        );
+                new Artist(entity.getArtist().getId(), entity.getArtist().getName()));
     }
 
     private static String secondsToMinutesAndSecondsString(long secs) {
