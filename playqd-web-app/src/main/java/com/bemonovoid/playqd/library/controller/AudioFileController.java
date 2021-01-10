@@ -1,6 +1,7 @@
 package com.bemonovoid.playqd.library.controller;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -13,6 +14,9 @@ import com.bemonovoid.playqd.library.model.query.SongQuery;
 import com.bemonovoid.playqd.library.service.LibraryQueryService;
 import com.bemonovoid.playqd.library.service.LibraryDirectory;
 import com.bemonovoid.playqd.utils.Endpoints;
+import org.jaudiotagger.audio.AudioFile;
+import org.jaudiotagger.audio.AudioFileIO;
+import org.jaudiotagger.tag.Tag;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
@@ -21,6 +25,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -40,6 +45,21 @@ class AudioFileController {
     AudioFileController(LibraryDirectory libraryDirectory, LibraryQueryService libraryQueryService) {
         this.libraryDirectory = libraryDirectory;
         this.libraryQueryService = libraryQueryService;
+    }
+
+    @GetMapping("/debug/{songId}")
+    void debug(@PathVariable long songId) {
+        libraryQueryService.getSong(new SongQuery(songId))
+                .ifPresent(song -> {
+                    try {
+                        AudioFile audioFile = AudioFileIO.read(new File(song.getFileLocation()));
+                        Tag tag = audioFile.getTag();
+                        audioFile.getAudioHeader();
+                        System.out.println(audioFile);
+                    } catch (Exception e) {
+                        System.out.println(e.getMessage());
+                    }
+                });
     }
 
     @GetMapping("/open")

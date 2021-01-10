@@ -20,7 +20,7 @@ public class WebConfig implements WebFluxConfigurer {
 
     @Bean
     RouterFunction<ServerResponse> staticResourceRouter() {
-        return RouterFunctions.resources("/**", new ClassPathResource("public/"));
+        return RouterFunctions.resources("/**", new ClassPathResource("public/playqd-ui/"));
     }
 
     @Bean
