@@ -17,7 +17,7 @@ spring:
 
 playqd:
   library:
-    location: "D:/Music/10 Years"
+    location: "D:/Music/Downtempo"
 logging:
   level:
     web: DEBUG

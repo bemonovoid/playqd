@@ -185,4 +185,5 @@ public class SongEntity {
     public void setAudioBitRate(String audioBitRate) {
         this.audioBitRate = audioBitRate;
     }
+
 }
