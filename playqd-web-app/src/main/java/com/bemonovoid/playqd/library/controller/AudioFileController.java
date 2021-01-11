@@ -11,27 +11,20 @@ import java.util.Optional;
 
 import com.bemonovoid.playqd.library.model.Song;
 import com.bemonovoid.playqd.library.model.query.SongQuery;
-import com.bemonovoid.playqd.library.service.LibraryQueryService;
 import com.bemonovoid.playqd.library.service.LibraryDirectory;
+import com.bemonovoid.playqd.library.service.LibraryQueryService;
 import com.bemonovoid.playqd.utils.Endpoints;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.tag.Tag;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.buffer.DataBuffer;
-import org.springframework.core.io.buffer.DataBufferUtils;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping(Endpoints.AUDIO_API_BASE_PATH)
@@ -63,42 +56,11 @@ class AudioFileController {
     }
 
     @GetMapping("/open")
-    Mono<ResponseEntity<byte[]>> openAudioFile(@RequestHeader(value = "Range", required = false) String range,
-                                               @RequestParam long songId) {
+    ResponseEntity<byte[]> openAudioFile(@RequestHeader(value = "Range", required = false) String range,
+                                         @RequestParam long songId) {
         Song song = libraryQueryService.getSong(new SongQuery(songId)).get();
-//        String location = new String(Base64.getDecoder().decode(fileLocation.getBytes(StandardCharsets.UTF_8)));
-        return Mono.just(getContent(song.getFileLocation(), range));
+        return getContent(song.getFileLocation(), range);
     }
-
-//    @GetMapping(value = "/open")
-//    @ResponseStatus(HttpStatus.PARTIAL_CONTENT)
-//    Flux<DataBuffer> openAudioFile(@RequestHeader(value = "Range", required = false) String range,
-//                                   @RequestParam long songId,
-//                                   ServerHttpResponse serverHttpResponse) {
-//        Song song = libraryQueryService.getSong(new SongQuery(songId));
-//        Long fileSize = Optional.ofNullable(song.getFileLocation())
-//            .map(file -> Paths.get(song.getFileLocation()))
-//            .map(this::sizeFromFile)
-//            .orElse(0L);
-//
-//        String fileExtension = song.getFileLocation().substring(song.getFileLocation().lastIndexOf(".") + 1);
-//
-//        if (range == null) {
-//            serverHttpResponse.setStatusCode(HttpStatus.OK);
-//            serverHttpResponse.getHeaders().add(HttpHeaders.CONTENT_TYPE, String.format("audio/%s", fileExtension));
-//            serverHttpResponse.getHeaders().add(HttpHeaders.CONTENT_LENGTH, fileSize.toString());
-//
-//            return DataBufferUtils.read(
-//                new FileSystemResource(song.getFileLocation()),
-//                serverHttpResponse.bufferFactory(),
-//                    BYTE_RANGE);
-//        }
-//
-//        return DataBufferUtils.read(
-//            new FileSystemResource(song.getFileLocation()),
-//            serverHttpResponse.bufferFactory(),
-//                BYTE_RANGE);
-//    }
 
     private ResponseEntity<byte[]> getContent(String fileName, String range) {
         return getContent(fileName, range, "audio");

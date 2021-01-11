@@ -1,8 +1,5 @@
 package com.bemonovoid.playqd.library.model;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
