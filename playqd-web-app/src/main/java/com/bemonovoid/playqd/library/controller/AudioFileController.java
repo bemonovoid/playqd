@@ -100,7 +100,7 @@ class AudioFileController {
         }
         String contentLength = String.valueOf((rangeEnd - rangeStart) + 1);
         return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT)
-            .header("Content-Type", contentTypePrefix+"/" + fileType)
+            .header("Content-Type", contentTypePrefix + "/" + fileType)
             .header("Accept-Ranges", "bytes")
             .header("Content-Length", contentLength)
             .header("Content-Range", "bytes" + " " + rangeStart + "-" + rangeEnd + "/" + fileSize)

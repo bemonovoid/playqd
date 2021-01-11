@@ -2,7 +2,7 @@ package com.bemonovoid.playqd.utils;
 
 public abstract class Endpoints {
 
-    public static final String API_BASE_PATH = "/playqd/api";
+    public static final String API_BASE_PATH = "/api";
 
     public static final String LIBRARY_API_BASE_PATH = API_BASE_PATH + "/library";
 

@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/playqd/library")
+@RequestMapping("/library")
 class MusicDirectoryScannerController {
 
     private final LibraryDirectoryScanner directoryScanner;

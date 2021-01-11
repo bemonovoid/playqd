@@ -1,5 +1,7 @@
 server:
   port: 9585
+  servlet:
+    context-path: "/playqd"
 
 spring:
   datasource:
