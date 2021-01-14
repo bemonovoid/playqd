@@ -5,61 +5,103 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
 
+import com.bemonovoid.playqd.core.ArtworkLocalQuery;
+import com.bemonovoid.playqd.data.dao.AlbumDao;
 import com.bemonovoid.playqd.data.dao.SongDao;
+import com.bemonovoid.playqd.data.entity.AlbumEntity;
 import com.bemonovoid.playqd.data.entity.ArtworkStatus;
 import com.bemonovoid.playqd.data.entity.SongEntity;
-import com.bemonovoid.playqd.library.model.AlbumArtwork;
-import com.bemonovoid.playqd.library.model.query.ArtworkQuery;
 import com.bemonovoid.playqd.library.service.ArtworkService;
-import com.bemonovoid.playqd.library.service.MusicBrainzService;
+import com.bemonovoid.playqd.library.service.events.ArtworkResultReceived;
+import com.bemonovoid.playqd.online.search.ArtworkBinary;
+import com.bemonovoid.playqd.online.search.ArtworkOnlineSearchService;
+import com.bemonovoid.playqd.online.search.ArtworkSearchFilter;
+import com.bemonovoid.playqd.online.search.ArtworkSearchResult;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.tag.Tag;
 import org.jaudiotagger.tag.images.Artwork;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.jdbc.core.JdbcTemplate;
 
 public class ArtworkServiceImpl implements ArtworkService {
 
     private static final Logger LOG = LoggerFactory.getLogger(ArtworkServiceImpl.class);
 
     private final SongDao songDao;
-//    private final UpdateArtworkJob updateArtworkJob;
+    private final AlbumDao albumDao;
+    private final ArtworkOnlineSearchService artworkSearchService;
 
-    public ArtworkServiceImpl(JdbcTemplate jdbcTemplate, SongDao songDao, MusicBrainzService musicBrainzService) {
+    private final ApplicationEventPublisher publisher;
+
+    public ArtworkServiceImpl(SongDao songDao,
+                              AlbumDao albumDao,
+                              ArtworkOnlineSearchService artworkSearchService,
+                              ApplicationEventPublisher publisher) {
         this.songDao = songDao;
-//        updateArtworkJob = new UpdateArtworkJob(jdbcTemplate, songDao, musicBrainzService);
+        this.albumDao = albumDao;
+        this.artworkSearchService = artworkSearchService;
+        this.publisher = publisher;
     }
 
     @Override
-    public AlbumArtwork get(ArtworkQuery query) {
-        SongEntity songEntity;
+    public ArtworkBinary getBinaryFromLocalLibrary(ArtworkLocalQuery query) {
         if (query.getAlbumId() != null) {
-            Optional<SongEntity> mayBeSongEntity = songDao.getFirstSongInAlbum(query.getAlbumId());
-            if (mayBeSongEntity.isEmpty()) {
+            Optional<AlbumEntity> albumEntityOpt = albumDao.getOne(query.getAlbumId());
+            if (albumEntityOpt.isEmpty()) {
                 return getDefault();
             }
-            songEntity = mayBeSongEntity.get();
-        } else {
-            Optional<SongEntity> mayBeSongEntity = songDao.getOne(query.getSongId());
-            if (mayBeSongEntity.isEmpty()) {
+
+            AlbumEntity albumEntity = albumEntityOpt.get();
+
+            if (ArtworkStatus.AVAILABLE == albumEntity.getArtworkStatus()) {
+                return getArtworkFromFile(albumEntity.getSongs().get(0));
+            } else {
                 return getDefault();
             }
-            songEntity = mayBeSongEntity.get();
         }
-        if (ArtworkStatus.AVAILABLE == songEntity.getArtworkStatus()) {
-            return getArtworkFromFile(songEntity);
-        } else if (ArtworkStatus.UNAVAILABLE == songEntity.getArtworkStatus()) {
-            return getDefault();
-        } else {
-//            updateArtworkJob.updateNext(songEntity.getId());
-            return getDefault();
-        }
+        return getDefault();
     }
 
-    private AlbumArtwork getArtworkFromFile(SongEntity songEntity) {
+    @Override
+    public Optional<String> searchOnline(ArtworkLocalQuery localQuery) {
+        Optional<SongEntity> mayBeSongEntity = getSongEntity(localQuery);
+
+        if (mayBeSongEntity.isEmpty()){
+            return Optional.empty();
+        }
+
+        SongEntity songEntity = mayBeSongEntity.get();
+        AlbumEntity albumEntity = songEntity.getAlbum();
+
+        if (ArtworkStatus.UNKNOWN != albumEntity.getArtworkStatus()) {
+            return Optional.empty();
+        }
+
+        ArtworkSearchFilter searchFilter = ArtworkSearchFilter.builder()
+                .artistName(songEntity.getArtist().getSimpleName())
+                .mbArtistId(songEntity.getArtist().getMbArtistId())
+                .albumName(albumEntity.getSimpleName())
+                .build();
+
+        Optional<ArtworkSearchResult> artworkSearchResultOpt = artworkSearchService.search(searchFilter);
+
+        if (artworkSearchResultOpt.isEmpty()) {
+            albumEntity.setArtworkStatus(ArtworkStatus.UNAVAILABLE);
+            albumDao.save(albumEntity);
+            return Optional.empty();
+        }
+
+        ArtworkSearchResult artworkSearchResult = artworkSearchResultOpt.get();
+
+        publisher.publishEvent(new ArtworkResultReceived(this, albumEntity.getId(), artworkSearchResult));
+
+        return Optional.of(artworkSearchResult.getImageUrl());
+    }
+
+    private ArtworkBinary getArtworkFromFile(SongEntity songEntity) {
         File file = new File(songEntity.getFileLocation());
         try {
             AudioFile audioFile = AudioFileIO.read(file);
@@ -67,7 +109,7 @@ public class ArtworkServiceImpl implements ArtworkService {
             if (tag != null) {
                 Artwork artwork = tag.getFirstArtwork();
                 if (artwork != null) {
-                    return new AlbumArtwork(artwork.getBinaryData(), artwork.getMimeType());
+                    return new ArtworkBinary(artwork.getBinaryData(), artwork.getMimeType());
                 }
             }
             throw new IllegalArgumentException("Failed to retrieve artwork");
@@ -77,11 +119,19 @@ public class ArtworkServiceImpl implements ArtworkService {
         }
     }
 
-    private static AlbumArtwork getDefault() {
+    private static ArtworkBinary getDefault() {
         try (InputStream is = new ClassPathResource("/public/images/default-album-cover.png").getInputStream()) {
-            return new AlbumArtwork(is.readAllBytes(), "image/png");
+            return new ArtworkBinary(is.readAllBytes(), "image/png");
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private Optional<SongEntity> getSongEntity(ArtworkLocalQuery query) {
+        if (query.getAlbumId() != null) {
+            return songDao.getFirstSongInAlbum(query.getAlbumId());
+        } else {
+            return songDao.getOne(query.getSongId());
         }
     }
 }

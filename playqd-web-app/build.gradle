@@ -18,6 +18,8 @@ dependencies {
 
     compile fileTree(include: ['*.jar'], dir: 'libs')
 
+    implementation project(':playqd-online-search-musicbrainz')
+
 }
 
 jar {

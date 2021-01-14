@@ -11,9 +11,11 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import org.springframework.data.domain.Persistable;
+
 @Table(name = SongEntity.TABLE_NAME)
 @Entity
-public class SongEntity {
+public class SongEntity implements Persistable<Long> {
 
     public static final String TABLE_NAME = "SONG";
 
@@ -30,10 +32,6 @@ public class SongEntity {
     public static final String COL_AUDIO_CHANNEL_TYPE = "AUDIO_CHANNEL_TYPE";
     public static final String COL_AUDIO_BIT_RATE = "AUDIO_BIT_RATE";
 
-    public static final String COL_ARTWORK_STATUS = "ARTWORK_STATUS";
-
-    public static final String COL_MB_ARTIST_ID = "MB_ARTIST_ID";
-    public static final String COL_MB_RELEASE_ID = "MB_RELEASE_ID";
     public static final String COL_MB_TRACK_ID = "MB_TRACK_ID";
 
     public static final String COL_ARTIST_ID = "ARTIST_ID";
@@ -77,15 +75,6 @@ public class SongEntity {
     @Column(name = COL_COMMENT, length = 8000)
     private String comment;
 
-    @Enumerated(EnumType.STRING)
-    private ArtworkStatus artworkStatus;
-
-    @Column(name = COL_MB_ARTIST_ID)
-    private String mbArtistId;
-
-    @Column(name = COL_MB_RELEASE_ID)
-    private String mbReleaseId;
-
     @Column(name = COL_MB_TRACK_ID)
     private String mbTrackId;
 
@@ -95,8 +84,14 @@ public class SongEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private AlbumEntity album;
 
+    @Override
     public Long getId() {
         return id;
+    }
+
+    @Override
+    public boolean isNew() {
+        return getId() != null;
     }
 
     public String getName() {
@@ -205,30 +200,6 @@ public class SongEntity {
 
     public void setAudioBitRate(String audioBitRate) {
         this.audioBitRate = audioBitRate;
-    }
-
-    public ArtworkStatus getArtworkStatus() {
-        return artworkStatus;
-    }
-
-    public void setArtworkStatus(ArtworkStatus artworkStatus) {
-        this.artworkStatus = artworkStatus;
-    }
-
-    public String getMbArtistId() {
-        return mbArtistId;
-    }
-
-    public void setMbArtistId(String mbArtistId) {
-        this.mbArtistId = mbArtistId;
-    }
-
-    public String getMbReleaseId() {
-        return mbReleaseId;
-    }
-
-    public void setMbReleaseId(String mbReleaseId) {
-        this.mbReleaseId = mbReleaseId;
     }
 
     public String getMbTrackId() {

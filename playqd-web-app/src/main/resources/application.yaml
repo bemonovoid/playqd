@@ -9,8 +9,6 @@ spring:
     url: "jdbc:hsqldb:hsql://localhost/playqd_db"
     username: sa
     password:
-#    initialization-mode: never
-#    schema: "classpath:/sql/schema.sql"
   jpa:
     hibernate:
       ddl-auto: create
@@ -21,7 +19,7 @@ spring:
 
 playqd:
   library:
-    location: "D:/Music/Downtempo"
+    location: "D:/Music/Post-Rock"
 logging:
   level:
     web: DEBUG

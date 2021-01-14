@@ -1,11 +1,11 @@
-package com.bemonovoid.playqd.library.model;
+package com.bemonovoid.playqd.online.search;
 
-public class AlbumArtwork {
+public class ArtworkBinary {
 
     private final byte[] binaryData;
     private final String mimeType;
 
-    public AlbumArtwork(byte[] binaryData, String mimeType) {
+    public ArtworkBinary(byte[] binaryData, String mimeType) {
         this.binaryData = binaryData;
         this.mimeType = mimeType;
     }
@@ -22,7 +22,7 @@ public class AlbumArtwork {
         return binaryData != null;
     }
 
-    public static AlbumArtwork empty() {
-        return new AlbumArtwork(null, null);
+    public static ArtworkBinary empty() {
+        return new ArtworkBinary(null, null);
     }
 }

@@ -13,7 +13,6 @@ import com.bemonovoid.playqd.data.entity.AlbumEntity;
 import com.bemonovoid.playqd.data.entity.ArtistEntity;
 import com.bemonovoid.playqd.data.entity.SongEntity;
 import com.bemonovoid.playqd.library.model.Album;
-import com.bemonovoid.playqd.library.model.AlbumArtwork;
 import com.bemonovoid.playqd.library.model.AlbumHelper;
 import com.bemonovoid.playqd.library.model.AlbumSongs;
 import com.bemonovoid.playqd.library.model.Artist;
@@ -25,6 +24,7 @@ import com.bemonovoid.playqd.library.model.query.AlbumSongsQuery;
 import com.bemonovoid.playqd.library.model.query.ArtistAlbumsQuery;
 import com.bemonovoid.playqd.library.model.query.SongQuery;
 import com.bemonovoid.playqd.library.service.LibraryQueryService;
+import com.bemonovoid.playqd.online.search.ArtworkBinary;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.tag.Tag;
@@ -58,7 +58,7 @@ public class LibraryQueryServiceImpl implements LibraryQueryService {
 
     @Override
     public Album getAlbum(long albumId) {
-        return AlbumHelper.fromEntity(albumDao.getOne(albumId));
+        return AlbumHelper.fromEntity(albumDao.getOne(albumId).get());
     }
 
     @Override
@@ -70,12 +70,12 @@ public class LibraryQueryServiceImpl implements LibraryQueryService {
     }
 
     @Override
-    public Optional<AlbumArtwork> getArtworkBySongId(long songId) {
+    public Optional<ArtworkBinary> getArtworkBySongId(long songId) {
         return songDao.getOne(songId).map(this::getArtwork);
     }
 
     @Override
-    public Optional<AlbumArtwork> getArtworkByAlbumId(long albumId) {
+    public Optional<ArtworkBinary> getArtworkByAlbumId(long albumId) {
         return songDao.getFirstSongInAlbum(albumId).map(this::getArtwork);
     }
 
@@ -91,7 +91,7 @@ public class LibraryQueryServiceImpl implements LibraryQueryService {
 
     @Override
     public AlbumSongs getAlbumSongs(AlbumSongsQuery query) {
-        AlbumEntity albumEntity = albumDao.getOne(query.getAlbumId());
+        AlbumEntity albumEntity = albumDao.getOne(query.getAlbumId()).get();
         Album album = AlbumHelper.fromEntity(albumEntity);
         Artist artist = album.getArtist();
         List<Song> songs = albumEntity.getSongs().stream()
@@ -105,7 +105,7 @@ public class LibraryQueryServiceImpl implements LibraryQueryService {
         return new AlbumSongs(artist, album, songs);
     }
 
-    private AlbumArtwork getArtwork(SongEntity songEntity) {
+    private ArtworkBinary getArtwork(SongEntity songEntity) {
         File file = new File(songEntity.getFileLocation());
         try {
             AudioFile audioFile = AudioFileIO.read(file);
@@ -113,13 +113,13 @@ public class LibraryQueryServiceImpl implements LibraryQueryService {
             if (tag != null) {
                 Artwork artwork = tag.getFirstArtwork();
                 if (artwork != null) {
-                    return new AlbumArtwork(artwork.getBinaryData(), artwork.getMimeType());
+                    return new ArtworkBinary(artwork.getBinaryData(), artwork.getMimeType());
                 }
             }
-            return AlbumArtwork.empty();
+            return ArtworkBinary.empty();
         } catch (Exception e) {
             LOG.error("Failed to retrieve an audio file for path {}", songEntity.getFileLocation());
-            return AlbumArtwork.empty();
+            return ArtworkBinary.empty();
         }
     }
 }

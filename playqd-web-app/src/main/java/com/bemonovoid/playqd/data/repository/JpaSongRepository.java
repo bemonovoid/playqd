@@ -10,5 +10,7 @@ public interface JpaSongRepository extends CrudRepository<SongEntity, Long> {
 
     List<SongEntity> findAllByArtistId(Long artistId);
 
+    List<SongEntity> findAllByAlbumId(Long albumId);
+
     Optional<SongEntity> findFirstByAlbumId(long albumId);
 }

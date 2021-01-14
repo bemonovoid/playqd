@@ -1,5 +1,7 @@
 rootProject.name= 'playqd'
 
 include 'playqd-core'
+include 'playqd-online-search'
+include 'playqd-online-search-musicbrainz'
 include 'playqd-web-app'
 

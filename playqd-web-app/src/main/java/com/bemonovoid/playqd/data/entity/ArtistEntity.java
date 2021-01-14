@@ -1,9 +1,7 @@
 package com.bemonovoid.playqd.data.entity;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -12,20 +10,26 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.springframework.data.domain.Persistable;
+
 @Table(name = ArtistEntity.TABLE_NAME)
 @Entity
-public class ArtistEntity {
+public class ArtistEntity implements Persistable<Long> {
 
     public static final String TABLE_NAME = "ARTIST";
 
     public static final String COL_PK_ID = "ID";
     public static final String COL_NAME = "NAME";
     public static final String COL_SIMPLE_NAME = "SIMPLE_NAME";
+    public static final String COL_MB_ARTIST_ID = "MB_ARTIST_ID";
 
     @Id
     @Column(name = COL_PK_ID)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = COL_MB_ARTIST_ID)
+    private String mbArtistId;
 
     @Column(name = COL_NAME)
     private String name;
@@ -33,11 +37,17 @@ public class ArtistEntity {
     @Column(name = COL_SIMPLE_NAME)
     private String simpleName;
 
-    @OneToMany(mappedBy = "artist", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+    @OneToMany(mappedBy = "artist")
     private List<AlbumEntity> albums;
 
+    @Override
     public Long getId() {
         return id;
+    }
+
+    @Override
+    public boolean isNew() {
+        return getId() != null;
     }
 
     public String getName() {
@@ -68,12 +78,11 @@ public class ArtistEntity {
         this.simpleName = simpleName;
     }
 
-    public void addAlbum(AlbumEntity albumEntity) {
-        if (albums == null) {
-            albums = new ArrayList<>();
-        }
-        albumEntity.setArtist(this);
-        getAlbums().add(albumEntity);
+    public String getMbArtistId() {
+        return mbArtistId;
     }
 
+    public void setMbArtistId(String mbArtistId) {
+        this.mbArtistId = mbArtistId;
+    }
 }

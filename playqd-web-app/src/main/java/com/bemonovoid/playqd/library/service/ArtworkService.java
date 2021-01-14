@@ -1,9 +1,13 @@
 package com.bemonovoid.playqd.library.service;
 
-import com.bemonovoid.playqd.library.model.AlbumArtwork;
-import com.bemonovoid.playqd.library.model.query.ArtworkQuery;
+import java.util.Optional;
+
+import com.bemonovoid.playqd.core.ArtworkLocalQuery;
+import com.bemonovoid.playqd.online.search.ArtworkBinary;
 
 public interface ArtworkService {
 
-    AlbumArtwork get(ArtworkQuery query);
+    ArtworkBinary getBinaryFromLocalLibrary(ArtworkLocalQuery localQuery);
+
+    Optional<String> searchOnline(ArtworkLocalQuery localQuery);
 }

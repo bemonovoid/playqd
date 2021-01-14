@@ -27,6 +27,11 @@ public class SongDaoImpl implements SongDao {
     }
 
     @Override
+    public List<SongEntity> getAlbumSongs(long albumId) {
+        return repository.findAllByAlbumId(albumId);
+    }
+
+    @Override
     public Optional<SongEntity> getFirstSongInAlbum(long albumId) {
         return repository.findFirstByAlbumId(albumId);
     }

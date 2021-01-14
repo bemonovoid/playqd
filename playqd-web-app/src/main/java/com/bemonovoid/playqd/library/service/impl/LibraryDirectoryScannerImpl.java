@@ -25,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.scheduling.annotation.Async;
 
@@ -101,19 +100,10 @@ public class LibraryDirectoryScannerImpl implements LibraryDirectoryScanner {
                 songName = fileName;
             }
 
-            ArtworkStatus artworkStatus = ArtworkStatus.UNKNOWN;
-            if (tag.getFirstArtwork() != null) {
-                artworkStatus = ArtworkStatus.AVAILABLE;
-            }
-
-            params.addValue(SongEntity.COL_ARTWORK_STATUS, artworkStatus.name());
-
             params
                     .addValue(SongEntity.COL_NAME, songName)
                     .addValue(SongEntity.COL_TRACK_ID, tag.getFirst(FieldKey.TRACK))
                     .addValue(SongEntity.COL_COMMENT, tag.getFirst(FieldKey.COMMENT))
-                    .addValue(SongEntity.COL_MB_ARTIST_ID, tag.getFirst(FieldKey.MUSICBRAINZ_ARTISTID))
-                    .addValue(SongEntity.COL_MB_RELEASE_ID, tag.getFirst(FieldKey.MUSICBRAINZ_RELEASEID))
                     .addValue(SongEntity.COL_MB_TRACK_ID, tag.getFirst(FieldKey.MUSICBRAINZ_TRACK_ID));
 
         } else {
@@ -146,9 +136,13 @@ public class LibraryDirectoryScannerImpl implements LibraryDirectoryScanner {
         } else {
             SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate);
             simpleJdbcInsert.withTableName(ArtistEntity.TABLE_NAME).usingGeneratedKeyColumns(ArtistEntity.COL_PK_ID);
-            SqlParameterSource params = new MapSqlParameterSource()
+            MapSqlParameterSource params = new MapSqlParameterSource()
                     .addValue(ArtistEntity.COL_NAME, name)
                     .addValue(ArtistEntity.COL_SIMPLE_NAME, nameAsKey);
+            Tag tag = audioFile.getTag();
+            if (tag != null) {
+                params.addValue(ArtistEntity.COL_MB_ARTIST_ID, tag.getFirst(FieldKey.MUSICBRAINZ_ARTISTID));
+            }
             long artistId = simpleJdbcInsert.executeAndReturnKey(params).longValue();
             artists.put(nameAsKey, artistId);
             return artistId;
@@ -169,28 +163,26 @@ public class LibraryDirectoryScannerImpl implements LibraryDirectoryScanner {
                     .addValue(AlbumEntity.COL_SIMPLE_NAME, artistAlbumKey.getAlbumLoweCaseName())
                     .addValue(AlbumEntity.COL_ARTIST_ID, artistId);
             if (audioFile.getTag() != null) {
+                Tag tag = audioFile.getTag();
+
+                ArtworkStatus artworkStatus = ArtworkStatus.UNKNOWN;
+
+                if (tag.getFirstArtwork() != null) {
+                    artworkStatus = ArtworkStatus.AVAILABLE;
+                }
+
+                params.addValue(AlbumEntity.COL_ARTWORK_STATUS, artworkStatus.name());
+
                 params
-                        .addValue(AlbumEntity.COL_GENRE, audioFile.getTag().getFirst(FieldKey.GENRE))
-                        .addValue(AlbumEntity.COL_DATE, audioFile.getTag().getFirst(FieldKey.YEAR));
+                        .addValue(AlbumEntity.COL_GENRE, tag.getFirst(FieldKey.GENRE))
+                        .addValue(AlbumEntity.COL_DATE, tag.getFirst(FieldKey.YEAR))
+                        .addValue(AlbumEntity.COL_MB_RELEASE_ID, tag.getFirst(FieldKey.MUSICBRAINZ_RELEASEID));
             }
             Long albumId = albumJdbcInsert.executeAndReturnKey(params).longValue();
             artistAlbums.put(artistAlbumKey, albumId);
             return albumId;
         }
     }
-
-//    private static List<String> getAlbumArtLocations(File albumFolder) {
-//        try (Stream<Path> albumDirPaths = Files.walk(albumFolder.toPath(), 2)) {
-//            return albumDirPaths
-//                    .map(Path::toFile)
-//                    .filter(File::isFile)
-//                    .filter(f -> IMAGE_EXTENSIONS.contains(getFileExtension(f)))
-//                    .map(File::getAbsolutePath)
-//                    .collect(Collectors.toList());
-//        } catch (IOException e) {
-//            throw new RuntimeException("Failed to retrieve album art file(s)", e);
-//        }
-//    }
 
     private static String getArtistName(AudioFile audioFile) {
         String name = null;

@@ -18,7 +18,8 @@ public abstract class AlbumHelper {
                 entity.getGenre(),
                 entity.getDate(),
                 secondsToMinutesAndSecondsString(totalSeconds),
-                new Artist(entity.getArtist().getId(), entity.getArtist().getName()));
+                new Artist(entity.getArtist().getId(), entity.getArtist().getName()),
+                entity.getArtworkStatus());
     }
 
     private static String secondsToMinutesAndSecondsString(long secs) {

@@ -12,6 +12,8 @@ public interface SongDao {
 
     List<SongEntity> getArtistSongs(long artistId);
 
+    List<SongEntity> getAlbumSongs(long albumId);
+
     Optional<SongEntity> getFirstSongInAlbum(long albumId);
 
     SongEntity save(SongEntity songEntity);

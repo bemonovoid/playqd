@@ -1,4 +1,4 @@
-package com.bemonovoid.playqd.library.model.musicbrainz;
+package com.bemonovoid.playqd.online.search.mb.model.api;
 
 import java.util.List;
 

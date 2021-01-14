@@ -7,19 +7,18 @@ import com.bemonovoid.playqd.library.service.ArtworkService;
 import com.bemonovoid.playqd.library.service.LibraryDirectory;
 import com.bemonovoid.playqd.library.service.LibraryDirectoryScanner;
 import com.bemonovoid.playqd.library.service.LibraryQueryService;
-import com.bemonovoid.playqd.library.service.MusicBrainzApiClient;
-import com.bemonovoid.playqd.library.service.MusicBrainzCoverArtApiClient;
-import com.bemonovoid.playqd.library.service.MusicBrainzService;
 import com.bemonovoid.playqd.library.service.impl.ArtworkServiceImpl;
 import com.bemonovoid.playqd.library.service.impl.LibraryDirectoryImpl;
 import com.bemonovoid.playqd.library.service.impl.LibraryDirectoryScannerImpl;
 import com.bemonovoid.playqd.library.service.impl.LibraryQueryServiceImpl;
-import com.bemonovoid.playqd.library.service.impl.MusicBrainzApiClientImpl;
-import com.bemonovoid.playqd.library.service.impl.MusicBrainzCoverArtApiClientImpl;
-import com.bemonovoid.playqd.library.service.impl.MusicBrainzServiceImpl;
+import com.bemonovoid.playqd.online.search.ArtworkOnlineSearchService;
+import com.bemonovoid.playqd.online.search.mb.MusicBrainzApiClient;
+import com.bemonovoid.playqd.online.search.mb.MusicBrainzArtworkOnlineSearch;
+import com.bemonovoid.playqd.online.search.mb.MusicBrainzCoverArtApiClient;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -47,32 +46,21 @@ class AppConfig {
     }
 
     @Bean
-    MusicBrainzApiClient musicBrainzApiClient() {
-        return new MusicBrainzApiClientImpl(
-                new RestTemplateBuilder().rootUri("http://musicbrainz.org/ws/2").build());
-    }
-
-    @Bean
-    MusicBrainzCoverArtApiClient coverArtApiClient() {
-        return new MusicBrainzCoverArtApiClientImpl(
-                new RestTemplateBuilder().rootUri("http://coverartarchive.org").build());
-    }
-
-    @Bean
-    MusicBrainzService musicBrainzService(MusicBrainzApiClient musicBrainzApiClient,
-                                          MusicBrainzCoverArtApiClient coverArtApiClient) {
-        return new MusicBrainzServiceImpl(musicBrainzApiClient, coverArtApiClient);
-    }
-
-    @Bean
     LibraryDirectoryScanner refreshLibraryExecutor(JdbcTemplate jdbcTemplate, LibraryDirectory libraryDirectory) {
         return new LibraryDirectoryScannerImpl(jdbcTemplate, libraryDirectory);
     }
 
     @Bean
-    ArtworkService artworkService(JdbcTemplate jdbcTemplate,
-                                  SongDao songDao,
-                                  MusicBrainzService musicBrainzService) {
-        return new ArtworkServiceImpl(jdbcTemplate, songDao, musicBrainzService);
+    ArtworkService artworkService(SongDao songDao, AlbumDao albumDao, ApplicationEventPublisher publisher) {
+        MusicBrainzApiClient musicBrainzApiClient = new MusicBrainzApiClient(
+                new RestTemplateBuilder().rootUri("http://musicbrainz.org/ws/2").build());
+
+        MusicBrainzCoverArtApiClient coverArtApiClient = new MusicBrainzCoverArtApiClient(
+                new RestTemplateBuilder().rootUri("http://coverartarchive.org").build());
+
+        ArtworkOnlineSearchService artworkOnlineSearch =
+                new MusicBrainzArtworkOnlineSearch(musicBrainzApiClient, coverArtApiClient);
+
+        return new ArtworkServiceImpl(songDao, albumDao, artworkOnlineSearch, publisher);
     }
 }

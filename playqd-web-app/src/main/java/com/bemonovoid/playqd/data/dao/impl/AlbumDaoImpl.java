@@ -2,6 +2,7 @@ package com.bemonovoid.playqd.data.dao.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import com.bemonovoid.playqd.data.dao.AlbumDao;
 import com.bemonovoid.playqd.data.entity.AlbumEntity;
@@ -16,8 +17,8 @@ public class AlbumDaoImpl implements AlbumDao {
     }
 
     @Override
-    public AlbumEntity getOne(long id) {
-        return repository.findById(id).get();
+    public Optional<AlbumEntity> getOne(long id) {
+        return repository.findById(id);
     }
 
     @Override

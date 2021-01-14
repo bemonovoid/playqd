@@ -6,6 +6,8 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -14,9 +16,11 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.springframework.data.domain.Persistable;
+
 @Table(name = AlbumEntity.TABLE_NAME)
 @Entity
-public class AlbumEntity {
+public class AlbumEntity implements Persistable<Long> {
 
     public static final String TABLE_NAME = "ALBUM";
 
@@ -26,11 +30,17 @@ public class AlbumEntity {
     public static final String COL_DATE = "DATE";
     public static final String COL_GENRE = "GENRE";
     public static final String COL_ARTIST_ID = "ARTIST_ID";
+    public static final String COL_ARTWORK_STATUS = "ARTWORK_STATUS";
+
+    public static final String COL_MB_RELEASE_ID = "MB_RELEASE_ID";
 
     @Id
     @Column(name = COL_PK_ID)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = COL_MB_RELEASE_ID)
+    private String mbReleaseId;
 
     @Column(name = COL_NAME)
     private String name;
@@ -44,14 +54,24 @@ public class AlbumEntity {
     @Column(name = COL_GENRE)
     private String genre;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+    @Column(name = COL_ARTWORK_STATUS)
+    @Enumerated(EnumType.STRING)
+    private ArtworkStatus artworkStatus;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     private ArtistEntity artist;
 
-    @OneToMany(mappedBy = "album", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+    @OneToMany(mappedBy = "album")
     private List<SongEntity> songs;
 
+    @Override
     public Long getId() {
         return id;
+    }
+
+    @Override
+    public boolean isNew() {
+        return getId() != null;
     }
 
     public String getName() {
@@ -106,12 +126,19 @@ public class AlbumEntity {
         this.simpleName = simpleName;
     }
 
-    public void addSong(SongEntity songEntity) {
-        if (songs == null) {
-            songs = new ArrayList<>();
-        }
-        songEntity.setArtist(getArtist());
-        songEntity.setAlbum(this);
-        getSongs().add(songEntity);
+    public String getMbReleaseId() {
+        return mbReleaseId;
+    }
+
+    public void setMbReleaseId(String mbReleaseId) {
+        this.mbReleaseId = mbReleaseId;
+    }
+
+    public ArtworkStatus getArtworkStatus() {
+        return artworkStatus;
+    }
+
+    public void setArtworkStatus(ArtworkStatus artworkStatus) {
+        this.artworkStatus = artworkStatus;
     }
 }
