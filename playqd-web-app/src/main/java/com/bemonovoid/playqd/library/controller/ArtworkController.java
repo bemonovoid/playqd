@@ -1,13 +1,11 @@
 package com.bemonovoid.playqd.library.controller;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Optional;
 
 import com.bemonovoid.playqd.library.model.AlbumArtwork;
-import com.bemonovoid.playqd.library.service.LibraryQueryService;
+import com.bemonovoid.playqd.library.model.query.ArtworkQuery;
+import com.bemonovoid.playqd.library.service.ArtworkService;
 import com.bemonovoid.playqd.utils.Endpoints;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,10 +17,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(Endpoints.ARTWORK_API_BASE_PATH)
 class ArtworkController {
 
-    private final LibraryQueryService libraryQueryService;
+    private final ArtworkService artworkService;
 
-    ArtworkController(LibraryQueryService libraryQueryService) {
-        this.libraryQueryService = libraryQueryService;
+    ArtworkController(ArtworkService artworkService) {
+        this.artworkService = artworkService;
     }
 
     @GetMapping(value = "/open", produces = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE})
@@ -31,23 +29,12 @@ class ArtworkController {
 
         Optional<AlbumArtwork> mayBeArtwork;
         if (albumId > 0) {
-            mayBeArtwork = libraryQueryService.getArtworkByAlbumId(albumId);
+            return ResponseEntity.ok(artworkService.get(ArtworkQuery.fromAlbumId(albumId)).getBinaryData());
         } else if (songId > 0) {
-            mayBeArtwork = libraryQueryService.getArtworkBySongId(songId);
+            return ResponseEntity.ok(artworkService.get(ArtworkQuery.fromSongId(songId)).getBinaryData());
         } else {
             return ResponseEntity.badRequest().build();
         }
-        return mayBeArtwork
-                .filter(AlbumArtwork::isAvailable)
-                .map(albumArtwork -> ResponseEntity.ok(albumArtwork.getBinaryData()))
-                .orElseGet(() -> ResponseEntity.ok(getDefault()));
     }
 
-    private byte[] getDefault() {
-        try (InputStream is = new ClassPathResource("/public/images/default-album-cover.png").getInputStream()) {
-            return is.readAllBytes();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
 }

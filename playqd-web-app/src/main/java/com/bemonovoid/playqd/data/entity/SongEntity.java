@@ -2,6 +2,8 @@ package com.bemonovoid.playqd.data.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -27,6 +29,13 @@ public class SongEntity {
     public static final String COL_AUDIO_ENCODING_TYPE = "AUDIO_ENCODING_TYPE";
     public static final String COL_AUDIO_CHANNEL_TYPE = "AUDIO_CHANNEL_TYPE";
     public static final String COL_AUDIO_BIT_RATE = "AUDIO_BIT_RATE";
+
+    public static final String COL_ARTWORK_STATUS = "ARTWORK_STATUS";
+
+    public static final String COL_MB_ARTIST_ID = "MB_ARTIST_ID";
+    public static final String COL_MB_RELEASE_ID = "MB_RELEASE_ID";
+    public static final String COL_MB_TRACK_ID = "MB_TRACK_ID";
+
     public static final String COL_ARTIST_ID = "ARTIST_ID";
     public static final String COL_ALBUM_ID = "ALBUM_ID";
 
@@ -67,6 +76,18 @@ public class SongEntity {
 
     @Column(name = COL_COMMENT, length = 8000)
     private String comment;
+
+    @Enumerated(EnumType.STRING)
+    private ArtworkStatus artworkStatus;
+
+    @Column(name = COL_MB_ARTIST_ID)
+    private String mbArtistId;
+
+    @Column(name = COL_MB_RELEASE_ID)
+    private String mbReleaseId;
+
+    @Column(name = COL_MB_TRACK_ID)
+    private String mbTrackId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private ArtistEntity artist;
@@ -186,4 +207,35 @@ public class SongEntity {
         this.audioBitRate = audioBitRate;
     }
 
+    public ArtworkStatus getArtworkStatus() {
+        return artworkStatus;
+    }
+
+    public void setArtworkStatus(ArtworkStatus artworkStatus) {
+        this.artworkStatus = artworkStatus;
+    }
+
+    public String getMbArtistId() {
+        return mbArtistId;
+    }
+
+    public void setMbArtistId(String mbArtistId) {
+        this.mbArtistId = mbArtistId;
+    }
+
+    public String getMbReleaseId() {
+        return mbReleaseId;
+    }
+
+    public void setMbReleaseId(String mbReleaseId) {
+        this.mbReleaseId = mbReleaseId;
+    }
+
+    public String getMbTrackId() {
+        return mbTrackId;
+    }
+
+    public void setMbTrackId(String mbTrackId) {
+        this.mbTrackId = mbTrackId;
+    }
 }

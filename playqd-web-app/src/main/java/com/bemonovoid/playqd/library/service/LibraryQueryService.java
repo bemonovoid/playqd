@@ -22,9 +22,9 @@ public interface LibraryQueryService {
 
     Optional<Song> getSong(SongQuery query);
 
-    Optional<AlbumArtwork> getArtworkByAlbumId(long albumId);
+    AlbumSongs getAlbumSongs(AlbumSongsQuery query);
 
     Optional<AlbumArtwork> getArtworkBySongId(long songId);
 
-    AlbumSongs getAlbumSongs(AlbumSongsQuery query);
+    Optional<AlbumArtwork> getArtworkByAlbumId(long albumId);
 }

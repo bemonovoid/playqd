@@ -16,7 +16,10 @@ import com.bemonovoid.playqd.library.service.LibraryQueryService;
 import com.bemonovoid.playqd.utils.Endpoints;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
+import org.jaudiotagger.tag.FieldKey;
 import org.jaudiotagger.tag.Tag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,6 +32,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(Endpoints.AUDIO_API_BASE_PATH)
 class AudioFileController {
+
+    private static final Logger LOG = LoggerFactory.getLogger(AudioFileController.class);
 
     private static final int BYTE_RANGE = 128; // increase the byterange from here
 
@@ -47,6 +52,8 @@ class AudioFileController {
                     try {
                         AudioFile audioFile = AudioFileIO.read(new File(song.getFileLocation()));
                         Tag tag = audioFile.getTag();
+                        System.out.println(">>>MUSICBRAINZ_RELEASEID: \n" + tag.getFirst(FieldKey.MUSICBRAINZ_RELEASEID));
+                        System.out.println(">>>MUSICBRAINZ_ORIGINAL_RELEASE_ID: \n" + tag.getFirst(FieldKey.MUSICBRAINZ_ORIGINAL_RELEASE_ID));
                         audioFile.getAudioHeader();
                         System.out.println(audioFile);
                     } catch (Exception e) {

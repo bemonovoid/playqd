@@ -11,6 +11,7 @@ import java.util.stream.Stream;
 
 import com.bemonovoid.playqd.data.entity.AlbumEntity;
 import com.bemonovoid.playqd.data.entity.ArtistEntity;
+import com.bemonovoid.playqd.data.entity.ArtworkStatus;
 import com.bemonovoid.playqd.data.entity.SongEntity;
 import com.bemonovoid.playqd.library.service.LibraryDirectory;
 import com.bemonovoid.playqd.library.service.LibraryDirectoryScanner;
@@ -99,10 +100,22 @@ public class LibraryDirectoryScannerImpl implements LibraryDirectoryScanner {
             if (songName == null || songName.isBlank()) {
                 songName = fileName;
             }
+
+            ArtworkStatus artworkStatus = ArtworkStatus.UNKNOWN;
+            if (tag.getFirstArtwork() != null) {
+                artworkStatus = ArtworkStatus.AVAILABLE;
+            }
+
+            params.addValue(SongEntity.COL_ARTWORK_STATUS, artworkStatus.name());
+
             params
                     .addValue(SongEntity.COL_NAME, songName)
                     .addValue(SongEntity.COL_TRACK_ID, tag.getFirst(FieldKey.TRACK))
-                    .addValue(SongEntity.COL_COMMENT, tag.getFirst(FieldKey.COMMENT));
+                    .addValue(SongEntity.COL_COMMENT, tag.getFirst(FieldKey.COMMENT))
+                    .addValue(SongEntity.COL_MB_ARTIST_ID, tag.getFirst(FieldKey.MUSICBRAINZ_ARTISTID))
+                    .addValue(SongEntity.COL_MB_RELEASE_ID, tag.getFirst(FieldKey.MUSICBRAINZ_RELEASEID))
+                    .addValue(SongEntity.COL_MB_TRACK_ID, tag.getFirst(FieldKey.MUSICBRAINZ_TRACK_ID));
+
         } else {
             params.addValue(SongEntity.COL_NAME, fileName);
         }
