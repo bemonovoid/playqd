@@ -12,10 +12,12 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Type;
 import org.springframework.data.domain.Persistable;
 
 @Table(name = AlbumEntity.TABLE_NAME)
@@ -31,6 +33,7 @@ public class AlbumEntity implements Persistable<Long> {
     public static final String COL_GENRE = "GENRE";
     public static final String COL_ARTIST_ID = "ARTIST_ID";
     public static final String COL_ARTWORK_STATUS = "ARTWORK_STATUS";
+    public static final String COL_ARTWORK_BINARY = "ARTWORK_BINARY";
 
     public static final String COL_MB_RELEASE_ID = "MB_RELEASE_ID";
 
@@ -57,6 +60,11 @@ public class AlbumEntity implements Persistable<Long> {
     @Column(name = COL_ARTWORK_STATUS)
     @Enumerated(EnumType.STRING)
     private ArtworkStatus artworkStatus;
+
+    @Lob
+    @Column(name = COL_ARTWORK_BINARY)
+    @Type(type="org.hibernate.type.ImageType")
+    private byte[] artworkBinary;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private ArtistEntity artist;
@@ -140,5 +148,13 @@ public class AlbumEntity implements Persistable<Long> {
 
     public void setArtworkStatus(ArtworkStatus artworkStatus) {
         this.artworkStatus = artworkStatus;
+    }
+
+    public byte[] getArtworkBinary() {
+        return artworkBinary;
+    }
+
+    public void setArtworkBinary(byte[] artworkBinary) {
+        this.artworkBinary = artworkBinary;
     }
 }

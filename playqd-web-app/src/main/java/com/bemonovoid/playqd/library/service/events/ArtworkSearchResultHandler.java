@@ -48,12 +48,14 @@ public class ArtworkSearchResultHandler implements ApplicationListener<ArtworkRe
         LOG.info("Handling {} event.", ArtworkSearchResultHandler.class.getSimpleName());
 
         ArtworkSearchResult searchResult = event.getArtworkSearchResult();
+        byte[] binaryData = new RestTemplate().getForObject(searchResult.getImageUrl(), byte[].class);
 
         Long albumId = event.getAlbumId();
 
         AlbumEntity albumEntity = albumDao.getOne(event.getAlbumId()).get();
         albumEntity.setMbReleaseId(searchResult.getMbReleaseId());
         albumEntity.setArtworkStatus(ArtworkStatus.AVAILABLE);
+        albumEntity.setArtworkBinary(binaryData);
         albumDao.save(albumEntity);
 
         ArtistEntity artistEntity = artistDao.getOne(albumEntity.getArtist().getId());
@@ -62,15 +64,14 @@ public class ArtworkSearchResultHandler implements ApplicationListener<ArtworkRe
 
         List<SongEntity> albumSongs = songDao.getAlbumSongs(albumId);
 
-        Artwork artwork = createArtwork(searchResult.getImageUrl());
+        Artwork artwork = createArtwork(searchResult.getImageUrl(), binaryData);
 
         for (SongEntity songEntity : albumSongs) {
             updateAudioFile(songEntity.getFileLocation(), artwork);
         }
     }
 
-    private Artwork createArtwork(String artworkUrl) {
-         byte[] binaryData = new RestTemplate().getForObject(artworkUrl, byte[].class);
+    private Artwork createArtwork(String artworkUrl, byte[] binaryData) {
          Artwork artwork = new StandardArtwork();
          artwork.setImageUrl(artworkUrl);
          artwork.setBinaryData(binaryData);
@@ -83,9 +84,9 @@ public class ArtworkSearchResultHandler implements ApplicationListener<ArtworkRe
             Tag tag = audioFile.getTag();
             tag.setField(artwork);
             audioFile.commit();
-            LOG.info("Artwork tag for file {} was successfully set", fileLocation);
+            LOG.info("Artwork tag was successfully committed to audio file {}", fileLocation);
         } catch (Exception e) {
-            LOG.error(String.format("Failed to set Artwork tag for audio file %s", fileLocation), e);
+            LOG.error(String.format("Failed to commit artwork updates to audio file %s", fileLocation), e);
         }
     }
 

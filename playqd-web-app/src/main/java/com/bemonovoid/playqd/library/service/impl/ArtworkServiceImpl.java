@@ -67,13 +67,13 @@ public class ArtworkServiceImpl implements ArtworkService {
 
     @Override
     public Optional<String> searchOnline(ArtworkLocalQuery localQuery) {
-        Optional<SongEntity> mayBeSongEntity = getSongEntity(localQuery);
+        Optional<SongEntity> songEntityOpt = getSongEntity(localQuery);
 
-        if (mayBeSongEntity.isEmpty()){
+        if (songEntityOpt.isEmpty()){
             return Optional.empty();
         }
 
-        SongEntity songEntity = mayBeSongEntity.get();
+        SongEntity songEntity = songEntityOpt.get();
         AlbumEntity albumEntity = songEntity.getAlbum();
 
         if (ArtworkStatus.UNKNOWN != albumEntity.getArtworkStatus()) {
@@ -110,6 +110,8 @@ public class ArtworkServiceImpl implements ArtworkService {
                 Artwork artwork = tag.getFirstArtwork();
                 if (artwork != null) {
                     return new ArtworkBinary(artwork.getBinaryData(), artwork.getMimeType());
+                } else if (songEntity.getAlbum().getArtworkBinary() != null) {
+                    return new ArtworkBinary(songEntity.getAlbum().getArtworkBinary(), "image/jpeg");
                 }
             }
             throw new IllegalArgumentException("Failed to retrieve artwork");
