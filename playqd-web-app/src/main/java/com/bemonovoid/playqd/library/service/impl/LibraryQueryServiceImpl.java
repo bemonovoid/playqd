@@ -1,6 +1,7 @@
 package com.bemonovoid.playqd.library.service.impl;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -10,18 +11,18 @@ import com.bemonovoid.playqd.data.dao.AlbumDao;
 import com.bemonovoid.playqd.data.dao.ArtistDao;
 import com.bemonovoid.playqd.data.dao.SongDao;
 import com.bemonovoid.playqd.data.entity.AlbumEntity;
-import com.bemonovoid.playqd.data.entity.ArtistEntity;
 import com.bemonovoid.playqd.data.entity.SongEntity;
 import com.bemonovoid.playqd.library.model.Album;
 import com.bemonovoid.playqd.library.model.AlbumHelper;
 import com.bemonovoid.playqd.library.model.AlbumSongs;
+import com.bemonovoid.playqd.library.model.Albums;
 import com.bemonovoid.playqd.library.model.Artist;
-import com.bemonovoid.playqd.library.model.ArtistAlbums;
 import com.bemonovoid.playqd.library.model.Artists;
+import com.bemonovoid.playqd.library.model.Genres;
 import com.bemonovoid.playqd.library.model.Song;
 import com.bemonovoid.playqd.library.model.SongHelper;
 import com.bemonovoid.playqd.library.model.query.AlbumSongsQuery;
-import com.bemonovoid.playqd.library.model.query.ArtistAlbumsQuery;
+import com.bemonovoid.playqd.library.model.query.AlbumsQuery;
 import com.bemonovoid.playqd.library.model.query.SongQuery;
 import com.bemonovoid.playqd.library.service.LibraryQueryService;
 import com.bemonovoid.playqd.online.search.ArtworkBinary;
@@ -57,16 +58,25 @@ public class LibraryQueryServiceImpl implements LibraryQueryService {
     }
 
     @Override
+    public Genres getGenres() {
+        return Genres.builder().genres(albumDao.getGenres()).build();
+    }
+
+    @Override
     public Album getAlbum(long albumId) {
         return AlbumHelper.fromEntity(albumDao.getOne(albumId).get());
     }
 
     @Override
-    public ArtistAlbums getArtistAlbums(ArtistAlbumsQuery query) {
-        List<AlbumEntity> albumEntities = albumDao.getArtistAlbums(query.getArtistId());
-        ArtistEntity artistEntity = albumEntities.get(0).getArtist();
+    public Albums getAlbums(AlbumsQuery query) {
+        List<AlbumEntity> albumEntities = Collections.emptyList();
+        if (query.getArtistId() != null) {
+            albumEntities = albumDao.getArtistAlbums(query.getArtistId());
+        } else if (query.getGenre() != null) {
+            albumEntities = albumDao.getAllByGenre(query.getGenre());
+        }
         List<Album> albums = albumEntities.stream().map(AlbumHelper::fromEntity).collect(Collectors.toList());
-        return new ArtistAlbums(new Artist(artistEntity.getId(), artistEntity.getName()), albums);
+        return Albums.builder().albums(albums).build();
     }
 
     @Override

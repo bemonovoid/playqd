@@ -11,6 +11,10 @@ public interface AlbumDao {
 
     List<AlbumEntity> getAll();
 
+    List<String> getGenres();
+
+    List<AlbumEntity> getAllByGenre(String genre);
+
     List<AlbumEntity> getArtistAlbums(long artistId);
 
     AlbumEntity save(AlbumEntity albumEntity);

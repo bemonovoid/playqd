@@ -3,6 +3,7 @@ package com.bemonovoid.playqd.data.dao.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.bemonovoid.playqd.data.dao.AlbumDao;
 import com.bemonovoid.playqd.data.entity.AlbumEntity;
@@ -27,6 +28,16 @@ public class AlbumDaoImpl implements AlbumDao {
         List<AlbumEntity> albums = new ArrayList<>();
         albumsIter.forEach(albums::add);
         return albums;
+    }
+
+    @Override
+    public List<String> getGenres() {
+        return repository.findDistinctGenre();
+    }
+
+    @Override
+    public List<AlbumEntity> getAllByGenre(String genre) {
+        return repository.findAllByGenreEquals(genre);
     }
 
     @Override

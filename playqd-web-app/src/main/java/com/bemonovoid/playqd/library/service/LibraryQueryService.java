@@ -4,11 +4,12 @@ import java.util.Optional;
 
 import com.bemonovoid.playqd.library.model.Album;
 import com.bemonovoid.playqd.library.model.AlbumSongs;
-import com.bemonovoid.playqd.library.model.ArtistAlbums;
+import com.bemonovoid.playqd.library.model.Albums;
 import com.bemonovoid.playqd.library.model.Artists;
+import com.bemonovoid.playqd.library.model.Genres;
 import com.bemonovoid.playqd.library.model.Song;
 import com.bemonovoid.playqd.library.model.query.AlbumSongsQuery;
-import com.bemonovoid.playqd.library.model.query.ArtistAlbumsQuery;
+import com.bemonovoid.playqd.library.model.query.AlbumsQuery;
 import com.bemonovoid.playqd.library.model.query.SongQuery;
 import com.bemonovoid.playqd.online.search.ArtworkBinary;
 
@@ -16,9 +17,11 @@ public interface LibraryQueryService {
 
     Artists getArtists();
 
+    Genres getGenres();
+
     Album getAlbum(long albumId);
 
-    ArtistAlbums getArtistAlbums(ArtistAlbumsQuery query);
+    Albums getAlbums(AlbumsQuery query);
 
     Optional<Song> getSong(SongQuery query);
 
