@@ -60,6 +60,7 @@ public class ArtworkSearchResultHandler implements ApplicationListener<ArtworkRe
 
         ArtistEntity artistEntity = artistDao.getOne(albumEntity.getArtist().getId());
         artistEntity.setMbArtistId(searchResult.getMbArtistId());
+        artistEntity.setCountry(searchResult.getMbArtistCountry());
         artistDao.save(artistEntity);
 
         List<SongEntity> albumSongs = songDao.getAlbumSongs(albumId);

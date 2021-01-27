@@ -9,6 +9,7 @@ public class ArtworkSearchResult {
 
     private String imageUrl;
     private String mbArtistId;
+    private String mbArtistCountry;
     private String mbReleaseId;
 
 }

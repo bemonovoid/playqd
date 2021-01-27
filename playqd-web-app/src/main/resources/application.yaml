@@ -11,7 +11,7 @@ spring:
     password:
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
     propersties:
       hibernate:
         jdbc:
@@ -19,7 +19,7 @@ spring:
 
 playqd:
   library:
-    location: "D:/Music/Post-Rock"
+    location: "D:/Music"
 logging:
   level:
     web: DEBUG

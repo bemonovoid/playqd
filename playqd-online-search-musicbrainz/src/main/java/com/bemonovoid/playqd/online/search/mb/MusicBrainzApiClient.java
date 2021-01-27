@@ -81,7 +81,7 @@ public class MusicBrainzApiClient  {
 
             if (response.hasBody() && responseBody != null) {
 
-                LOG.info("Found {} release(s) for artist: id={}; name{}",
+                LOG.info("Found {} release(s) for artist: id={}; name={}",
                         responseBody.getReleases().size(), responseBody.getId(), responseBody.getName());
 
                 return Optional.of(responseBody);

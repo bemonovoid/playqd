@@ -12,14 +12,15 @@ public abstract class AlbumHelper {
                 .map(SongEntity::getDuration)
                 .mapToInt(Integer::intValue)
                 .sum();
-        return new Album(
-                entity.getId(),
-                entity.getName(),
-                entity.getGenre(),
-                entity.getDate(),
-                secondsToMinutesAndSecondsString(totalSeconds),
-                new Artist(entity.getArtist().getId(), entity.getArtist().getName()),
-                entity.getArtworkStatus());
+        return Album.builder()
+                .id(entity.getId())
+                .name(entity.getName())
+                .genre(entity.getGenre())
+                .year(entity.getDate())
+                .totalTime(secondsToMinutesAndSecondsString(totalSeconds))
+                .artist(ArtistHelper.fromEntity(entity.getArtist()))
+                .artworkStatus(entity.getArtworkStatus())
+                .build();
     }
 
     private static String secondsToMinutesAndSecondsString(long secs) {

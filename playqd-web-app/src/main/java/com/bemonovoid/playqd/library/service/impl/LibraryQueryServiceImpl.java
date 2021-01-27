@@ -17,6 +17,7 @@ import com.bemonovoid.playqd.library.model.AlbumHelper;
 import com.bemonovoid.playqd.library.model.AlbumSongs;
 import com.bemonovoid.playqd.library.model.Albums;
 import com.bemonovoid.playqd.library.model.Artist;
+import com.bemonovoid.playqd.library.model.ArtistHelper;
 import com.bemonovoid.playqd.library.model.Artists;
 import com.bemonovoid.playqd.library.model.Genres;
 import com.bemonovoid.playqd.library.model.Song;
@@ -52,7 +53,7 @@ public class LibraryQueryServiceImpl implements LibraryQueryService {
     @Override
     public Artists getArtists() {
         return new Artists(artistDao.getAll().stream()
-                .map(artistEntity -> new Artist(artistEntity.getId(), artistEntity.getName()))
+                .map(ArtistHelper::fromEntity)
                 .sorted(Comparator.comparing(Artist::getName))
                 .collect(Collectors.toList()));
     }
@@ -63,8 +64,8 @@ public class LibraryQueryServiceImpl implements LibraryQueryService {
     }
 
     @Override
-    public Album getAlbum(long albumId) {
-        return AlbumHelper.fromEntity(albumDao.getOne(albumId).get());
+    public Optional<Album> getAlbum(long albumId) {
+        return albumDao.getOne(albumId).map(AlbumHelper::fromEntity);
     }
 
     @Override
@@ -93,7 +94,7 @@ public class LibraryQueryServiceImpl implements LibraryQueryService {
     public Optional<Song> getSong(SongQuery query) {
         return songDao.getOne(query.getSongId()).map(songEntity -> {
             Song song = SongHelper.fromEntity(songEntity);
-            song.setArtist(new Artist(songEntity.getArtist().getId(), songEntity.getArtist().getName()));
+            song.setArtist(ArtistHelper.fromEntity(songEntity.getArtist()));
             song.setAlbum(AlbumHelper.fromEntity(songEntity.getAlbum()));
             return song;
         });

@@ -19,7 +19,7 @@ public interface LibraryQueryService {
 
     Genres getGenres();
 
-    Album getAlbum(long albumId);
+    Optional<Album> getAlbum(long albumId);
 
     Albums getAlbums(AlbumsQuery query);
 

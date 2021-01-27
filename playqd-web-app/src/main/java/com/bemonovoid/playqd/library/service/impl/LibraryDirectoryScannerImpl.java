@@ -141,6 +141,7 @@ public class LibraryDirectoryScannerImpl implements LibraryDirectoryScanner {
                     .addValue(ArtistEntity.COL_SIMPLE_NAME, nameAsKey);
             Tag tag = audioFile.getTag();
             if (tag != null) {
+                params.addValue(ArtistEntity.COL_COUNTRY, tag.getFirst(FieldKey.COUNTRY));
                 params.addValue(ArtistEntity.COL_MB_ARTIST_ID, tag.getFirst(FieldKey.MUSICBRAINZ_ARTISTID));
             }
             long artistId = simpleJdbcInsert.executeAndReturnKey(params).longValue();

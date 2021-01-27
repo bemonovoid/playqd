@@ -4,12 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import com.bemonovoid.playqd.online.search.ArtworkOnlineSearchService;
 import com.bemonovoid.playqd.online.search.ArtworkSearchFilter;
 import com.bemonovoid.playqd.online.search.ArtworkSearchResult;
-import com.bemonovoid.playqd.online.search.mb.model.MBArtistQueryParams;
+import com.bemonovoid.playqd.online.search.mb.model.MBQueryContext;
 import com.bemonovoid.playqd.online.search.mb.model.api.MBArtist;
 import com.bemonovoid.playqd.online.search.mb.model.api.MBArtistQueryResponse;
 import com.bemonovoid.playqd.online.search.mb.model.api.MBArtistReleasesQueryResponse;
@@ -38,36 +37,44 @@ public class MusicBrainzArtworkOnlineSearch implements ArtworkOnlineSearchServic
         LOG.info("Searching album art with filter: {}", searchFilter);
 
         if (searchFilter.getMbArtistId() != null && !searchFilter.getMbArtistId().isBlank()) {
-            return getArtworkInfo(new MBArtistQueryParams(searchFilter.getMbArtistId()), searchFilter.getAlbumName());
+            return getArtworkInfo(MBQueryContext.builder()
+                    .mbArtistId(searchFilter.getMbArtistId())
+                    .albumName(searchFilter.getAlbumName())
+                    .build());
         } else {
-            Optional<MBArtistQueryResponse> mayBeArtist = musicBrainzApiClient.getArtist(searchFilter.getArtistName());
+            Optional<MBArtistQueryResponse> artistOpt =
+                    musicBrainzApiClient.getArtist(searchFilter.getArtistName());
 
-            if (mayBeArtist.isEmpty()) {
+            if (artistOpt.isEmpty()) {
                 return Optional.empty();
             }
 
-            MBArtistQueryResponse artist = mayBeArtist.get();
+            MBArtistQueryResponse mbArtistResponse = artistOpt.get();
 
-            if (artist.getCount() == 0 || artist.getArtists().isEmpty()) {
+            if (mbArtistResponse.getCount() == 0 || mbArtistResponse.getArtists().isEmpty()) {
                 return Optional.empty();
             }
 
-            for (MBArtist mbArtist : artist.getArtists()) {
-                Optional<ArtworkSearchResult> artworkInfo =
-                        getArtworkInfo(new MBArtistQueryParams(mbArtist.getId()), searchFilter.getAlbumName());
-                if (artworkInfo.isEmpty()) {
+            for (MBArtist mbArtist : mbArtistResponse.getArtists()) {
+                Optional<ArtworkSearchResult> artworkInfoOpt = getArtworkInfo(MBQueryContext.builder()
+                        .mbArtistId(mbArtist.getId())
+                        .mbArtistCountry(mbArtist.getCountry())
+                        .albumName(searchFilter.getAlbumName())
+                        .build());
+                if (artworkInfoOpt.isEmpty()) {
                     continue;
                 }
-                return artworkInfo;
+                return artworkInfoOpt;
             }
 
             return Optional.empty();
         }
     }
 
-    private Optional<ArtworkSearchResult> getArtworkInfo(MBArtistQueryParams mbParams, String albumName) {
+    private Optional<ArtworkSearchResult> getArtworkInfo(MBQueryContext mbQueryContext) {
 
-        Optional<MBArtistReleasesQueryResponse> releasesOpt = musicBrainzApiClient.getReleases(mbParams.getMbArtistId());
+        Optional<MBArtistReleasesQueryResponse> releasesOpt =
+                musicBrainzApiClient.getReleases(mbQueryContext.getMbArtistId());
 
         if (releasesOpt.isEmpty()) {
             return Optional.empty();
@@ -76,6 +83,7 @@ public class MusicBrainzArtworkOnlineSearch implements ArtworkOnlineSearchServic
         MBArtistReleasesQueryResponse releases = releasesOpt.get();
 
         List<String> allTitles = new ArrayList<>(releases.getReleases().size());
+        String albumName = mbQueryContext.getAlbumName();
 
         Optional<MBRelease> releaseOpt = releases.getReleases().stream()
                 .peek(release -> allTitles.add(release.getTitle()))
@@ -113,13 +121,13 @@ public class MusicBrainzArtworkOnlineSearch implements ArtworkOnlineSearchServic
 
             return Optional.of(ArtworkSearchResult.builder()
                     .imageUrl(coverArtUrlOpt.get())
-                    .mbArtistId(mbParams.getMbArtistId())
+                    .mbArtistId(mbQueryContext.getMbArtistId())
+                    .mbArtistCountry(mbQueryContext.getMbArtistCountry())
                     .mbReleaseId(release.getId())
                     .build());
         }
         return Optional.empty();
     }
-
 
     private Optional<String> getDefaultFrontCoverArtUrl(MBCoverArtQueryResponse coverArt) {
         return coverArt.getImages().stream()

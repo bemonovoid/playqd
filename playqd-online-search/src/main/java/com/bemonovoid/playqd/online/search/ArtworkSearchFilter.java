@@ -11,7 +11,6 @@ public class ArtworkSearchFilter {
 
     private String artistName;
     private String albumName;
-
     private String mbArtistId;
 
 }
