@@ -1,6 +1,6 @@
 package com.bemonovoid.playqd;
 
-import com.bemonovoid.playqd.utils.PackageHelper;
+import com.bemonovoid.playqd.core.helpers.PackageHelper;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 

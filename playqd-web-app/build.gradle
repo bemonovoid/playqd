@@ -12,13 +12,12 @@ repositories {
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-//    implementation 'org.springframework.boot:spring-boot-starter-cache'
-
-    implementation "org.hsqldb:hsqldb:${hsqldbVersion}"
 
     compile fileTree(include: ['*.jar'], dir: 'libs')
 
-    implementation project(':playqd-online-search-musicbrainz')
+    implementation project(':playqd-core')
+    implementation project(':playqd-datasource-jdbc')
+    implementation project(':playqd-remote-service-musicbrainz')
 
 }
 

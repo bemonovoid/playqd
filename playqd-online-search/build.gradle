@@ -1,7 +1,0 @@
-jar {
-    enabled = true
-}
-
-dependencies {
-    compile project(':playqd-core')
-}

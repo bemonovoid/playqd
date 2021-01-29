@@ -1,9 +1,0 @@
-jar {
-    enabled = true
-}
-
-dependencies {
-    compile 'com.fasterxml.jackson.core:jackson-annotations'
-    implementation 'org.springframework:spring-web'
-    compile project(':playqd-online-search')
-}
