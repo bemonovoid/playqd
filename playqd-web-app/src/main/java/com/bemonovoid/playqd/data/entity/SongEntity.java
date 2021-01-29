@@ -1,14 +1,15 @@
 package com.bemonovoid.playqd.data.entity;
 
+import java.util.List;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.springframework.data.domain.Persistable;
@@ -83,6 +84,9 @@ public class SongEntity implements Persistable<Long> {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private AlbumEntity album;
+
+    @OneToMany(mappedBy = "song")
+    private List<PlaybackHistoryEntity> playBackHistory;
 
     @Override
     public Long getId() {

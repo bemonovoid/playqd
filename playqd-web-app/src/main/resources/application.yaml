@@ -6,9 +6,9 @@ server:
 spring:
   datasource:
     driver-class-name: "org.hsqldb.jdbc.JDBCDriver"
-    url: "jdbc:hsqldb:hsql://localhost/playqd_db"
-    username: sa
-    password:
+    url: "jdbc:hsqldb:hsql://localhost:9004/playqd_db"
+    username: bemonovoid
+    password: bemonovoidpwd
   jpa:
     hibernate:
       ddl-auto: update
