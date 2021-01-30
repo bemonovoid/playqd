@@ -12,6 +12,7 @@ abstract class AlbumHelper {
         return Album.builder()
                 .id(entity.getId())
                 .name(entity.getName())
+                .simpleName(entity.getSimpleName())
                 .genre(entity.getGenre())
                 .date(entity.getDate())
                 .totalTimeInSeconds(entity.getTotalTimeInSeconds())

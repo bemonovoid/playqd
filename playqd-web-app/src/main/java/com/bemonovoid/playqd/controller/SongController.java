@@ -13,11 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(Endpoints.LIBRARY_API_BASE_PATH)
-class SongsQueryController {
+class SongController {
 
     private final LibraryQueryService libraryQueryService;
 
-    public SongsQueryController(LibraryQueryService libraryQueryService) {
+    SongController(LibraryQueryService libraryQueryService) {
         this.libraryQueryService = libraryQueryService;
     }
 

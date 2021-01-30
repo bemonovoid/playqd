@@ -15,7 +15,7 @@ import com.bemonovoid.playqd.core.model.Song;
 import com.bemonovoid.playqd.core.model.query.ArtworkLocalSearchQuery;
 import com.bemonovoid.playqd.core.service.ArtworkSearchService;
 import com.bemonovoid.playqd.core.service.ArtworkService;
-import com.bemonovoid.playqd.service.events.ArtworkResultReceived;
+import com.bemonovoid.playqd.event.ArtworkResultReceived;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.tag.Tag;

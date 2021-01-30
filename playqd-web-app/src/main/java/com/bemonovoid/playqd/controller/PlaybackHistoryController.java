@@ -18,6 +18,6 @@ class PlaybackHistoryController {
 
     @PutMapping("/history/{songId}")
     void songListened(@PathVariable long songId) {
-        playbackHistoryService.logListenerSong(songId);
+        playbackHistoryService.updatePlaybackHistoryWithSongEnded(songId);
     }
 }

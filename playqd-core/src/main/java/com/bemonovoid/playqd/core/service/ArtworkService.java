@@ -10,5 +10,5 @@ public interface ArtworkService {
     Artwork getArtworkFromLibrary(ArtworkLocalSearchQuery localQuery);
 
     Optional<String> getArtworkOnline(ArtworkLocalSearchQuery localQuery);
-    
+
 }

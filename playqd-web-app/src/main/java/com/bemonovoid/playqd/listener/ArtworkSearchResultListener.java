@@ -1,4 +1,4 @@
-package com.bemonovoid.playqd.service.events;
+package com.bemonovoid.playqd.listener;
 
 import java.io.File;
 import java.util.List;
@@ -9,6 +9,7 @@ import com.bemonovoid.playqd.core.dao.SongDao;
 import com.bemonovoid.playqd.core.model.Album;
 import com.bemonovoid.playqd.core.model.ArtworkOnlineSearchResult;
 import com.bemonovoid.playqd.core.model.Song;
+import com.bemonovoid.playqd.event.ArtworkResultReceived;
 import lombok.extern.slf4j.Slf4j;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
@@ -24,13 +25,13 @@ import org.springframework.web.client.RestTemplate;
 
 @Slf4j
 @Component
-class ArtworkSearchResultHandler implements ApplicationListener<ArtworkResultReceived> {
+class ArtworkSearchResultListener implements ApplicationListener<ArtworkResultReceived> {
 
     private final ArtistDao artistDao;
     private final AlbumDao albumDao;
     private final SongDao songDao;
 
-    ArtworkSearchResultHandler(ArtistDao artistDao, AlbumDao albumDao, SongDao songDao) {
+    ArtworkSearchResultListener(ArtistDao artistDao, AlbumDao albumDao, SongDao songDao) {
         this.artistDao = artistDao;
         this.albumDao = albumDao;
         this.songDao = songDao;
@@ -41,7 +42,7 @@ class ArtworkSearchResultHandler implements ApplicationListener<ArtworkResultRec
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void onApplicationEvent(ArtworkResultReceived event) {
 
-        log.info("Handling {} event.", ArtworkSearchResultHandler.class.getSimpleName());
+        log.info("Handling {} event.", ArtworkSearchResultListener.class.getSimpleName());
 
         ArtworkOnlineSearchResult searchResult = event.getArtworkOnlineSearchResult();
         byte[] binaryData = new RestTemplate().getForObject(searchResult.getImageUrl(), byte[].class);

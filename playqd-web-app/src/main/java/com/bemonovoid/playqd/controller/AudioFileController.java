@@ -15,8 +15,6 @@ import com.bemonovoid.playqd.core.service.LibraryDirectory;
 import com.bemonovoid.playqd.core.service.LibraryQueryService;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
-import org.jaudiotagger.tag.FieldKey;
-import org.jaudiotagger.tag.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -45,27 +43,27 @@ class AudioFileController {
     }
 
     @GetMapping("/debug/{songId}")
-    void debug(@PathVariable long songId) {
-        libraryQueryService.getSong(new SongQuery(songId))
-                .ifPresent(song -> {
+    ResponseEntity<String> debug(@PathVariable long songId) {
+        Optional<String> opt = libraryQueryService.getSong(new SongQuery(songId))
+                .map(song -> {
                     try {
                         AudioFile audioFile = AudioFileIO.read(new File(song.getFileLocation()));
-                        Tag tag = audioFile.getTag();
-                        System.out.println(">>>MUSICBRAINZ_RELEASEID: \n" + tag.getFirst(FieldKey.MUSICBRAINZ_RELEASEID));
-                        System.out.println(">>>MUSICBRAINZ_ORIGINAL_RELEASE_ID: \n" + tag.getFirst(FieldKey.MUSICBRAINZ_ORIGINAL_RELEASE_ID));
-                        audioFile.getAudioHeader();
-                        System.out.println(audioFile);
+                        return audioFile.toString();
                     } catch (Exception e) {
-                        System.out.println(e.getMessage());
+                        throw new RuntimeException(e);
                     }
                 });
+        return ResponseEntity.ok(opt.get());
     }
 
     @GetMapping("/open")
     ResponseEntity<byte[]> openAudioFile(@RequestHeader(value = "Range", required = false) String range,
                                          @RequestParam long songId) {
-        Song song = libraryQueryService.getSong(new SongQuery(songId)).get();
-        return getContent(song.getFileLocation(), range);
+        Optional<Song> songOpt = libraryQueryService.getSong(new SongQuery(songId));
+        if (songOpt.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return getContent(songOpt.get().getFileLocation(), range);
     }
 
     private ResponseEntity<byte[]> getContent(String fileName, String range) {

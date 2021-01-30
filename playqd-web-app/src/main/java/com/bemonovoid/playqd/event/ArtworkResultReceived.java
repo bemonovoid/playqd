@@ -1,4 +1,4 @@
-package com.bemonovoid.playqd.service.events;
+package com.bemonovoid.playqd.event;
 
 import com.bemonovoid.playqd.core.model.Album;
 import com.bemonovoid.playqd.core.model.ArtworkOnlineSearchResult;

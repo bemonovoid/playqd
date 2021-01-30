@@ -7,8 +7,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableAsync;
 
 @Configuration
-@EnableConfigurationProperties
 @EnableAsync
+@EnableConfigurationProperties
 class AppConfig {
 
     @Bean

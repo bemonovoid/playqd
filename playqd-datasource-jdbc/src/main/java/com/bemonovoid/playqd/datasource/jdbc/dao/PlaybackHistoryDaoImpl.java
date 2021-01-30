@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
+@Transactional
 class PlaybackHistoryDaoImpl implements PlaybackHistoryDao {
 
     private final SongRepository songRepository;
@@ -20,9 +21,8 @@ class PlaybackHistoryDaoImpl implements PlaybackHistoryDao {
     }
 
     @Override
-    @Transactional
     public Long save(long songId) {
-        SongEntity songEntity = songRepository.findById(songId).get();
+        SongEntity songEntity = songRepository.getOne(songId);
         PlaybackHistoryEntity playbackHistoryEntity = new PlaybackHistoryEntity();
         playbackHistoryEntity.setSong(songEntity);
         return playbackHistoryRepository.save(playbackHistoryEntity).getId();

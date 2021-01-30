@@ -3,6 +3,7 @@ package com.bemonovoid.playqd.service;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,11 +11,13 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import com.bemonovoid.playqd.core.service.LibraryDirectory;
-import com.bemonovoid.playqd.core.service.LibraryDirectoryScanner;
+import com.bemonovoid.playqd.core.service.MusicDirectoryScanner;
 import com.bemonovoid.playqd.datasource.jdbc.batch.BatchInsert;
 import com.bemonovoid.playqd.datasource.jdbc.batch.SimpleBatchInsert;
 import com.bemonovoid.playqd.datasource.jdbc.entity.AlbumEntity;
 import com.bemonovoid.playqd.datasource.jdbc.entity.ArtistEntity;
+import com.bemonovoid.playqd.datasource.jdbc.entity.PersistentAuditableEntity;
+import com.bemonovoid.playqd.datasource.jdbc.entity.PlaybackHistoryEntity;
 import com.bemonovoid.playqd.datasource.jdbc.entity.SongEntity;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
@@ -31,9 +34,9 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 @Component
-class LibraryDirectoryScannerImpl implements LibraryDirectoryScanner {
+class MusicDirectoryScannerImpl implements MusicDirectoryScanner {
 
-    private static final Logger LOG = LoggerFactory.getLogger(LibraryDirectoryScannerImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MusicDirectoryScannerImpl.class);
 
     private static final String UNKNOWN_ARTIST = "Unknown artist";
     private static final String UNKNOWN_ALBUM = "Unknown album";
@@ -42,7 +45,7 @@ class LibraryDirectoryScannerImpl implements LibraryDirectoryScanner {
     private static final Set<String> AUDIO_EXTENSIONS = Set.of("flac", "m4a", "m4p", "mp3", "ogg", "wav", "wma");
 
     private static final List<String> TABLES = List.of(
-            SongEntity.TABLE_NAME, AlbumEntity.TABLE_NAME, ArtistEntity.TABLE_NAME);
+            PlaybackHistoryEntity.TABLE_NAME, SongEntity.TABLE_NAME, AlbumEntity.TABLE_NAME, ArtistEntity.TABLE_NAME);
 
     private final BatchInsert songBatch;
 
@@ -52,7 +55,7 @@ class LibraryDirectoryScannerImpl implements LibraryDirectoryScanner {
     private final JdbcTemplate jdbcTemplate;
     private final LibraryDirectory libraryDirectory;
 
-    LibraryDirectoryScannerImpl(JdbcTemplate jdbcTemplate, LibraryDirectory libraryDirectory) {
+    MusicDirectoryScannerImpl(JdbcTemplate jdbcTemplate, LibraryDirectory libraryDirectory) {
         this.jdbcTemplate = jdbcTemplate;
         this.libraryDirectory = libraryDirectory;
         this.songBatch = new SimpleBatchInsert(jdbcTemplate, 1000, SongEntity.TABLE_NAME, SongEntity.COL_PK_ID);
@@ -107,6 +110,7 @@ class LibraryDirectoryScannerImpl implements LibraryDirectoryScanner {
                     .addValue(SongEntity.COL_NAME, songName)
                     .addValue(SongEntity.COL_TRACK_ID, tag.getFirst(FieldKey.TRACK))
                     .addValue(SongEntity.COL_COMMENT, tag.getFirst(FieldKey.COMMENT))
+                    .addValue(SongEntity.COL_LYRICS, tag.getFirst(FieldKey.LYRICS))
                     .addValue(SongEntity.COL_MB_TRACK_ID, tag.getFirst(FieldKey.MUSICBRAINZ_TRACK_ID));
 
         } else {
@@ -126,6 +130,8 @@ class LibraryDirectoryScannerImpl implements LibraryDirectoryScanner {
                 .addValue(SongEntity.COL_FILE_NAME, fileName)
                 .addValue(SongEntity.COL_FILE_LOCATION, audiofile.getFile().getAbsolutePath())
                 .addValue(SongEntity.COL_FILE_EXTENSION, audiofile.getExt());
+
+        addAuditableParams(params);
 
         songBatch.insert(params);
     }
@@ -147,6 +153,7 @@ class LibraryDirectoryScannerImpl implements LibraryDirectoryScanner {
                 params.addValue(ArtistEntity.COL_COUNTRY, tag.getFirst(FieldKey.COUNTRY));
                 params.addValue(ArtistEntity.COL_MB_ARTIST_ID, tag.getFirst(FieldKey.MUSICBRAINZ_ARTISTID));
             }
+            addAuditableParams(params);
             long artistId = simpleJdbcInsert.executeAndReturnKey(params).longValue();
             artists.put(nameAsKey, artistId);
             return artistId;
@@ -173,6 +180,7 @@ class LibraryDirectoryScannerImpl implements LibraryDirectoryScanner {
                         .addValue(AlbumEntity.COL_DATE, tag.getFirst(FieldKey.YEAR))
                         .addValue(AlbumEntity.COL_MB_RELEASE_ID, tag.getFirst(FieldKey.MUSICBRAINZ_RELEASEID));
             }
+            addAuditableParams(params);
             Long albumId = albumJdbcInsert.executeAndReturnKey(params).longValue();
             artistAlbums.put(artistAlbumKey, albumId);
             return albumId;
@@ -224,5 +232,10 @@ class LibraryDirectoryScannerImpl implements LibraryDirectoryScanner {
         TABLES.forEach(tableName -> {
             jdbcTemplate.execute(String.format("TRUNCATE TABLE %s", tableName));
         });
+    }
+
+    private static void addAuditableParams(MapSqlParameterSource params) {
+        params.addValue(PersistentAuditableEntity.COL_CREATED_BY, "system");
+        params.addValue(PersistentAuditableEntity.COL_CREATED_DATE, LocalDateTime.now());
     }
 }

@@ -15,30 +15,16 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(Endpoints.LIBRARY_API_BASE_PATH)
-class ArtistsQueryController {
+class ArtistController {
 
     private final LibraryQueryService libraryQueryService;
 
-    public ArtistsQueryController(LibraryQueryService libraryQueryService) {
+    public ArtistController(LibraryQueryService libraryQueryService) {
         this.libraryQueryService = libraryQueryService;
     }
 
     @GetMapping("/artists")
     Artists listArtists() {
         return libraryQueryService.getArtists();
-    }
-
-    @GetMapping("/albums")
-    Albums listArtistAlbums(AlbumsQuery query) {
-        return libraryQueryService.getAlbums(query);
-    }
-
-    @GetMapping("/albums/{albumId}")
-    ResponseEntity<Album> getOne(@PathVariable long albumId) {
-        Optional<Album> albumOpt = libraryQueryService.getAlbum(albumId);
-        if (albumOpt.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(albumOpt.get());
     }
 }

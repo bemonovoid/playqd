@@ -1,22 +1,21 @@
 package com.bemonovoid.playqd.service;
 
-import com.bemonovoid.playqd.core.dao.PlaybackHistoryDao;
 import com.bemonovoid.playqd.core.service.PlaybackHistoryService;
-import org.springframework.scheduling.annotation.Async;
+import com.bemonovoid.playqd.event.SongPlaybackEndedEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 @Component
 class PlaybackHistoryServiceImpl implements PlaybackHistoryService {
 
-    private final PlaybackHistoryDao playbackHistoryDao;
+    private final ApplicationEventPublisher publisher;
 
-    PlaybackHistoryServiceImpl(PlaybackHistoryDao playbackHistoryDao) {
-        this.playbackHistoryDao = playbackHistoryDao;
+    PlaybackHistoryServiceImpl(ApplicationEventPublisher publisher) {
+        this.publisher = publisher;
     }
 
     @Override
-    @Async
-    public void logListenerSong(long songId) {
-        playbackHistoryDao.save(songId);
+    public void updatePlaybackHistoryWithSongEnded(long songId) {
+        publisher.publishEvent(new SongPlaybackEndedEvent(this, songId));
     }
 }

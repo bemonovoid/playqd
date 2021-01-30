@@ -42,6 +42,7 @@ class ArtworkController {
             return ResponseEntity.ok(ArtworkUrl.builder().url(mayBeUrl.get()).build());
         }
         return ResponseEntity.badRequest().build();
+//        return ResponseEntity.notFound().build();
     }
 
 }
