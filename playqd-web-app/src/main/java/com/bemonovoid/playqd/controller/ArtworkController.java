@@ -34,15 +34,15 @@ class ArtworkController {
 
     @GetMapping(path = "/search")
     ResponseEntity<ArtworkUrl> searchOnline(ArtworkLocalSearchQuery query) {
-        if (query.getAlbumId() > 0 || query.getSongId() > 0) {
-            Optional<String> mayBeUrl = artworkService.getArtworkOnline(query);
-            if (mayBeUrl.isEmpty()) {
-                return ResponseEntity.notFound().build();
-            }
-            return ResponseEntity.ok(ArtworkUrl.builder().url(mayBeUrl.get()).build());
-        }
-        return ResponseEntity.badRequest().build();
-//        return ResponseEntity.notFound().build();
+//        if (query.getAlbumId() > 0 || query.getSongId() > 0) {
+//            Optional<String> mayBeUrl = artworkService.getArtworkOnline(query);
+//            if (mayBeUrl.isEmpty()) {
+//                return ResponseEntity.notFound().build();
+//            }
+//            return ResponseEntity.ok(ArtworkUrl.builder().url(mayBeUrl.get()).build());
+//        }
+//        return ResponseEntity.badRequest().build();
+        return ResponseEntity.notFound().build();
     }
 
 }
