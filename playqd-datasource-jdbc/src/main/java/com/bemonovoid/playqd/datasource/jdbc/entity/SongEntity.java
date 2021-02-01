@@ -11,6 +11,8 @@ import javax.persistence.Table;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
 @Table(name = SongEntity.TABLE_NAME)
 @Entity
@@ -37,6 +39,8 @@ public class SongEntity extends PersistentAuditableEntity<Long> {
 
     public static final String COL_ARTIST_ID = "ARTIST_ID";
     public static final String COL_ALBUM_ID = "ALBUM_ID";
+
+    private static final String ONE_TO_MANY_MAPPED_BY = "song";
 
     @Column(name = COL_NAME, length = 1000)
     private String name;
@@ -83,7 +87,8 @@ public class SongEntity extends PersistentAuditableEntity<Long> {
     @ManyToOne(fetch = FetchType.LAZY)
     private AlbumEntity album;
 
-    @OneToMany(mappedBy = "song")
+    @OneToMany(mappedBy = ONE_TO_MANY_MAPPED_BY)
+    @LazyCollection(LazyCollectionOption.EXTRA)
     private List<PlaybackHistoryEntity> playBackHistory;
 
 }
