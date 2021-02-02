@@ -29,7 +29,7 @@ abstract class SongHelper {
         song.setArtist(ArtistHelper.fromEntity(songEntity.getArtist()));
         song.setAlbum(AlbumHelper.fromEntity(songEntity.getAlbum()));
 
-        song.setPlayCount(songEntity.getPlayBackHistory().size());
+        song.setPlayCount(songEntity.getPlayBackHistory().size()    );
 
         return song;
     }
