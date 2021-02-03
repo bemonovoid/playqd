@@ -18,4 +18,6 @@ public class Artist {
 
     @JsonIgnore
     private String mbArtistId;
+
+    private PlaybackHistoryArtist playbackHistory;
 }

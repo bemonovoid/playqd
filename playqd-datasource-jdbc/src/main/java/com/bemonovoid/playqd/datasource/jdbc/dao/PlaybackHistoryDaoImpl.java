@@ -1,8 +1,13 @@
 package com.bemonovoid.playqd.datasource.jdbc.dao;
 
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import com.bemonovoid.playqd.core.dao.PlaybackHistoryDao;
+import com.bemonovoid.playqd.core.model.PlaybackHistoryArtist;
 import com.bemonovoid.playqd.datasource.jdbc.entity.PlaybackHistoryEntity;
 import com.bemonovoid.playqd.datasource.jdbc.entity.SongEntity;
+import com.bemonovoid.playqd.datasource.jdbc.projection.PlaybackHistoryArtistProjection;
 import com.bemonovoid.playqd.datasource.jdbc.repository.PlaybackHistoryRepository;
 import com.bemonovoid.playqd.datasource.jdbc.repository.SongRepository;
 import org.springframework.stereotype.Component;
@@ -26,5 +31,16 @@ class PlaybackHistoryDaoImpl implements PlaybackHistoryDao {
         PlaybackHistoryEntity playbackHistoryEntity = new PlaybackHistoryEntity();
         playbackHistoryEntity.setSong(songEntity);
         return playbackHistoryRepository.save(playbackHistoryEntity).getId();
+    }
+
+    @Override
+    public Map<Long, PlaybackHistoryArtist> getArtistPlaybackHistory() {
+        return playbackHistoryRepository.groupByArtistPlaybackHistory().stream()
+                .collect(Collectors.toMap(
+                        PlaybackHistoryArtistProjection::getArtistId,
+                        projection -> new PlaybackHistoryArtist(
+                                projection.getArtistId(),
+                                projection.getPlayCount(),
+                                projection.getMostRecentPlayDateTime().toString())));
     }
 }

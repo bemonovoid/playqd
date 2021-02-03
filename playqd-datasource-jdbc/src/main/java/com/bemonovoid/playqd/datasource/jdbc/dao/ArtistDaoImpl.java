@@ -2,11 +2,14 @@ package com.bemonovoid.playqd.datasource.jdbc.dao;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.bemonovoid.playqd.core.dao.ArtistDao;
+import com.bemonovoid.playqd.core.dao.PlaybackHistoryDao;
 import com.bemonovoid.playqd.core.model.Artist;
+import com.bemonovoid.playqd.core.model.PlaybackHistoryArtist;
 import com.bemonovoid.playqd.datasource.jdbc.entity.ArtistEntity;
 import com.bemonovoid.playqd.datasource.jdbc.repository.ArtistRepository;
 import org.springframework.stereotype.Component;
@@ -15,9 +18,11 @@ import org.springframework.stereotype.Component;
 class ArtistDaoImpl implements ArtistDao {
 
     private final ArtistRepository repository;
+    private final PlaybackHistoryDao playbackHistoryDao;
 
-    ArtistDaoImpl(ArtistRepository repository) {
+    ArtistDaoImpl(ArtistRepository repository, PlaybackHistoryDao playbackHistoryDao) {
         this.repository = repository;
+        this.playbackHistoryDao = playbackHistoryDao;
     }
 
     @Override
@@ -33,8 +38,9 @@ class ArtistDaoImpl implements ArtistDao {
 
     @Override
     public List<Artist> getAll() {
+        Map<Long, PlaybackHistoryArtist> artistPlaybackHistory = playbackHistoryDao.getArtistPlaybackHistory();
         return repository.findAll().stream()
-                .map(ArtistHelper::fromEntity)
+                .map(e -> ArtistHelper.fromEntity(e, artistPlaybackHistory.get(e.getId())))
                 .sorted(Comparator.comparing(Artist::getName))
                 .collect(Collectors.toList());
     }
