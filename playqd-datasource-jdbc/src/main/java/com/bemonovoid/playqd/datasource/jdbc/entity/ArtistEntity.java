@@ -12,6 +12,8 @@ import javax.persistence.Table;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
 @Table(name = ArtistEntity.TABLE_NAME)
 @Entity
@@ -42,6 +44,7 @@ public class ArtistEntity extends PersistentAuditableEntity<Long> {
     private String simpleName;
 
     @OneToMany(mappedBy = "artist")
+    @LazyCollection(LazyCollectionOption.EXTRA)
     private List<AlbumEntity> albums;
 
     @Column(name = COL_COUNTRY)

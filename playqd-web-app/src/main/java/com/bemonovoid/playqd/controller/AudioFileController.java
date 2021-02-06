@@ -44,7 +44,7 @@ class AudioFileController {
 
     @GetMapping("/debug/{songId}")
     ResponseEntity<String> debug(@PathVariable long songId) {
-        Optional<String> opt = libraryQueryService.getSong(new SongQuery(songId))
+        Optional<String> opt = libraryQueryService.getSong(songId)
                 .map(song -> {
                     try {
                         AudioFile audioFile = AudioFileIO.read(new File(song.getFileLocation()));
@@ -59,7 +59,7 @@ class AudioFileController {
     @GetMapping("/open")
     ResponseEntity<byte[]> openAudioFile(@RequestHeader(value = "Range", required = false) String range,
                                          @RequestParam long songId) {
-        Optional<Song> songOpt = libraryQueryService.getSong(new SongQuery(songId));
+        Optional<Song> songOpt = libraryQueryService.getSong(songId);
         if (songOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
         }

@@ -12,6 +12,8 @@ public class Artist {
     private Long id;
     private String name;
     private String country;
+    private long albumCount;
+    private long songCount;
 
     @JsonIgnore
     private String simpleName;

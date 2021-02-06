@@ -1,30 +1,10 @@
 package com.bemonovoid.playqd.core.model.query;
 
-import java.util.Objects;
-import java.util.Optional;
+public enum SongFilter {
 
-public class SongFilter {
+    FAVORITE,
 
-    private final String name;
+    LAST_PLAYED,
 
-    public SongFilter(String name) {
-        this.name = name;
-    }
-
-    public Optional<String> getName() {
-        return Optional.ofNullable(name);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        SongFilter that = (SongFilter) o;
-        return Objects.equals(name, that.name);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(name);
-    }
+    PLAY_COUNT;
 }

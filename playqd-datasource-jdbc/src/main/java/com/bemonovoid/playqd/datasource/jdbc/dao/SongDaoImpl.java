@@ -1,31 +1,32 @@
 package com.bemonovoid.playqd.datasource.jdbc.dao;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.bemonovoid.playqd.core.dao.PlaybackHistoryDao;
 import com.bemonovoid.playqd.core.dao.SongDao;
+import com.bemonovoid.playqd.core.model.PlaybackHistorySong;
 import com.bemonovoid.playqd.core.model.Song;
 import com.bemonovoid.playqd.datasource.jdbc.repository.SongRepository;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 @Component
 class SongDaoImpl implements SongDao {
 
     private final SongRepository repository;
+    private final PlaybackHistoryDao playbackHistoryDao;
 
-    SongDaoImpl(SongRepository repository) {
+    SongDaoImpl(SongRepository repository, PlaybackHistoryDao playbackHistoryDao) {
         this.repository = repository;
+        this.playbackHistoryDao = playbackHistoryDao;
     }
 
     @Override
     public Optional<Song> getOne(long id) {
         return repository.findById(id).map(SongHelper::fromEntity);
-    }
-
-    @Override
-    public List<Song> getArtistSongs(long artistId) {
-        return repository.findAllByArtistId(artistId).stream().map(SongHelper::fromEntity).collect(Collectors.toList());
     }
 
     @Override
@@ -36,5 +37,20 @@ class SongDaoImpl implements SongDao {
     @Override
     public Optional<Song> getFirstSongInAlbum(long albumId) {
         return repository.findFirstByAlbumId(albumId).map(SongHelper::fromEntity);
+    }
+
+    @Override
+    public List<Song> getTopPlayedSongs(int pageSize) {
+        return repository.findTopPlayedSongs(PageRequest.of(0, pageSize)).stream()
+                .map(SongHelper::fromEntity)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Song> getTopRecentlyPlayedSongs(int pageSize) {
+        Map<Long, PlaybackHistorySong> recentlyPlayedSongs = playbackHistoryDao.findTopRecentlyPlayedSongs(pageSize);
+        return repository.findAllById(recentlyPlayedSongs.keySet()).stream()
+                .map(songEntity -> SongHelper.fromEntity(songEntity, recentlyPlayedSongs.get(songEntity.getId())))
+                .collect(Collectors.toList());
     }
 }

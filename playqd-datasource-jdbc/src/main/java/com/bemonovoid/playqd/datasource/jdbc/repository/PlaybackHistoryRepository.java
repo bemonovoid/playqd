@@ -2,25 +2,27 @@ package com.bemonovoid.playqd.datasource.jdbc.repository;
 
 import java.util.List;
 
+import com.bemonovoid.playqd.datasource.jdbc.entity.PlaybackHistoryEntity;
 import com.bemonovoid.playqd.datasource.jdbc.projection.PlaybackHistoryArtistProjection;
 import com.bemonovoid.playqd.datasource.jdbc.projection.PlaybackHistorySongProjection;
-import com.bemonovoid.playqd.datasource.jdbc.entity.PlaybackHistoryEntity;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
 public interface PlaybackHistoryRepository extends CrudRepository<PlaybackHistoryEntity, Long> {
 
-    @Query("SELECT h.song.id as songId, s.album.id as albumId, s.artist.id as artistId, COUNT(h.song.id) as playCount, MAX(h.createdDate) as mostRecentPlayDateTime " +
+    @Query("SELECT h.song.id AS songId, COUNT(h.song.id) AS playCount, MAX(h.createdDate) as mostRecentPlayDateTime " +
             "FROM PlaybackHistoryEntity h " +
-            "left join SongEntity s on h.song.id = s.id " +
-            "GROUP BY songId, albumId, artistId " +
-            "ORDER BY mostRecentPlayDateTime desc")
-    List<PlaybackHistorySongProjection> groupBySongPlaybackHistory();
+            "LEFT JOIN SongEntity s ON h.song.id = s.id " +
+            "GROUP BY songId " +
+            "ORDER BY mostRecentPlayDateTime DESC")
+    List<PlaybackHistorySongProjection> findTopRecentlyPlayedSongs(PageRequest page);
 
-    @Query("SELECT s.artist.id as artistId, COUNT(h.song.id) as playCount, MAX(h.createdDate) as mostRecentPlayDateTime " +
+    @Query("SELECT s.artist.id AS artistId, COUNT(h.song.id) AS playCount, MAX(h.createdDate) AS mostRecentPlayDateTime " +
             "FROM PlaybackHistoryEntity h " +
-            "left join SongEntity s on h.song.id = s.id " +
+            "LEFT JOIN SongEntity s ON h.song.id = s.id " +
             "GROUP BY artistId " +
-            "ORDER BY mostRecentPlayDateTime desc")
+            "ORDER BY mostRecentPlayDateTime DESC")
     List<PlaybackHistoryArtistProjection> groupByArtistPlaybackHistory();
+
 }

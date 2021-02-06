@@ -1,5 +1,8 @@
 package com.bemonovoid.playqd.controller;
 
+import java.util.Collections;
+import java.util.List;
+
 import com.bemonovoid.playqd.core.model.AlbumSongs;
 import com.bemonovoid.playqd.core.model.Song;
 import com.bemonovoid.playqd.core.model.query.AlbumSongsQuery;
@@ -23,7 +26,7 @@ class SongController {
 
     @GetMapping("/songs/{songId}")
     ResponseEntity<Song> getSong(@PathVariable long songId) {
-        return libraryQueryService.getSong(new SongQuery(songId))
+        return libraryQueryService.getSong(songId)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -31,5 +34,10 @@ class SongController {
     @GetMapping("/songs/album/{albumId}")
     AlbumSongs getAlbumSongs(@PathVariable long albumId) {
         return libraryQueryService.getAlbumSongs(new AlbumSongsQuery(albumId));
+    }
+
+    @GetMapping("/songs")
+    List<Song> librarySongs(SongQuery query) {
+        return libraryQueryService.getSongs(query);
     }
 }

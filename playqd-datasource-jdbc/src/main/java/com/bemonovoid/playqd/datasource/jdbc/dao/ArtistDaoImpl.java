@@ -11,17 +11,21 @@ import com.bemonovoid.playqd.core.dao.PlaybackHistoryDao;
 import com.bemonovoid.playqd.core.model.Artist;
 import com.bemonovoid.playqd.core.model.PlaybackHistoryArtist;
 import com.bemonovoid.playqd.datasource.jdbc.entity.ArtistEntity;
+import com.bemonovoid.playqd.datasource.jdbc.projection.CountProjection;
 import com.bemonovoid.playqd.datasource.jdbc.repository.ArtistRepository;
+import com.bemonovoid.playqd.datasource.jdbc.repository.SongRepository;
 import org.springframework.stereotype.Component;
 
 @Component
 class ArtistDaoImpl implements ArtistDao {
 
     private final ArtistRepository repository;
+    private final SongRepository songRepository;
     private final PlaybackHistoryDao playbackHistoryDao;
 
-    ArtistDaoImpl(ArtistRepository repository, PlaybackHistoryDao playbackHistoryDao) {
+    ArtistDaoImpl(ArtistRepository repository, SongRepository songRepository, PlaybackHistoryDao playbackHistoryDao) {
         this.repository = repository;
+        this.songRepository = songRepository;
         this.playbackHistoryDao = playbackHistoryDao;
     }
 
@@ -39,8 +43,10 @@ class ArtistDaoImpl implements ArtistDao {
     @Override
     public List<Artist> getAll() {
         Map<Long, PlaybackHistoryArtist> artistPlaybackHistory = playbackHistoryDao.getArtistPlaybackHistory();
+        Map<Long, CountProjection> counts = songRepository.getArtistAlbumSongCount();
         return repository.findAll().stream()
-                .map(e -> ArtistHelper.fromEntity(e, artistPlaybackHistory.get(e.getId())))
+                .map(e -> ArtistHelper.fromEntity(
+                        e, new ArtistMetadata(counts.get(e.getId()), artistPlaybackHistory.get(e.getId()))))
                 .sorted(Comparator.comparing(Artist::getName))
                 .collect(Collectors.toList());
     }

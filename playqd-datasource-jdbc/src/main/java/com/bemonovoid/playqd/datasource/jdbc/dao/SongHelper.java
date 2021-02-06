@@ -1,12 +1,20 @@
 package com.bemonovoid.playqd.datasource.jdbc.dao;
 
+import java.time.LocalDateTime;
+
+import com.bemonovoid.playqd.core.model.PlaybackHistorySong;
 import com.bemonovoid.playqd.core.model.Song;
 import com.bemonovoid.playqd.datasource.jdbc.entity.SongEntity;
 
 abstract class SongHelper {
 
     static Song fromEntity(SongEntity songEntity) {
+        PlaybackHistorySong playbackHistory = new PlaybackHistorySong(
+                songEntity.getId(), songEntity.getPlayBackHistory().size(), LocalDateTime.MIN.toString());
+        return fromEntity(songEntity, playbackHistory);
+    }
 
+    static Song fromEntity(SongEntity songEntity, PlaybackHistorySong playbackHistorySong) {
         Song song = new Song();
 
         song.setId(songEntity.getId());
@@ -29,7 +37,7 @@ abstract class SongHelper {
         song.setArtist(ArtistHelper.fromEntity(songEntity.getArtist()));
         song.setAlbum(AlbumHelper.fromEntity(songEntity.getAlbum()));
 
-        song.setPlayCount(songEntity.getPlayBackHistory().size()    );
+        song.setPlaybackHistory(playbackHistorySong);
 
         return song;
     }

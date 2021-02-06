@@ -15,6 +15,7 @@ import com.bemonovoid.playqd.core.model.Genres;
 import com.bemonovoid.playqd.core.model.Song;
 import com.bemonovoid.playqd.core.model.query.AlbumSongsQuery;
 import com.bemonovoid.playqd.core.model.query.AlbumsQuery;
+import com.bemonovoid.playqd.core.model.query.SongFilter;
 import com.bemonovoid.playqd.core.model.query.SongQuery;
 import com.bemonovoid.playqd.core.service.LibraryQueryService;
 import org.springframework.stereotype.Component;
@@ -61,13 +62,24 @@ public class LibraryQueryServiceImpl implements LibraryQueryService {
     }
 
     @Override
-    public Optional<Song> getSong(SongQuery query) {
-        return songDao.getOne(query.getSongId());
+    public Optional<Song> getSong(long songId) {
+        return songDao.getOne(songId);
     }
 
     @Override
     public AlbumSongs getAlbumSongs(AlbumSongsQuery query) {
         List<Song> songs = songDao.getAlbumSongs(query.getAlbumId());
         return new AlbumSongs(songs.get(0).getArtist(), songs.get(0).getAlbum(), songs);
+    }
+
+    @Override
+    public List<Song> getSongs(SongQuery query) {
+        if (SongFilter.PLAY_COUNT == query.getFilter()) {
+            return songDao.getTopPlayedSongs(query.getPageSize());
+        } else if (SongFilter.LAST_PLAYED == query.getFilter()) {
+            return songDao.getTopRecentlyPlayedSongs(query.getPageSize());
+        } else {
+            return Collections.emptyList();
+        }
     }
 }

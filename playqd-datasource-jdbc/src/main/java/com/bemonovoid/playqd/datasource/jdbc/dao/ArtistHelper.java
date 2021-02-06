@@ -11,8 +11,8 @@ abstract class ArtistHelper {
     static Artist fromEntity(ArtistEntity artistEntity) {
         return fromEntityInternal(artistEntity);
     }
-    static Artist fromEntity(ArtistEntity artistEntity, PlaybackHistoryArtist playbackHistory) {
-        return fromEntityInternal(artistEntity, playbackHistory);
+    static Artist fromEntity(ArtistEntity artistEntity, ArtistMetadata metadata) {
+        return fromEntityInternal(artistEntity, metadata);
     }
 
     static ArtistEntity toEntity(Artist artist) {
@@ -28,16 +28,26 @@ abstract class ArtistHelper {
     }
 
     private static Artist fromEntityInternal(ArtistEntity artistEntity) {
-        return fromEntityInternal(artistEntity, null);
+        return fromEntityInternal(artistEntity, new ArtistMetadata(null, null));
     }
 
-    private static Artist fromEntityInternal(ArtistEntity artistEntity, PlaybackHistoryArtist playbackHistoryArtist) {
-        return Artist.builder()
+    private static Artist fromEntityInternal(ArtistEntity artistEntity, ArtistMetadata metadata) {
+        Artist.ArtistBuilder artistBuilder = Artist.builder()
                 .id(artistEntity.getId())
                 .name(artistEntity.getName())
                 .simpleName(artistEntity.getSimpleName())
-                .country(artistEntity.getCountry())
-                .playbackHistory(playbackHistoryArtist != null ? playbackHistoryArtist : new PlaybackHistoryArtist(artistEntity.getId(), 0, LocalDateTime.MIN.toString()))
-                .build();
+                .country(artistEntity.getCountry());
+        if (metadata.getCounts() != null) {
+            artistBuilder
+                    .albumCount(metadata.getCounts().getAlbumCount())
+                    .songCount(metadata.getCounts().getSongCount());
+        }
+        if (metadata.getPlaybackHistory() != null) {
+            artistBuilder.playbackHistory(metadata.getPlaybackHistory());
+        } else {
+            artistBuilder.playbackHistory(
+                    new PlaybackHistoryArtist(artistEntity.getId(), 0, LocalDateTime.MIN.toString()));
+        }
+        return artistBuilder.build();
     }
 }

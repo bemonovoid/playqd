@@ -29,6 +29,5 @@ public class Song {
     private Artist artist;
     private Album album;
 
-    //Computed properties
-    private int playCount;
+    private PlaybackHistorySong playbackHistory;
 }

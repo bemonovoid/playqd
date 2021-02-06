@@ -9,9 +9,11 @@ public interface SongDao {
 
     Optional<Song> getOne(long id);
 
-    List<Song> getArtistSongs(long artistId);
-
     List<Song> getAlbumSongs(long albumId);
 
     Optional<Song> getFirstSongInAlbum(long albumId);
+
+    List<Song> getTopPlayedSongs(int pageSize);
+
+    List<Song> getTopRecentlyPlayedSongs(int pageSize);
 }
