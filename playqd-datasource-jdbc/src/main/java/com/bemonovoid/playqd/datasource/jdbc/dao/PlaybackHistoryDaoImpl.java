@@ -48,13 +48,24 @@ class PlaybackHistoryDaoImpl implements PlaybackHistoryDao {
     }
 
     @Override
+    public Map<Long, PlaybackHistorySong> findTopPlayedSongs(int pageSize) {
+        return playbackHistoryRepository.findTopPlayedSongs(PageRequest.of(0, pageSize)).stream()
+                .collect(Collectors.toMap(PlaybackHistorySongProjection::getSongId,
+                        projection -> new PlaybackHistorySong(
+                                projection.getSongId(),
+                                projection.getPlayCount(),
+                                projection.getMostRecentPlayDateTime()
+                        )));
+    }
+
+    @Override
     public Map<Long, PlaybackHistorySong> findTopRecentlyPlayedSongs(int pageSize) {
         return playbackHistoryRepository.findTopRecentlyPlayedSongs(PageRequest.of(0, pageSize)).stream()
                 .collect(Collectors.toMap(PlaybackHistorySongProjection::getSongId,
                         projection -> new PlaybackHistorySong(
                                 projection.getSongId(),
                                 projection.getPlayCount(),
-                                projection.getMostRecentPlayDateTime().toString()
+                                projection.getMostRecentPlayDateTime()
                         )));
     }
 }

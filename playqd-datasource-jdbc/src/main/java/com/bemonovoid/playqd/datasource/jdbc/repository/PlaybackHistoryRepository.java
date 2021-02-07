@@ -13,6 +13,12 @@ public interface PlaybackHistoryRepository extends CrudRepository<PlaybackHistor
 
     @Query("SELECT h.song.id AS songId, COUNT(h.song.id) AS playCount, MAX(h.createdDate) as mostRecentPlayDateTime " +
             "FROM PlaybackHistoryEntity h " +
+            "GROUP BY songId " +
+            "ORDER BY playCount DESC")
+    List<PlaybackHistorySongProjection> findTopPlayedSongs(PageRequest page);
+
+    @Query("SELECT h.song.id AS songId, COUNT(h.song.id) AS playCount, MAX(h.createdDate) as mostRecentPlayDateTime " +
+            "FROM PlaybackHistoryEntity h " +
             "LEFT JOIN SongEntity s ON h.song.id = s.id " +
             "GROUP BY songId " +
             "ORDER BY mostRecentPlayDateTime DESC")

@@ -41,8 +41,11 @@ class SongDaoImpl implements SongDao {
 
     @Override
     public List<Song> getTopPlayedSongs(int pageSize) {
-        return repository.findTopPlayedSongs(PageRequest.of(0, pageSize)).stream()
-                .map(SongHelper::fromEntity)
+        Map<Long, PlaybackHistorySong> topPlayedSongs = playbackHistoryDao.findTopPlayedSongs(pageSize);
+        return repository.findAllById(topPlayedSongs.keySet()).stream()
+                .map(songEntity -> SongHelper.fromEntity(songEntity, topPlayedSongs.get(songEntity.getId())))
+                .sorted((s1, s2) -> Integer.compare(
+                        s2.getPlaybackHistory().getPlayCount(), s1.getPlaybackHistory().getPlayCount()))
                 .collect(Collectors.toList());
     }
 

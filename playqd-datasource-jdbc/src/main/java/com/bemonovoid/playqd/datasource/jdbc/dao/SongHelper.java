@@ -10,7 +10,7 @@ abstract class SongHelper {
 
     static Song fromEntity(SongEntity songEntity) {
         PlaybackHistorySong playbackHistory = new PlaybackHistorySong(
-                songEntity.getId(), songEntity.getPlayBackHistory().size(), LocalDateTime.MIN.toString());
+                songEntity.getId(), songEntity.getPlayBackHistory().size(), LocalDateTime.MIN);
         return fromEntity(songEntity, playbackHistory);
     }
 

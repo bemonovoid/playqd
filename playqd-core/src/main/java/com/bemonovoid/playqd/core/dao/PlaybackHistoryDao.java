@@ -11,5 +11,7 @@ public interface PlaybackHistoryDao {
 
     Map<Long, PlaybackHistoryArtist> getArtistPlaybackHistory();
 
+    Map<Long, PlaybackHistorySong> findTopPlayedSongs(int pageSize);
+
     Map<Long, PlaybackHistorySong> findTopRecentlyPlayedSongs(int pageSize);
 }
