@@ -1,6 +1,7 @@
 package com.bemonovoid.playqd.core.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -29,5 +30,6 @@ public class Song {
     private Artist artist;
     private Album album;
 
+    private boolean favorite;
     private PlaybackHistorySong playbackHistory;
 }

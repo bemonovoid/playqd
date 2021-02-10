@@ -17,19 +17,19 @@ import com.bemonovoid.playqd.core.model.query.AlbumSongsQuery;
 import com.bemonovoid.playqd.core.model.query.AlbumsQuery;
 import com.bemonovoid.playqd.core.model.query.SongFilter;
 import com.bemonovoid.playqd.core.model.query.SongQuery;
-import com.bemonovoid.playqd.core.service.LibraryQueryService;
+import com.bemonovoid.playqd.core.service.LibraryService;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 @Component
-public class LibraryQueryServiceImpl implements LibraryQueryService {
+public class LibraryServiceImpl implements LibraryService {
 
     private final ArtistDao artistDao;
     private final AlbumDao albumDao;
     private final SongDao songDao;
 
-    LibraryQueryServiceImpl(ArtistDao artistDao, AlbumDao albumDao, SongDao songDao) {
+    LibraryServiceImpl(ArtistDao artistDao, AlbumDao albumDao, SongDao songDao) {
         this.artistDao = artistDao;
         this.albumDao = albumDao;
         this.songDao = songDao;
@@ -78,8 +78,15 @@ public class LibraryQueryServiceImpl implements LibraryQueryService {
             return songDao.getTopPlayedSongs(query.getPageSize());
         } else if (SongFilter.LAST_PLAYED == query.getFilter()) {
             return songDao.getTopRecentlyPlayedSongs(query.getPageSize());
+        } else if (SongFilter.FAVORITES == query.getFilter()) {
+            return songDao.getFavoriteSongs(query.getPageSize());
         } else {
             return Collections.emptyList();
         }
+    }
+
+    @Override
+    public void updateSongFavoriteStatus(long songId) {
+        songDao.updateFavoriteStatus(songId);
     }
 }

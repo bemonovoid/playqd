@@ -10,9 +10,8 @@ import java.nio.file.Paths;
 import java.util.Optional;
 
 import com.bemonovoid.playqd.core.model.Song;
-import com.bemonovoid.playqd.core.model.query.SongQuery;
 import com.bemonovoid.playqd.core.service.LibraryDirectory;
-import com.bemonovoid.playqd.core.service.LibraryQueryService;
+import com.bemonovoid.playqd.core.service.LibraryService;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.slf4j.Logger;
@@ -35,16 +34,16 @@ class AudioFileController {
     private static final int BYTE_RANGE = 128; // increase the byterange from here
 
     private final LibraryDirectory libraryDirectory;
-    private final LibraryQueryService libraryQueryService;
+    private final LibraryService libraryService;
 
-    AudioFileController(LibraryDirectory libraryDirectory, LibraryQueryService libraryQueryService) {
+    AudioFileController(LibraryDirectory libraryDirectory, LibraryService libraryService) {
         this.libraryDirectory = libraryDirectory;
-        this.libraryQueryService = libraryQueryService;
+        this.libraryService = libraryService;
     }
 
     @GetMapping("/debug/{songId}")
     ResponseEntity<String> debug(@PathVariable long songId) {
-        Optional<String> opt = libraryQueryService.getSong(songId)
+        Optional<String> opt = libraryService.getSong(songId)
                 .map(song -> {
                     try {
                         AudioFile audioFile = AudioFileIO.read(new File(song.getFileLocation()));
@@ -59,7 +58,7 @@ class AudioFileController {
     @GetMapping("/open")
     ResponseEntity<byte[]> openAudioFile(@RequestHeader(value = "Range", required = false) String range,
                                          @RequestParam long songId) {
-        Optional<Song> songOpt = libraryQueryService.getSong(songId);
+        Optional<Song> songOpt = libraryService.getSong(songId);
         if (songOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
         }

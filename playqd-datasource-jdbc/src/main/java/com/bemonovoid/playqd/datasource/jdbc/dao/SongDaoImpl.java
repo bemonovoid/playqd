@@ -9,6 +9,8 @@ import com.bemonovoid.playqd.core.dao.PlaybackHistoryDao;
 import com.bemonovoid.playqd.core.dao.SongDao;
 import com.bemonovoid.playqd.core.model.PlaybackHistorySong;
 import com.bemonovoid.playqd.core.model.Song;
+import com.bemonovoid.playqd.datasource.jdbc.entity.FavoriteSongEntity;
+import com.bemonovoid.playqd.datasource.jdbc.repository.FavoriteSongRepository;
 import com.bemonovoid.playqd.datasource.jdbc.repository.SongRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
@@ -18,10 +20,14 @@ class SongDaoImpl implements SongDao {
 
     private final SongRepository repository;
     private final PlaybackHistoryDao playbackHistoryDao;
+    private final FavoriteSongRepository favoriteSongRepository;
 
-    SongDaoImpl(SongRepository repository, PlaybackHistoryDao playbackHistoryDao) {
+    SongDaoImpl(SongRepository repository,
+                PlaybackHistoryDao playbackHistoryDao,
+                FavoriteSongRepository favoriteSongRepository) {
         this.repository = repository;
         this.playbackHistoryDao = playbackHistoryDao;
+        this.favoriteSongRepository = favoriteSongRepository;
     }
 
     @Override
@@ -55,5 +61,23 @@ class SongDaoImpl implements SongDao {
         return repository.findAllById(recentlyPlayedSongs.keySet()).stream()
                 .map(songEntity -> SongHelper.fromEntity(songEntity, recentlyPlayedSongs.get(songEntity.getId())))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Song> getFavoriteSongs(int pageSize) {
+        return repository.findFavoriteSongs(PageRequest.of(0, pageSize)).stream()
+                .map(SongHelper::fromEntity)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void updateFavoriteStatus(long songId) {
+        if (favoriteSongRepository.existsBySongId(songId)) {
+            favoriteSongRepository.deleteBySongId(songId);
+        } else {
+            FavoriteSongEntity favoriteSongEntity = new FavoriteSongEntity();
+            favoriteSongEntity.setSongId(songId);
+            favoriteSongRepository.save(favoriteSongEntity);
+        }
     }
 }

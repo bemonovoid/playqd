@@ -16,6 +16,7 @@ import com.bemonovoid.playqd.datasource.jdbc.batch.BatchInsert;
 import com.bemonovoid.playqd.datasource.jdbc.batch.SimpleBatchInsert;
 import com.bemonovoid.playqd.datasource.jdbc.entity.AlbumEntity;
 import com.bemonovoid.playqd.datasource.jdbc.entity.ArtistEntity;
+import com.bemonovoid.playqd.datasource.jdbc.entity.FavoriteSongEntity;
 import com.bemonovoid.playqd.datasource.jdbc.entity.PersistentAuditableEntity;
 import com.bemonovoid.playqd.datasource.jdbc.entity.PlaybackHistoryEntity;
 import com.bemonovoid.playqd.datasource.jdbc.entity.SongEntity;
@@ -45,7 +46,7 @@ class MusicDirectoryScannerImpl implements MusicDirectoryScanner {
     private static final Set<String> AUDIO_EXTENSIONS = Set.of("flac", "m4a", "m4p", "mp3", "ogg", "wav", "wma");
 
     private static final List<String> TABLES = List.of(
-            PlaybackHistoryEntity.TABLE_NAME, SongEntity.TABLE_NAME, AlbumEntity.TABLE_NAME, ArtistEntity.TABLE_NAME);
+            FavoriteSongEntity.TABLE_NAME, PlaybackHistoryEntity.TABLE_NAME, SongEntity.TABLE_NAME, AlbumEntity.TABLE_NAME, ArtistEntity.TABLE_NAME);
 
     private final BatchInsert songBatch;
 

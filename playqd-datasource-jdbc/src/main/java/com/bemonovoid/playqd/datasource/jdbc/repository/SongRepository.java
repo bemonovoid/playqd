@@ -36,4 +36,9 @@ public interface SongRepository extends JpaRepository<SongEntity, Long> {
             "GROUP BY s.id ORDER BY COUNT(h.song.id) DESC")
     List<SongEntity> findTopPlayedSongs(PageRequest page);
 
+    @Query("SELECT s FROM SongEntity s " +
+            "INNER JOIN FavoriteSongEntity f ON s.id = f.songId " +
+            "ORDER BY s.name ASC")
+    List<SongEntity> findFavoriteSongs(PageRequest page);
+
 }

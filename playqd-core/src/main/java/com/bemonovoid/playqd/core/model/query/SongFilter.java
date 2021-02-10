@@ -2,7 +2,7 @@ package com.bemonovoid.playqd.core.model.query;
 
 public enum SongFilter {
 
-    FAVORITE,
+    FAVORITES,
 
     LAST_PLAYED,
 

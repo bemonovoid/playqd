@@ -6,11 +6,15 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
+import javax.persistence.MapsId;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
@@ -90,5 +94,12 @@ public class SongEntity extends PersistentAuditableEntity<Long> {
     @OneToMany(mappedBy = ONE_TO_MANY_MAPPED_BY)
     @LazyCollection(LazyCollectionOption.EXTRA)
     private List<PlaybackHistoryEntity> playBackHistory;
+
+    @Formula("(SELECT COUNT(*) FROM FAVORITE_SONG f WHERE f.SONG_ID = ID)")
+    private int countOfFavorites;
+
+    public boolean isFavorite() {
+        return countOfFavorites > 0;
+    }
 
 }

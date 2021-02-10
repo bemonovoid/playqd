@@ -37,6 +37,7 @@ abstract class SongHelper {
         song.setArtist(ArtistHelper.fromEntity(songEntity.getArtist()));
         song.setAlbum(AlbumHelper.fromEntity(songEntity.getAlbum()));
 
+        song.setFavorite(songEntity.isFavorite());
         song.setPlaybackHistory(playbackHistorySong);
 
         return song;

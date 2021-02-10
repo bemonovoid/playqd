@@ -1,15 +1,8 @@
 package com.bemonovoid.playqd.controller;
 
-import java.util.Optional;
-
-import com.bemonovoid.playqd.core.model.Album;
-import com.bemonovoid.playqd.core.model.Albums;
 import com.bemonovoid.playqd.core.model.Artists;
-import com.bemonovoid.playqd.core.model.query.AlbumsQuery;
-import com.bemonovoid.playqd.core.service.LibraryQueryService;
-import org.springframework.http.ResponseEntity;
+import com.bemonovoid.playqd.core.service.LibraryService;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,14 +10,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(Endpoints.LIBRARY_API_BASE_PATH)
 class ArtistController {
 
-    private final LibraryQueryService libraryQueryService;
+    private final LibraryService libraryService;
 
-    public ArtistController(LibraryQueryService libraryQueryService) {
-        this.libraryQueryService = libraryQueryService;
+    public ArtistController(LibraryService libraryService) {
+        this.libraryService = libraryService;
     }
 
     @GetMapping("/artists")
     Artists listArtists() {
-        return libraryQueryService.getArtists();
+        return libraryService.getArtists();
     }
 }

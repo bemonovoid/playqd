@@ -16,4 +16,8 @@ public interface SongDao {
     List<Song> getTopPlayedSongs(int pageSize);
 
     List<Song> getTopRecentlyPlayedSongs(int pageSize);
+
+    List<Song> getFavoriteSongs(int pageSize);
+
+    void updateFavoriteStatus(long songId);
 }

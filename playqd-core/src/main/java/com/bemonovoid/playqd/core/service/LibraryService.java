@@ -13,7 +13,7 @@ import com.bemonovoid.playqd.core.model.query.AlbumSongsQuery;
 import com.bemonovoid.playqd.core.model.query.AlbumsQuery;
 import com.bemonovoid.playqd.core.model.query.SongQuery;
 
-public interface LibraryQueryService {
+public interface LibraryService {
 
     Artists getArtists();
 
@@ -28,4 +28,6 @@ public interface LibraryQueryService {
     AlbumSongs getAlbumSongs(AlbumSongsQuery query);
 
     List<Song> getSongs(SongQuery query);
+
+    void updateSongFavoriteStatus(long songId);
 }
