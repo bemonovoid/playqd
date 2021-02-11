@@ -12,10 +12,9 @@ import java.util.Optional;
 import com.bemonovoid.playqd.core.model.Song;
 import com.bemonovoid.playqd.core.service.LibraryDirectory;
 import com.bemonovoid.playqd.core.service.LibraryService;
+import lombok.extern.slf4j.Slf4j;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,11 +24,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequestMapping(Endpoints.AUDIO_API_BASE_PATH)
 class AudioFileController {
-
-    private static final Logger LOG = LoggerFactory.getLogger(AudioFileController.class);
 
     private static final int BYTE_RANGE = 128; // increase the byterange from here
 
@@ -98,11 +96,11 @@ class AudioFileController {
             }
             data = readByteRange(fileName, rangeStart, rangeEnd);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("File read error", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
         String contentLength = String.valueOf((rangeEnd - rangeStart) + 1);
-        return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT)
+            return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT)
             .header("Content-Type", contentTypePrefix + "/" + fileType)
             .header("Accept-Ranges", "bytes")
             .header("Content-Length", contentLength)
