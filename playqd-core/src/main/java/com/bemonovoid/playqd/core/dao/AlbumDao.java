@@ -21,4 +21,5 @@ public interface AlbumDao {
 
     void updateArtwork(Long albumId, String mbReleaseId, byte[] binary);
 
+    void updateAlbum(Album album);
 }

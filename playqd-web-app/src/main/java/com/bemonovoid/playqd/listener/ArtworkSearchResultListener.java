@@ -7,8 +7,10 @@ import com.bemonovoid.playqd.core.dao.AlbumDao;
 import com.bemonovoid.playqd.core.dao.ArtistDao;
 import com.bemonovoid.playqd.core.dao.SongDao;
 import com.bemonovoid.playqd.core.model.Album;
+import com.bemonovoid.playqd.core.model.Artist;
 import com.bemonovoid.playqd.core.model.ArtworkOnlineSearchResult;
 import com.bemonovoid.playqd.core.model.Song;
+import com.bemonovoid.playqd.core.service.BinaryResourceProducer;
 import com.bemonovoid.playqd.event.ArtworkResultReceived;
 import lombok.extern.slf4j.Slf4j;
 import org.jaudiotagger.audio.AudioFile;
@@ -21,7 +23,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 
 @Slf4j
 @Component
@@ -30,11 +31,16 @@ class ArtworkSearchResultListener implements ApplicationListener<ArtworkResultRe
     private final ArtistDao artistDao;
     private final AlbumDao albumDao;
     private final SongDao songDao;
+    private final BinaryResourceProducer binaryResourceProducer;
 
-    ArtworkSearchResultListener(ArtistDao artistDao, AlbumDao albumDao, SongDao songDao) {
+    ArtworkSearchResultListener(ArtistDao artistDao,
+                                AlbumDao albumDao,
+                                SongDao songDao,
+                                BinaryResourceProducer binaryResourceProducer) {
         this.artistDao = artistDao;
         this.albumDao = albumDao;
         this.songDao = songDao;
+        this.binaryResourceProducer = binaryResourceProducer;
     }
 
     @Override
@@ -45,13 +51,17 @@ class ArtworkSearchResultListener implements ApplicationListener<ArtworkResultRe
         log.info("Handling {} event.", ArtworkSearchResultListener.class.getSimpleName());
 
         ArtworkOnlineSearchResult searchResult = event.getArtworkOnlineSearchResult();
-        byte[] binaryData = new RestTemplate().getForObject(searchResult.getImageUrl(), byte[].class);
+        byte[] binaryData = binaryResourceProducer.toBinary(searchResult.getImageUrl());
 
         Album album = event.getAlbum();
 
         albumDao.updateArtwork(album.getId(), searchResult.getMbReleaseId(), binaryData);
 
-        artistDao.updateArtist(album.getArtist().getId(), searchResult.getMbArtistId(), searchResult.getMbArtistCountry());
+        artistDao.updateArtist(Artist.builder()
+                        .id(album.getArtist().getId())
+                        .mbArtistId(searchResult.getMbArtistId())
+                        .country(searchResult.getMbArtistCountry())
+                        .build());
 
         List<Song> albumSongs = songDao.getAlbumSongs(album.getId());
 

@@ -6,17 +6,15 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
-import javax.persistence.MapsId;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
+import org.hibernate.annotations.Type;
 
 @Table(name = SongEntity.TABLE_NAME)
 @Entity
@@ -43,6 +41,8 @@ public class SongEntity extends PersistentAuditableEntity<Long> {
 
     public static final String COL_ARTIST_ID = "ARTIST_ID";
     public static final String COL_ALBUM_ID = "ALBUM_ID";
+
+    public static final String COL_SHOW_FILE_NAME_AS_SONG_NAME = "SHOW_FILE_NAME_AS_SONG_NAME";
 
     private static final String ONE_TO_MANY_MAPPED_BY = "song";
 
@@ -85,6 +85,9 @@ public class SongEntity extends PersistentAuditableEntity<Long> {
     @Column(name = COL_MB_TRACK_ID)
     private String mbTrackId;
 
+    @Column(name = COL_SHOW_FILE_NAME_AS_SONG_NAME)
+    private Boolean showFileNameAsSongName;
+
     @ManyToOne(fetch = FetchType.LAZY)
     private ArtistEntity artist;
 
@@ -100,6 +103,10 @@ public class SongEntity extends PersistentAuditableEntity<Long> {
 
     public boolean isFavorite() {
         return countOfFavorites > 0;
+    }
+
+    public boolean getShowFileNameAsSongName() {
+        return showFileNameAsSongName != null ? showFileNameAsSongName : false;
     }
 
 }

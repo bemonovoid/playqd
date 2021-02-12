@@ -1,6 +1,5 @@
 package com.bemonovoid.playqd.datasource.jdbc.repository;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -14,16 +13,20 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface SongRepository extends JpaRepository<SongEntity, Long> {
 
-    List<SongEntity> findAllByArtistId(Long artistId);
-
-    List<SongEntity> findAllByAlbumId(Long albumId);
-
-    Optional<SongEntity> findFirstByAlbumId(long albumId);
-
-
     default Map<Long, CountProjection> getArtistAlbumSongCount() {
         return getAlbumSongCount().stream().collect(Collectors.toMap(CountProjection::getArtistId, p -> p));
     }
+
+    default void overrideAlbumSongsNameWithFileName(long albumId) {
+        List<SongEntity> entities = findAllByAlbumId(albumId).stream()
+                .peek(entity -> entity.setShowFileNameAsSongName(true))
+                .collect(Collectors.toList());
+        saveAll(entities);
+    }
+
+    List<SongEntity> findAllByAlbumId(long albumId);
+
+    Optional<SongEntity> findFirstByAlbumId(long albumId);
 
     @Query("SELECT s.artist.id as artistId, COUNT(DISTINCT s.album.id) as albumCount, COUNT(s.id) as songCount " +
             "FROM SongEntity s " +
