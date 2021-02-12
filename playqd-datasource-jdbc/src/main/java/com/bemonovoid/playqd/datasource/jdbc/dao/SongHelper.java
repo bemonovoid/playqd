@@ -19,9 +19,11 @@ abstract class SongHelper {
 
         song.setId(songEntity.getId());
         song.setName(songEntity.getName());
+        song.setOriginalName(songEntity.getName());
         song.setComment(songEntity.getComment());
         song.setDuration(songEntity.getDuration());
         song.setOriginalTrackId(songEntity.getTrackId());
+        song.setLyrics(songEntity.getLyrics());
         song.setTrackId(resolveTrackId(songEntity.getTrackId()));
 
         song.setAudioBitRate(songEntity.getAudioBitRate());
@@ -40,6 +42,10 @@ abstract class SongHelper {
         song.setShowFileNameAsSongName(songEntity.getShowFileNameAsSongName());
         song.setFavorite(songEntity.isFavorite());
         song.setPlaybackHistory(playbackHistorySong);
+
+        if (song.isShowFileNameAsSongName()) {
+            song.setName(songEntity.getFileName());
+        }
 
         return song;
     }

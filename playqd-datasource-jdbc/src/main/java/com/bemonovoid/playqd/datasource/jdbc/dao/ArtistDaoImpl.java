@@ -3,11 +3,13 @@ package com.bemonovoid.playqd.datasource.jdbc.dao;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.bemonovoid.playqd.core.dao.ArtistDao;
 import com.bemonovoid.playqd.core.dao.PlaybackHistoryDao;
 import com.bemonovoid.playqd.core.exception.PlayqdEntityNotFoundException;
+import com.bemonovoid.playqd.core.helpers.EntityNameHelper;
 import com.bemonovoid.playqd.core.model.Artist;
 import com.bemonovoid.playqd.core.model.PlaybackHistoryArtist;
 import com.bemonovoid.playqd.datasource.jdbc.entity.ArtistEntity;
@@ -16,24 +18,27 @@ import com.bemonovoid.playqd.datasource.jdbc.repository.ArtistRepository;
 import com.bemonovoid.playqd.datasource.jdbc.repository.SongRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Component
 class ArtistDaoImpl implements ArtistDao {
 
-    private final ArtistRepository repository;
+    private final ArtistRepository artistRepository;
     private final SongRepository songRepository;
     private final PlaybackHistoryDao playbackHistoryDao;
 
-    ArtistDaoImpl(ArtistRepository repository, SongRepository songRepository, PlaybackHistoryDao playbackHistoryDao) {
-        this.repository = repository;
+    ArtistDaoImpl(ArtistRepository artistRepository,
+                  SongRepository songRepository,
+                  PlaybackHistoryDao playbackHistoryDao) {
+        this.artistRepository = artistRepository;
         this.songRepository = songRepository;
         this.playbackHistoryDao = playbackHistoryDao;
     }
 
     @Override
     public Artist getOne(long id) {
-        ArtistEntity artistEntity = repository.findById(id)
+        ArtistEntity artistEntity = artistRepository.findById(id)
                 .orElseThrow(() -> new PlayqdEntityNotFoundException(id, "artist"));
         return ArtistHelper.fromEntity(artistEntity);
     }
@@ -42,7 +47,7 @@ class ArtistDaoImpl implements ArtistDao {
     public List<Artist> getAll() {
         Map<Long, PlaybackHistoryArtist> artistPlaybackHistory = playbackHistoryDao.getArtistPlaybackHistory();
         Map<Long, CountProjection> counts = songRepository.getArtistAlbumSongCount();
-        return repository.findAll().stream()
+        return artistRepository.findAll().stream()
                 .map(e -> ArtistHelper.fromEntity(
                         e, new ArtistMetadata(counts.get(e.getId()), artistPlaybackHistory.get(e.getId()))))
                 .sorted(Comparator.comparing(Artist::getName))
@@ -50,11 +55,20 @@ class ArtistDaoImpl implements ArtistDao {
     }
 
     @Override
+    @Transactional
     public void updateArtist(Artist artist) {
         log.info("Updating artist with id='{}'.", artist.getId());
-        ArtistEntity entity = repository.findOne(artist.getId());
+        ArtistEntity entity = artistRepository.findOne(artist.getId());
         if (shouldUpdate(entity.getName(), artist.getName())) {
+
+//            Optional<ArtistEntity> artistWithNewNameOpt =
+//                    artistRepository.findBySimpleName(EntityNameHelper.toLookUpName(artist.getName()));
+//            if (artistWithNewNameOpt.isPresent()) {
+//
+//            }
+
             entity.setName(artist.getName());
+            entity.setSimpleName(EntityNameHelper.toLookUpName(artist.getName()));
         }
         if (shouldUpdate(entity.getCountry(), artist.getCountry())) {
             entity.setCountry(artist.getCountry());
@@ -62,7 +76,7 @@ class ArtistDaoImpl implements ArtistDao {
         if (shouldUpdate(entity.getMbArtistId(), artist.getMbArtistId())) {
             entity.setMbArtistId(artist.getMbArtistId());
         }
-        repository.save(entity);
+        artistRepository.save(entity);
         log.info("Updating artist with id='{} completed.'", artist.getId());
     }
 

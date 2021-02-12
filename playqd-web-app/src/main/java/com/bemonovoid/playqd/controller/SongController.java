@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(Endpoints.LIBRARY_API_BASE_PATH)
+@RequestMapping(Endpoints.LIBRARY_API_BASE_PATH + "/songs")
 class SongController {
 
     private final LibraryService libraryService;
@@ -24,24 +24,24 @@ class SongController {
         this.libraryService = libraryService;
     }
 
-    @GetMapping("/songs/{songId}")
+    @GetMapping("/{songId}")
     ResponseEntity<Song> getSong(@PathVariable long songId) {
         return libraryService.getSong(songId)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/songs/album/{albumId}")
+    @GetMapping("/album/{albumId}")
     AlbumSongs getAlbumSongs(@PathVariable long albumId) {
         return libraryService.getAlbumSongs(new AlbumSongsQuery(albumId));
     }
 
-    @GetMapping("/songs")
+    @GetMapping
     List<Song> librarySongs(SongQuery query) {
         return libraryService.getSongs(query);
     }
 
-    @PostMapping("/songs/{songId}")
+    @PostMapping("{songId}")
     void updateSongFavoriteStatus(@PathVariable long songId) {
         libraryService.updateSongFavoriteStatus(songId);
     }

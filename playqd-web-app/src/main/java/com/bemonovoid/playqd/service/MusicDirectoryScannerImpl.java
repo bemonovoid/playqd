@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import com.bemonovoid.playqd.core.helpers.EntityNameHelper;
 import com.bemonovoid.playqd.core.service.LibraryDirectory;
 import com.bemonovoid.playqd.core.service.MusicDirectoryScanner;
 import com.bemonovoid.playqd.datasource.jdbc.batch.BatchInsert;
@@ -139,7 +140,7 @@ class MusicDirectoryScannerImpl implements MusicDirectoryScanner {
 
     private Long getArtistId(AudioFile audioFile) {
         String name = getArtistName(audioFile);
-        String nameAsKey = name.toLowerCase().trim();
+        String nameAsKey = EntityNameHelper.toLookUpName(name);
 
         if (artists.containsKey(nameAsKey)) {
             return artists.get(nameAsKey);
@@ -163,7 +164,7 @@ class MusicDirectoryScannerImpl implements MusicDirectoryScanner {
 
     private Long getAlbumId(Long artistId, AudioFile audioFile) {
         String name = getAlbumName(audioFile);
-        AlbumArtistKey artistAlbumKey = new AlbumArtistKey(artistId, name.toLowerCase());
+        AlbumArtistKey artistAlbumKey = new AlbumArtistKey(artistId, EntityNameHelper.toLookUpName(name));
 
         if (artistAlbums.containsKey(artistAlbumKey)) {
             return artistAlbums.get(artistAlbumKey);

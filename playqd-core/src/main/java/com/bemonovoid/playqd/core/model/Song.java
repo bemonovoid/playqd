@@ -11,10 +11,12 @@ public class Song {
 
     private Long id;
     private String name;
+    private String originalName;
     private int duration;
     private String comment;
     private int trackId;
     private String originalTrackId;
+    private String lyrics;
 
     private String audioBitRate;
     private String audioChannelType;
