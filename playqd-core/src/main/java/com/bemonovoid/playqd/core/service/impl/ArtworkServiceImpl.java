@@ -11,7 +11,6 @@ import com.bemonovoid.playqd.core.model.Album;
 import com.bemonovoid.playqd.core.model.Artwork;
 import com.bemonovoid.playqd.core.model.ArtworkOnlineSearchResult;
 import com.bemonovoid.playqd.core.model.Song;
-import com.bemonovoid.playqd.core.model.event.ArtworkResultReceived;
 import com.bemonovoid.playqd.core.model.query.ArtworkLocalSearchQuery;
 import com.bemonovoid.playqd.core.model.query.ArtworkOnlineSearchQuery;
 import com.bemonovoid.playqd.core.service.ArtworkSearchService;
