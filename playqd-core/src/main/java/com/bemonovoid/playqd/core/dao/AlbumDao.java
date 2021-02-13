@@ -19,7 +19,7 @@ public interface AlbumDao {
 
     Album save(Album albumEntity);
 
-    void updateArtwork(Long albumId, String mbReleaseId, byte[] binary);
-
     void updateAlbum(Album album);
+
+    void setArtworkBinary(long albumId, byte[] binaryData);
 }

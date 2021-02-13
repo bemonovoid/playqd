@@ -11,4 +11,5 @@ public interface ArtworkService {
 
     Optional<String> getArtworkOnline(ArtworkLocalSearchQuery localQuery);
 
+    void updateAlbumArtwork(long albumId, String resourceUrl);
 }

@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @Getter
 @Setter(AccessLevel.PACKAGE)
-public class UpdateArtistRequest {
+public class UpdateArtist {
 
     private String name;
     private String country;

@@ -2,7 +2,7 @@ package com.bemonovoid.playqd.controller;
 
 import com.bemonovoid.playqd.core.model.Artist;
 import com.bemonovoid.playqd.core.model.Artists;
-import com.bemonovoid.playqd.core.model.UpdateArtistRequest;
+import com.bemonovoid.playqd.core.model.UpdateArtist;
 import com.bemonovoid.playqd.core.service.LibraryService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,7 +22,7 @@ class ArtistController {
     }
 
     @PutMapping("/{artistId}")
-    void updateArtist(@PathVariable long artistId, @RequestBody UpdateArtistRequest model) {
+    void updateArtist(@PathVariable long artistId, @RequestBody UpdateArtist model) {
         libraryService.updateArtist(Artist.builder()
                 .id(artistId)
                 .name(model.getName())

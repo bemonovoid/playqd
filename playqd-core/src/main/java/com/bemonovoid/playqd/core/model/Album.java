@@ -25,4 +25,7 @@ public class Album {
 
     @JsonIgnore
     private String mbReleaseId;
+
+    @JsonIgnore
+    private boolean overrideSongNameWithFileName;
 }

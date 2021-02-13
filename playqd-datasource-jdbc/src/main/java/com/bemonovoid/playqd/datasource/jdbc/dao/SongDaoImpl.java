@@ -18,37 +18,37 @@ import org.springframework.stereotype.Component;
 @Component
 class SongDaoImpl implements SongDao {
 
-    private final SongRepository repository;
+    private final SongRepository songRepository;
     private final PlaybackHistoryDao playbackHistoryDao;
     private final FavoriteSongRepository favoriteSongRepository;
 
-    SongDaoImpl(SongRepository repository,
+    SongDaoImpl(SongRepository songRepository,
                 PlaybackHistoryDao playbackHistoryDao,
                 FavoriteSongRepository favoriteSongRepository) {
-        this.repository = repository;
+        this.songRepository = songRepository;
         this.playbackHistoryDao = playbackHistoryDao;
         this.favoriteSongRepository = favoriteSongRepository;
     }
 
     @Override
     public Optional<Song> getOne(long id) {
-        return repository.findById(id).map(SongHelper::fromEntity);
+        return songRepository.findById(id).map(SongHelper::fromEntity);
     }
 
     @Override
     public List<Song> getAlbumSongs(long albumId) {
-        return repository.findAllByAlbumId(albumId).stream().map(SongHelper::fromEntity).collect(Collectors.toList());
+        return songRepository.findAllByAlbumId(albumId).stream().map(SongHelper::fromEntity).collect(Collectors.toList());
     }
 
     @Override
     public Optional<Song> getFirstSongInAlbum(long albumId) {
-        return repository.findFirstByAlbumId(albumId).map(SongHelper::fromEntity);
+        return songRepository.findFirstByAlbumId(albumId).map(SongHelper::fromEntity);
     }
 
     @Override
     public List<Song> getTopPlayedSongs(int pageSize) {
         Map<Long, PlaybackHistorySong> topPlayedSongs = playbackHistoryDao.findTopPlayedSongs(pageSize);
-        return repository.findAllById(topPlayedSongs.keySet()).stream()
+        return songRepository.findAllById(topPlayedSongs.keySet()).stream()
                 .map(songEntity -> SongHelper.fromEntity(songEntity, topPlayedSongs.get(songEntity.getId())))
                 .sorted((s1, s2) -> Integer.compare(
                         s2.getPlaybackHistory().getPlayCount(), s1.getPlaybackHistory().getPlayCount()))
@@ -58,14 +58,14 @@ class SongDaoImpl implements SongDao {
     @Override
     public List<Song> getTopRecentlyPlayedSongs(int pageSize) {
         Map<Long, PlaybackHistorySong> recentlyPlayedSongs = playbackHistoryDao.findTopRecentlyPlayedSongs(pageSize);
-        return repository.findAllById(recentlyPlayedSongs.keySet()).stream()
+        return songRepository.findAllById(recentlyPlayedSongs.keySet()).stream()
                 .map(songEntity -> SongHelper.fromEntity(songEntity, recentlyPlayedSongs.get(songEntity.getId())))
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<Song> getFavoriteSongs(int pageSize) {
-        return repository.findFavoriteSongs(PageRequest.of(0, pageSize)).stream()
+        return songRepository.findFavoriteSongs(PageRequest.of(0, pageSize)).stream()
                 .map(SongHelper::fromEntity)
                 .collect(Collectors.toList());
     }
@@ -79,5 +79,10 @@ class SongDaoImpl implements SongDao {
             favoriteSongEntity.setSongId(songId);
             favoriteSongRepository.save(favoriteSongEntity);
         }
+    }
+
+    @Override
+    public void setShowAlbumSongNameAsFileName(long albumId) {
+        songRepository.setShowFileNameAsSongName(albumId);
     }
 }

@@ -53,19 +53,6 @@ class AlbumDaoImpl implements AlbumDao {
     }
 
     @Override
-    public void updateArtwork(Long albumId, String mbReleaseId, byte[] binary) {
-        albumRepository.findById(albumId).ifPresent(albumEntity -> {
-            if (mbReleaseId != null) {
-                albumEntity.setMbReleaseId(mbReleaseId);
-            }
-            if (binary != null) {
-                albumEntity.setArtworkBinary(binary);
-            }
-            albumRepository.save(albumEntity);
-        });
-    }
-
-    @Override
     public Album save(Album album) {
         AlbumEntity albumEntity = albumRepository.save(AlbumHelper.toEntity(album));
         return AlbumHelper.fromEntity(albumEntity);
@@ -88,14 +75,18 @@ class AlbumDaoImpl implements AlbumDao {
         if (shouldUpdate(entity.getGenre(), album.getGenre())) {
             entity.setGenre(album.getGenre());
         }
-        if (album.getArtwork() != null && album.getArtwork().getBinary() != null) {
-            entity.setArtworkBinary(album.getArtwork().getBinary());
-        }
 
         albumRepository.save(entity);
-        songRepository.overrideAlbumSongsNameWithFileName(entity.getId());
 
         log.info("Updating album with id='{} completed.'", album.getId());
+    }
+
+    @Override
+    public void setArtworkBinary(long albumId, byte[] binaryData) {
+        albumRepository.findById(albumId).ifPresent(entity -> {
+            entity.setArtworkBinary(binaryData);
+            albumRepository.save(entity);
+        });
     }
 
     private boolean shouldUpdate(String oldVal, String newVal) {

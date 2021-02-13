@@ -4,7 +4,7 @@ jar {
 
 dependencies {
     compileOnly 'com.fasterxml.jackson.core:jackson-annotations'
-    compileOnly 'org.springframework.boot:spring-boot'
+    compileOnly 'org.springframework:spring-context'
     compileOnly 'org.springframework:spring-web'
     compileOnly project(':playqd-core')
 }

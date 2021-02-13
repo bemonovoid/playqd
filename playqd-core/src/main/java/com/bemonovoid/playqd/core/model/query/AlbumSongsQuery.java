@@ -2,7 +2,7 @@ package com.bemonovoid.playqd.core.model.query;
 
 import java.util.Objects;
 
-public class AlbumSongsQuery implements Query {
+public class AlbumSongsQuery {
 
     private final long albumId;
 

@@ -1,23 +1,23 @@
-package com.bemonovoid.playqd.listener;
+package com.bemonovoid.playqd.core.handler;
 
 import com.bemonovoid.playqd.core.dao.PlaybackHistoryDao;
-import com.bemonovoid.playqd.event.SongPlaybackEndedEvent;
+import com.bemonovoid.playqd.core.model.event.SongPlayed;
 import org.springframework.context.ApplicationListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 @Component
-class OnSongPlaybackEndedListener implements ApplicationListener<SongPlaybackEndedEvent> {
+class SongPlayedEventHandler implements ApplicationListener<SongPlayed> {
 
     private final PlaybackHistoryDao playbackHistoryDao;
 
-    OnSongPlaybackEndedListener(PlaybackHistoryDao playbackHistoryDao) {
+    SongPlayedEventHandler(PlaybackHistoryDao playbackHistoryDao) {
         this.playbackHistoryDao = playbackHistoryDao;
     }
 
     @Override
     @Async
-    public void onApplicationEvent(SongPlaybackEndedEvent event) {
+    public void onApplicationEvent(SongPlayed event) {
         playbackHistoryDao.save(event.getSongId());
     }
 }

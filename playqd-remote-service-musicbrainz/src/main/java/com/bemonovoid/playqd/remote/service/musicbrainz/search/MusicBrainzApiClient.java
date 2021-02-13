@@ -10,31 +10,30 @@ import com.bemonovoid.playqd.remote.service.musicbrainz.model.api.MBArtistQueryR
 import com.bemonovoid.playqd.remote.service.musicbrainz.model.api.MBArtistReleasesQueryResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @Slf4j
-public class MusicBrainzApiClient  {
+@Component
+class MusicBrainzApiClient  {
 
-    private final RestTemplate restTemplate;
-
-    public MusicBrainzApiClient(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
-    }
+    private static final String ROOT_URI = "http://musicbrainz.org/ws/2";
 
     public Optional<MBArtistQueryResponse> getArtist(String artistName) {
 
         log.info("Searching artist by {}", artistName);
 
-        String uriString = UriComponentsBuilder.fromPath("/artist")
+        String uriString = UriComponentsBuilder
+                .fromUriString(ROOT_URI + "/artist")
                 .queryParam("query", String.format("\"%s\"", artistName))
                 .queryParam("fmt", "json")
                 .build().toUriString();
         try {
 
             ResponseEntity<MBArtistQueryResponse> response = Executors.newSingleThreadScheduledExecutor().schedule(
-                    () -> restTemplate.getForEntity(uriString, MBArtistQueryResponse.class),
+                    () -> new RestTemplate().getForEntity(uriString, MBArtistQueryResponse.class),
                     500,
                     TimeUnit.MILLISECONDS)
                     .get();
@@ -62,7 +61,8 @@ public class MusicBrainzApiClient  {
         log.info("Searching artist releases by {}", mbArtistId);
 
         Map<String, Object> pathVariables = Map.of("mbArtistId", mbArtistId);
-        String uriString = UriComponentsBuilder.fromPath("/artist/{mbArtistId}")
+        String uriString = UriComponentsBuilder
+                .fromUriString(ROOT_URI + "/artist/{mbArtistId}")
                 .queryParam("inc", "releases")
                 .queryParam("fmt", "json")
                 .buildAndExpand(pathVariables)
@@ -70,7 +70,7 @@ public class MusicBrainzApiClient  {
         try {
             ResponseEntity<MBArtistReleasesQueryResponse> response =
                     Executors.newSingleThreadScheduledExecutor().schedule(
-                            () -> restTemplate.getForEntity(uriString, MBArtistReleasesQueryResponse.class),
+                            () -> new RestTemplate().getForEntity(uriString, MBArtistReleasesQueryResponse.class),
                             500,
                             TimeUnit.MILLISECONDS)
                             .get();

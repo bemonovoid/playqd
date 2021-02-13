@@ -20,4 +20,6 @@ public interface SongDao {
     List<Song> getFavoriteSongs(int pageSize);
 
     void updateFavoriteStatus(long songId);
+
+    void setShowAlbumSongNameAsFileName(long albumId);
 }

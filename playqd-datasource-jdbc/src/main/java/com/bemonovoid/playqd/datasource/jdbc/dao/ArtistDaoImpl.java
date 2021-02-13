@@ -60,13 +60,6 @@ class ArtistDaoImpl implements ArtistDao {
         log.info("Updating artist with id='{}'.", artist.getId());
         ArtistEntity entity = artistRepository.findOne(artist.getId());
         if (shouldUpdate(entity.getName(), artist.getName())) {
-
-//            Optional<ArtistEntity> artistWithNewNameOpt =
-//                    artistRepository.findBySimpleName(EntityNameHelper.toLookUpName(artist.getName()));
-//            if (artistWithNewNameOpt.isPresent()) {
-//
-//            }
-
             entity.setName(artist.getName());
             entity.setSimpleName(EntityNameHelper.toLookUpName(artist.getName()));
         }

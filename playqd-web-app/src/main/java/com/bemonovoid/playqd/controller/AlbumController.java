@@ -4,13 +4,10 @@ import java.util.Optional;
 
 import com.bemonovoid.playqd.core.model.Album;
 import com.bemonovoid.playqd.core.model.Albums;
-import com.bemonovoid.playqd.core.model.Artwork;
-import com.bemonovoid.playqd.core.model.UpdateAlbumRequest;
+import com.bemonovoid.playqd.core.model.UpdateAlbum;
 import com.bemonovoid.playqd.core.model.query.AlbumsQuery;
-import com.bemonovoid.playqd.core.service.BinaryResourceProducer;
 import com.bemonovoid.playqd.core.service.LibraryService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -23,11 +20,9 @@ import org.springframework.web.bind.annotation.RestController;
 class AlbumController {
 
     private final LibraryService libraryService;
-    private final BinaryResourceProducer binaryResourceProducer;
 
-    AlbumController(LibraryService libraryService, BinaryResourceProducer binaryResourceProducer) {
+    AlbumController(LibraryService libraryService) {
         this.libraryService = libraryService;
-        this.binaryResourceProducer = binaryResourceProducer;
     }
 
     @GetMapping
@@ -45,19 +40,7 @@ class AlbumController {
     }
 
     @PutMapping("/{albumId}")
-    void updateAlbum(@PathVariable long albumId, @RequestBody UpdateAlbumRequest model) {
-        Artwork artwork = null;
-        if (StringUtils.hasText(model.getArtworkSrc())) {
-            artwork = Artwork.builder()
-                    .binary(binaryResourceProducer.toBinary(model.getArtworkSrc()))
-                    .build();
-        }
-        libraryService.updateAlbum(Album.builder()
-                .id(albumId)
-                .name(model.getName())
-                .date(model.getDate())
-                .genre(model.getGenre())
-                .artwork(artwork)
-                .build());
+    void updateAlbum(@PathVariable long albumId, @RequestBody UpdateAlbum model) {
+        libraryService.updateAlbum(albumId, model);
     }
 }

@@ -5,8 +5,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import com.bemonovoid.playqd.core.model.ArtworkOnlineSearchQuery;
 import com.bemonovoid.playqd.core.model.ArtworkOnlineSearchResult;
+import com.bemonovoid.playqd.core.model.MusicBrainzTagValues;
+import com.bemonovoid.playqd.core.model.event.MusicBrainzTagsUpdateAvailable;
+import com.bemonovoid.playqd.core.model.query.ArtworkOnlineSearchQuery;
 import com.bemonovoid.playqd.core.service.ArtworkSearchService;
 import com.bemonovoid.playqd.remote.service.musicbrainz.model.MBQueryContext;
 import com.bemonovoid.playqd.remote.service.musicbrainz.model.api.MBArtist;
@@ -16,15 +18,21 @@ import com.bemonovoid.playqd.remote.service.musicbrainz.model.api.MBCoverArtQuer
 import com.bemonovoid.playqd.remote.service.musicbrainz.model.api.MBImage;
 import com.bemonovoid.playqd.remote.service.musicbrainz.model.api.MBRelease;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.stereotype.Component;
 
 @Slf4j
-public class MusicBrainzArtworkSearchService implements ArtworkSearchService {
+@Component
+class MusicBrainzArtworkSearchService implements ArtworkSearchService {
 
+    private final ApplicationEventPublisher eventPublisher;
     private final MusicBrainzApiClient musicBrainzApiClient;
     private final MusicBrainzCoverArtApiClient coverArtApiClient;
 
-    public MusicBrainzArtworkSearchService(MusicBrainzApiClient musicBrainzApiClient,
-                                           MusicBrainzCoverArtApiClient coverArtApiClient) {
+    MusicBrainzArtworkSearchService(ApplicationEventPublisher eventPublisher,
+                                    MusicBrainzApiClient musicBrainzApiClient,
+                                    MusicBrainzCoverArtApiClient coverArtApiClient) {
+        this.eventPublisher = eventPublisher;
         this.musicBrainzApiClient = musicBrainzApiClient;
         this.coverArtApiClient = coverArtApiClient;
     }
@@ -116,6 +124,14 @@ public class MusicBrainzArtworkSearchService implements ArtworkSearchService {
             }
 
             log.info("Artwork was successfully found.");
+
+            MusicBrainzTagValues tagValues = MusicBrainzTagValues.builder()
+                .mbArtistId(mbQueryContext.getMbArtistId())
+                .mbArtistCountry(mbQueryContext.getMbArtistCountry())
+                .mbReleaseId(release.getId())
+                .build();
+
+            eventPublisher.publishEvent(new MusicBrainzTagsUpdateAvailable(this, tagValues));
 
             return Optional.of(ArtworkOnlineSearchResult.builder()
                     .imageUrl(coverArtUrlOpt.get())

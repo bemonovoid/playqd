@@ -1,55 +1,55 @@
-package com.bemonovoid.playqd.service;
+package com.bemonovoid.playqd.core.service.impl;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Optional;
 
-import com.bemonovoid.playqd.core.dao.AlbumDao;
-import com.bemonovoid.playqd.core.dao.SongDao;
+import com.bemonovoid.playqd.core.dao.LibraryDao;
 import com.bemonovoid.playqd.core.model.Album;
 import com.bemonovoid.playqd.core.model.Artwork;
-import com.bemonovoid.playqd.core.model.ArtworkOnlineSearchQuery;
 import com.bemonovoid.playqd.core.model.ArtworkOnlineSearchResult;
 import com.bemonovoid.playqd.core.model.Song;
+import com.bemonovoid.playqd.core.model.event.ArtworkResultReceived;
 import com.bemonovoid.playqd.core.model.query.ArtworkLocalSearchQuery;
+import com.bemonovoid.playqd.core.model.query.ArtworkOnlineSearchQuery;
 import com.bemonovoid.playqd.core.service.ArtworkSearchService;
 import com.bemonovoid.playqd.core.service.ArtworkService;
-import com.bemonovoid.playqd.event.ArtworkResultReceived;
+import com.bemonovoid.playqd.core.service.BinaryResourceProducer;
+import lombok.extern.slf4j.Slf4j;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.tag.Tag;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.jaudiotagger.tag.images.StandardArtwork;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 class ArtworkServiceImpl implements ArtworkService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ArtworkServiceImpl.class);
-
-    private final SongDao songDao;
-    private final AlbumDao albumDao;
+    private final LibraryDao libraryDao;
     private final ArtworkSearchService artworkSearchService;
+    private final BinaryResourceProducer binaryResourceProducer;
 
     private final ApplicationEventPublisher publisher;
 
     ArtworkServiceImpl(ApplicationEventPublisher publisher,
-                       SongDao songDao,
-                       AlbumDao albumDao,
-                       ArtworkSearchService artworkSearchService) {
+                       LibraryDao libraryDao,
+                       ArtworkSearchService artworkSearchService,
+                       BinaryResourceProducer binaryResourceProducer) {
         this.publisher = publisher;
-        this.songDao = songDao;
-        this.albumDao = albumDao;
+        this.libraryDao = libraryDao;
         this.artworkSearchService = artworkSearchService;
+        this.binaryResourceProducer = binaryResourceProducer;
     }
 
     @Override
     public Artwork getArtworkFromLibrary(ArtworkLocalSearchQuery query) {
         if (query.getAlbumId() != null) {
-            Optional<Album> albumOpt = albumDao.getOne(query.getAlbumId());
+            Optional<Album> albumOpt = libraryDao.ofAlbum().getOne(query.getAlbumId());
             if (albumOpt.isEmpty()) {
                 return getDefault();
             }
@@ -59,7 +59,7 @@ class ArtworkServiceImpl implements ArtworkService {
                 return album.getArtwork();
             } else {
                 Song albumSong = getSong(query).get();
-                return getArtworkFromFile(albumSong.getFileLocation());
+                return getArtworkFromAudioFile(albumSong.getFileLocation());
             }
         }
         return getDefault();
@@ -90,12 +90,48 @@ class ArtworkServiceImpl implements ArtworkService {
 
         ArtworkOnlineSearchResult artworkOnlineSearchResult = artworkSearchResultOpt.get();
 
-        publisher.publishEvent(new ArtworkResultReceived(this, album, artworkOnlineSearchResult));
+        updateAlbumArtwork(album.getId(), artworkOnlineSearchResult.getImageUrl());
 
         return Optional.of(artworkOnlineSearchResult.getImageUrl());
     }
 
-    private Artwork getArtworkFromFile(String songFileLocation) {
+    public void updateAlbumArtwork(long albumId, String resourceUrl) {
+        org.jaudiotagger.tag.images.Artwork artwork = buildArtworkTagFromResource(resourceUrl);
+        List<Song> albumSongs = libraryDao.ofSong().getAlbumSongs(albumId);
+        boolean setBinaryOnAlbum = false;
+        for (Song song : albumSongs) {
+            if (!setArtworkTagToAudioFile(song.getFileLocation(), artwork)) {
+                setBinaryOnAlbum = true;
+            }
+        }
+        if (setBinaryOnAlbum) {
+            libraryDao.ofAlbum().setArtworkBinary(albumId, artwork.getBinaryData());
+        }
+    }
+
+    private org.jaudiotagger.tag.images.Artwork buildArtworkTagFromResource(String url) {
+        byte[] binaryData = binaryResourceProducer.toBinary(url);
+        org.jaudiotagger.tag.images.Artwork artwork = new StandardArtwork();
+        artwork.setImageUrl(url);
+        artwork.setBinaryData(binaryData);
+        return artwork;
+    }
+
+    private boolean setArtworkTagToAudioFile(String fileLocation, org.jaudiotagger.tag.images.Artwork artwork) {
+        try {
+            AudioFile audioFile = AudioFileIO.read(new File(fileLocation));
+            Tag tag = audioFile.getTag();
+            tag.setField(artwork);
+            audioFile.commit();
+            log.info("Artwork tag was successfully committed to audio file {}", fileLocation);
+            return true;
+        } catch (Exception e) {
+            log.error(String.format("Failed to commit Artwork tag to audio file %s", fileLocation), e);
+            return false;
+        }
+    }
+
+    private Artwork getArtworkFromAudioFile(String songFileLocation) {
         File file = new File(songFileLocation);
         try {
             AudioFile audioFile = AudioFileIO.read(file);
@@ -108,7 +144,7 @@ class ArtworkServiceImpl implements ArtworkService {
             }
             return getDefault();
         } catch (Exception e) {
-            LOG.error("Failed to retrieve an audio file for path {}. Default artwork will be used", songFileLocation);
+            log.error("Failed to retrieve an audio file for path {}. Default artwork will be used", songFileLocation);
             return getDefault();
         }
     }
@@ -123,9 +159,9 @@ class ArtworkServiceImpl implements ArtworkService {
 
     private Optional<Song> getSong(ArtworkLocalSearchQuery query) {
         if (query.getAlbumId() != null) {
-            return songDao.getFirstSongInAlbum(query.getAlbumId());
+            return libraryDao.ofSong().getFirstSongInAlbum(query.getAlbumId());
         } else {
-            return songDao.getOne(query.getSongId());
+            return libraryDao.ofSong().getOne(query.getSongId());
         }
     }
 }

@@ -9,30 +9,29 @@ import java.util.concurrent.TimeUnit;
 import com.bemonovoid.playqd.remote.service.musicbrainz.model.api.MBCoverArtQueryResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @Slf4j
-public class MusicBrainzCoverArtApiClient {
+@Component
+class MusicBrainzCoverArtApiClient {
 
-    private final RestTemplate restTemplate;
-
-    public MusicBrainzCoverArtApiClient(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
-    }
+    private static final String ROOT_URI = "http://coverartarchive.org";
 
     public Optional<MBCoverArtQueryResponse> getCoverArt(String mbReleaseId) {
 
         log.info("Searching artowork by releaseId: {}", mbReleaseId);
 
         Map<String, Object> pathVariables = Map.of("mbReleaseId", mbReleaseId);
-        String uriString = UriComponentsBuilder.fromPath("/release/{mbReleaseId}")
+        String uriString = UriComponentsBuilder
+                .fromUriString(ROOT_URI + "/release/{mbReleaseId}")
                 .buildAndExpand(pathVariables)
                 .toUriString();
         try {
             ResponseEntity<MBCoverArtQueryResponse> response = Executors.newSingleThreadScheduledExecutor().schedule(
-                    () -> restTemplate.getForEntity(uriString, MBCoverArtQueryResponse.class),
+                    () -> new RestTemplate().getForEntity(uriString, MBCoverArtQueryResponse.class),
                     500,
                     TimeUnit.MILLISECONDS)
                     .get();

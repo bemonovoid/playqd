@@ -17,7 +17,7 @@ public interface SongRepository extends JpaRepository<SongEntity, Long> {
         return getAlbumSongCount().stream().collect(Collectors.toMap(CountProjection::getArtistId, p -> p));
     }
 
-    default void overrideAlbumSongsNameWithFileName(long albumId) {
+    default void setShowFileNameAsSongName(long albumId) {
         List<SongEntity> entities = findAllByAlbumId(albumId).stream()
                 .peek(entity -> entity.setShowFileNameAsSongName(true))
                 .collect(Collectors.toList());
