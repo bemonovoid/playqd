@@ -1,6 +1,5 @@
 package com.bemonovoid.playqd.controller;
 
-import com.bemonovoid.playqd.core.model.Artist;
 import com.bemonovoid.playqd.core.model.Artists;
 import com.bemonovoid.playqd.core.model.UpdateArtist;
 import com.bemonovoid.playqd.core.service.LibraryService;

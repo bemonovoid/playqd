@@ -6,8 +6,6 @@ import java.util.Objects;
 import java.util.Optional;
 
 import com.bemonovoid.playqd.core.model.ArtworkOnlineSearchResult;
-import com.bemonovoid.playqd.core.model.MusicBrainzTagValues;
-import com.bemonovoid.playqd.core.model.event.MusicBrainzTagsUpdateAvailable;
 import com.bemonovoid.playqd.core.model.query.ArtworkOnlineSearchQuery;
 import com.bemonovoid.playqd.core.service.ArtworkSearchService;
 import com.bemonovoid.playqd.remote.service.musicbrainz.model.MBQueryContext;
