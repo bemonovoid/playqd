@@ -7,7 +7,9 @@ import com.bemonovoid.playqd.core.model.Album;
 
 public interface AlbumDao {
 
-    Optional<Album> getOne(long id);
+    Optional<Album> findOne(long id);
+
+    Album getOne(long id);
 
     List<Album> getAll();
 
@@ -22,4 +24,6 @@ public interface AlbumDao {
     void updateAlbum(Album album);
 
     void setArtworkBinary(long albumId, byte[] binaryData);
+
+    void move(long albumIdFrom, Long albumIdTo);
 }

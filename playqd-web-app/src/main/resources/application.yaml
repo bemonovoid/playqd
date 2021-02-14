@@ -21,7 +21,7 @@ spring:
 
 playqd:
   library:
-    location: "D:/Music"
+    location: "D:/Music/UA"
 logging:
   level:
     web: DEBUG

@@ -13,12 +13,16 @@ import com.bemonovoid.playqd.core.model.Artists;
 import com.bemonovoid.playqd.core.model.Genres;
 import com.bemonovoid.playqd.core.model.Song;
 import com.bemonovoid.playqd.core.model.UpdateAlbum;
+import com.bemonovoid.playqd.core.model.UpdateArtist;
+import com.bemonovoid.playqd.core.model.event.AlbumTagsUpdated;
+import com.bemonovoid.playqd.core.model.event.ArtistTagsUpdated;
 import com.bemonovoid.playqd.core.model.query.AlbumSongsQuery;
 import com.bemonovoid.playqd.core.model.query.AlbumsQuery;
 import com.bemonovoid.playqd.core.model.query.SongFilter;
 import com.bemonovoid.playqd.core.model.query.SongQuery;
 import com.bemonovoid.playqd.core.service.ArtworkService;
 import com.bemonovoid.playqd.core.service.LibraryService;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -27,10 +31,12 @@ class LibraryServiceImpl implements LibraryService {
 
     private final LibraryDao libraryDao;
     private final ArtworkService artworkService;
+    private final ApplicationEventPublisher eventPublisher;
 
-    LibraryServiceImpl(LibraryDao libraryDao, ArtworkService artworkService) {
+    LibraryServiceImpl(LibraryDao libraryDao, ArtworkService artworkService, ApplicationEventPublisher eventPublisher) {
         this.libraryDao = libraryDao;
         this.artworkService = artworkService;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -45,7 +51,7 @@ class LibraryServiceImpl implements LibraryService {
 
     @Override
     public Optional<Album> getAlbum(long albumId) {
-        return libraryDao.ofAlbum().getOne(albumId);
+        return libraryDao.ofAlbum().findOne(albumId);
     }
 
     @Override
@@ -89,27 +95,43 @@ class LibraryServiceImpl implements LibraryService {
     }
 
     @Override
-    public void updateArtist(Artist artist) {
-        libraryDao.ofArtist().updateArtist(artist);
+    public void updateArtist(long artistId, UpdateArtist updateArtist) {
+        Artist artist;
+        if (artistId == updateArtist.getId()) {
+            artist = Artist.builder()
+                    .id(artistId).name(updateArtist.getName()).country(updateArtist.getCountry()).build();
+            libraryDao.ofArtist().updateArtist(artist);
+        } else {
+            libraryDao.ofArtist().move(artistId, updateArtist.getId());
+            artist = libraryDao.ofArtist().getOne(updateArtist.getId());
+        }
+        eventPublisher.publishEvent(new ArtistTagsUpdated(this, artist));
     }
 
     @Override
     public void updateAlbum(long albumId, UpdateAlbum updateAlbum) {
-        Album album = Album.builder()
-                .id(albumId)
-                .name(updateAlbum.getName())
-                .date(updateAlbum.getDate())
-                .genre(updateAlbum.getGenre())
-                .build();
+        Album album = null;
+        if (albumId == updateAlbum.getId()) {
+            album = Album.builder()
+                    .id(albumId)
+                    .name(updateAlbum.getName())
+                    .date(updateAlbum.getDate())
+                    .genre(updateAlbum.getGenre())
+                    .build();
 
-        libraryDao.ofAlbum().updateAlbum(album);
+            libraryDao.ofAlbum().updateAlbum(album);
 
-        if (StringUtils.hasText(updateAlbum.getArtworkSrc())) {
-            artworkService.updateAlbumArtwork(albumId, updateAlbum.getArtworkSrc());
+            if (StringUtils.hasText(updateAlbum.getArtworkSrc())) {
+                artworkService.updateAlbumArtwork(albumId, updateAlbum.getArtworkSrc());
+            }
+
+            if (updateAlbum.isOverrideSongNameWithFileName()) {
+                libraryDao.ofSong().setShowAlbumSongNameAsFileName(albumId);
+            }
+        } else {
+            libraryDao.ofAlbum().move(albumId, updateAlbum.getId());
+            album = libraryDao.ofAlbum().getOne(updateAlbum.getId());
         }
-
-        if (updateAlbum.isOverrideSongNameWithFileName()) {
-            libraryDao.ofSong().setShowAlbumSongNameAsFileName(albumId);
-        }
+        eventPublisher.publishEvent(new AlbumTagsUpdated(this, album));
     }
 }

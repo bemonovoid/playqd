@@ -22,12 +22,8 @@ class ArtistController {
     }
 
     @PutMapping("/{artistId}")
-    void updateArtist(@PathVariable long artistId, @RequestBody UpdateArtist model) {
-        libraryService.updateArtist(Artist.builder()
-                .id(artistId)
-                .name(model.getName())
-                .country(model.getCountry())
-                .build());
+    void updateArtist(@PathVariable long artistId, @RequestBody UpdateArtist updateArtist) {
+        libraryService.updateArtist(artistId, updateArtist);
     }
 
     @GetMapping

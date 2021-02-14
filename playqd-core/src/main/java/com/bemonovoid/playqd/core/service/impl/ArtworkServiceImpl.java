@@ -3,14 +3,16 @@ package com.bemonovoid.playqd.core.service.impl;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 import java.util.Optional;
 
 import com.bemonovoid.playqd.core.dao.LibraryDao;
 import com.bemonovoid.playqd.core.model.Album;
+import com.bemonovoid.playqd.core.model.Artist;
 import com.bemonovoid.playqd.core.model.Artwork;
 import com.bemonovoid.playqd.core.model.ArtworkOnlineSearchResult;
 import com.bemonovoid.playqd.core.model.Song;
+import com.bemonovoid.playqd.core.model.event.AlbumTagsUpdated;
+import com.bemonovoid.playqd.core.model.event.ArtistTagsUpdated;
 import com.bemonovoid.playqd.core.model.query.ArtworkLocalSearchQuery;
 import com.bemonovoid.playqd.core.model.query.ArtworkOnlineSearchQuery;
 import com.bemonovoid.playqd.core.service.ArtworkSearchService;
@@ -20,27 +22,26 @@ import lombok.extern.slf4j.Slf4j;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.tag.Tag;
-import org.jaudiotagger.tag.images.StandardArtwork;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 @Slf4j
 @Component
 class ArtworkServiceImpl implements ArtworkService {
 
     private final LibraryDao libraryDao;
+    private final ApplicationEventPublisher eventPublisher;
     private final ArtworkSearchService artworkSearchService;
     private final BinaryResourceProducer binaryResourceProducer;
 
-    private final ApplicationEventPublisher publisher;
-
-    ArtworkServiceImpl(ApplicationEventPublisher publisher,
-                       LibraryDao libraryDao,
+    ArtworkServiceImpl(LibraryDao libraryDao,
+                       ApplicationEventPublisher eventPublisher,
                        ArtworkSearchService artworkSearchService,
                        BinaryResourceProducer binaryResourceProducer) {
-        this.publisher = publisher;
         this.libraryDao = libraryDao;
+        this.eventPublisher = eventPublisher;
         this.artworkSearchService = artworkSearchService;
         this.binaryResourceProducer = binaryResourceProducer;
     }
@@ -48,7 +49,7 @@ class ArtworkServiceImpl implements ArtworkService {
     @Override
     public Artwork getArtworkFromLibrary(ArtworkLocalSearchQuery query) {
         if (query.getAlbumId() != null) {
-            Optional<Album> albumOpt = libraryDao.ofAlbum().getOne(query.getAlbumId());
+            Optional<Album> albumOpt = libraryDao.ofAlbum().findOne(query.getAlbumId());
             if (albumOpt.isEmpty()) {
                 return getDefault();
             }
@@ -87,47 +88,31 @@ class ArtworkServiceImpl implements ArtworkService {
             return Optional.empty();
         }
 
-        ArtworkOnlineSearchResult artworkOnlineSearchResult = artworkSearchResultOpt.get();
+        ArtworkOnlineSearchResult searchResult = artworkSearchResultOpt.get();
 
-        updateAlbumArtwork(album.getId(), artworkOnlineSearchResult.getImageUrl());
+        if (StringUtils.hasText(searchResult.getMbArtistId())) {
+            eventPublisher.publishEvent(new ArtistTagsUpdated(this, Artist.builder()
+                    .id(album.getArtist().getId())
+                    .mbArtistId(searchResult.getMbArtistId())
+                    .country(searchResult.getMbArtistCountry())
+                    .build()));
+        }
 
-        return Optional.of(artworkOnlineSearchResult.getImageUrl());
+        if (StringUtils.hasText(searchResult.getMbReleaseId())) {
+            eventPublisher.publishEvent(new AlbumTagsUpdated(this, Album.builder()
+                    .id(album.getId()).mbReleaseId(searchResult.getMbReleaseId()).build()));
+        }
+
+        updateAlbumArtwork(album.getId(), searchResult.getImageUrl());
+
+        return Optional.of(searchResult.getImageUrl());
     }
 
-    public void updateAlbumArtwork(long albumId, String resourceUrl) {
-        org.jaudiotagger.tag.images.Artwork artwork = buildArtworkTagFromResource(resourceUrl);
-        List<Song> albumSongs = libraryDao.ofSong().getAlbumSongs(albumId);
-        boolean setBinaryOnAlbum = false;
-        for (Song song : albumSongs) {
-            if (!setArtworkTagToAudioFile(song.getFileLocation(), artwork)) {
-                setBinaryOnAlbum = true;
-            }
-        }
-        if (setBinaryOnAlbum) {
-            libraryDao.ofAlbum().setArtworkBinary(albumId, artwork.getBinaryData());
-        }
-    }
-
-    private org.jaudiotagger.tag.images.Artwork buildArtworkTagFromResource(String url) {
-        byte[] binaryData = binaryResourceProducer.toBinary(url);
-        org.jaudiotagger.tag.images.Artwork artwork = new StandardArtwork();
-        artwork.setImageUrl(url);
-        artwork.setBinaryData(binaryData);
-        return artwork;
-    }
-
-    private boolean setArtworkTagToAudioFile(String fileLocation, org.jaudiotagger.tag.images.Artwork artwork) {
-        try {
-            AudioFile audioFile = AudioFileIO.read(new File(fileLocation));
-            Tag tag = audioFile.getTag();
-            tag.setField(artwork);
-            audioFile.commit();
-            log.info("Artwork tag was successfully committed to audio file {}", fileLocation);
-            return true;
-        } catch (Exception e) {
-            log.error(String.format("Failed to commit Artwork tag to audio file %s", fileLocation), e);
-            return false;
-        }
+    @Override
+    public void updateAlbumArtwork(long albumId, String src) {
+        Artwork artwork = Artwork.builder().src(src).binary(binaryResourceProducer.toBinary(src)).build();
+        eventPublisher.publishEvent(new AlbumTagsUpdated(this, Album.builder().artwork(artwork).build()));
+        libraryDao.ofAlbum().setArtworkBinary(albumId, artwork.getBinary());
     }
 
     private Artwork getArtworkFromAudioFile(String songFileLocation) {

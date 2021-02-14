@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import com.bemonovoid.playqd.datasource.jdbc.entity.SongEntity;
 import com.bemonovoid.playqd.datasource.jdbc.projection.CountProjection;
+import com.bemonovoid.playqd.datasource.jdbc.projection.FileLocationProjection;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -25,6 +26,8 @@ public interface SongRepository extends JpaRepository<SongEntity, Long> {
     }
 
     List<SongEntity> findAllByAlbumId(long albumId);
+
+    List<FileLocationProjection> findByArtistId(long artistId);
 
     Optional<SongEntity> findFirstByAlbumId(long albumId);
 

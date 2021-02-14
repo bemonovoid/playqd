@@ -11,4 +11,7 @@ public interface ArtistDao {
     List<Artist> getAll();
 
     void updateArtist(Artist artist);
+
+    void move(long artistIdFrom, long artistIdTo);
+
 }

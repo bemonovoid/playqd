@@ -7,7 +7,7 @@ import lombok.Getter;
 @Builder
 public class Artwork {
 
+    private String src;
     private String mimeType;
-
     private byte[] binary;
 }

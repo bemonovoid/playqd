@@ -8,6 +8,7 @@ import lombok.Setter;
 @Setter(AccessLevel.PACKAGE)
 public class UpdateArtist {
 
+    private Long id;
     private String name;
     private String country;
 }

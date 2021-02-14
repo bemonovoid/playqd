@@ -10,6 +10,7 @@ import com.bemonovoid.playqd.core.dao.SongDao;
 import com.bemonovoid.playqd.core.model.PlaybackHistorySong;
 import com.bemonovoid.playqd.core.model.Song;
 import com.bemonovoid.playqd.datasource.jdbc.entity.FavoriteSongEntity;
+import com.bemonovoid.playqd.datasource.jdbc.projection.FileLocationProjection;
 import com.bemonovoid.playqd.datasource.jdbc.repository.FavoriteSongRepository;
 import com.bemonovoid.playqd.datasource.jdbc.repository.SongRepository;
 import org.springframework.data.domain.PageRequest;
@@ -38,6 +39,18 @@ class SongDaoImpl implements SongDao {
     @Override
     public List<Song> getAlbumSongs(long albumId) {
         return songRepository.findAllByAlbumId(albumId).stream().map(SongHelper::fromEntity).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<String> getArtistSongsFileLocations(long artistId) {
+        return songRepository.findByArtistId(artistId).stream()
+                .map(FileLocationProjection::getFileLocation)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<String> getAlbumSongsFileLocations(long albumId) {
+        return getAlbumSongs(albumId).stream().map(Song::getFileLocation).collect(Collectors.toList());
     }
 
     @Override

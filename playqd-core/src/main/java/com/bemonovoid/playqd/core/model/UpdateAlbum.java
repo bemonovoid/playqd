@@ -8,9 +8,11 @@ import lombok.Setter;
 @Setter(AccessLevel.PACKAGE)
 public class UpdateAlbum {
 
+    private Long id;
     private String name;
     private String genre;
     private String date;
     private String artworkSrc;
     private boolean overrideSongNameWithFileName;
+
 }

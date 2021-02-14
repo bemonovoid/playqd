@@ -10,8 +10,8 @@ import com.bemonovoid.playqd.datasource.jdbc.entity.AlbumEntity;
 import com.bemonovoid.playqd.datasource.jdbc.repository.AlbumRepository;
 import com.bemonovoid.playqd.datasource.jdbc.repository.SongRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Component
@@ -19,15 +19,22 @@ class AlbumDaoImpl implements AlbumDao {
 
     private final AlbumRepository albumRepository;
     private final SongRepository songRepository;
+    private final JdbcTemplate jdbcTemplate;
 
-    AlbumDaoImpl(AlbumRepository albumRepository, SongRepository songRepository) {
+    AlbumDaoImpl(JdbcTemplate jdbcTemplate, AlbumRepository albumRepository, SongRepository songRepository) {
+        this.jdbcTemplate = jdbcTemplate;
         this.albumRepository = albumRepository;
         this.songRepository = songRepository;
     }
 
     @Override
-    public Optional<Album> getOne(long id) {
+    public Optional<Album> findOne(long id) {
         return albumRepository.findById(id).map(AlbumHelper::fromEntity);
+    }
+
+    @Override
+    public Album getOne(long id) {
+        return AlbumHelper.fromEntity(albumRepository.findOne(id));
     }
 
     @Override
@@ -59,7 +66,6 @@ class AlbumDaoImpl implements AlbumDao {
     }
 
     @Override
-    @Transactional
     public void updateAlbum(Album album) {
 
         log.info("Updating album with id='{}'.", album.getId());
@@ -87,6 +93,25 @@ class AlbumDaoImpl implements AlbumDao {
             entity.setArtworkBinary(binaryData);
             albumRepository.save(entity);
         });
+    }
+
+    @Override
+    public void move(long albumIdFrom, Long albumIdTo) {
+        log.info("Moving album id={} to album id={}", albumIdFrom, albumIdTo);
+
+        AlbumEntity albumFrom = albumRepository.findOne(albumIdFrom);
+        AlbumEntity albumTo = albumRepository.findOne(albumIdTo);
+
+        albumFrom.getSongs().forEach(albumSongFromEntity -> albumSongFromEntity.setAlbum(albumTo));
+
+        songRepository.saveAll(albumFrom.getSongs());
+
+        log.info("Moving completed. Moved {} song(s)", albumFrom.getSongs().size());
+
+        jdbcTemplate.update("DELETE FROM ALBUM a WHERE a.ID = ?", albumIdFrom);
+
+        log.info("Old album id={} removed.", albumIdFrom);
+
     }
 
     private boolean shouldUpdate(String oldVal, String newVal) {

@@ -5,8 +5,8 @@ import lombok.Getter;
 import lombok.ToString;
 
 @Getter
-@ToString
 @Builder
+@ToString
 public class ArtworkOnlineSearchQuery {
 
     private String artistName;
