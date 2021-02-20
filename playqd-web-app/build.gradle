@@ -9,6 +9,7 @@ dependencies {
 
     implementation project(':playqd-core')
     implementation project(':playqd-datasource-jdbc')
+    implementation project(':playqd-remote-service-spotify')
     implementation project(':playqd-remote-service-musicbrainz')
 }
 

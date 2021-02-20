@@ -29,7 +29,7 @@ public class AlbumEntity extends PersistentAuditableEntity<Long> {
     public static final String COL_GENRE = "GENRE";
     public static final String COL_TOTAL_TIME_IN_SECONDS = "TOTAL_TIME_IN_SECONDS";
     public static final String COL_ARTIST_ID = "ARTIST_ID";
-    public static final String COL_ARTWORK_BINARY = "ARTWORK_BINARY";
+    public static final String COL_IMAGE = "IMAGE";
 
     public static final String COL_MB_RELEASE_ID = "MB_RELEASE_ID";
 
@@ -52,9 +52,9 @@ public class AlbumEntity extends PersistentAuditableEntity<Long> {
     private Integer totalTimeInSeconds;
 
     @Lob
-    @Column(name = COL_ARTWORK_BINARY)
+    @Column(name = COL_IMAGE)
     @Type(type="org.hibernate.type.ImageType")
-    private byte[] artworkBinary;
+    private byte[] image;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private ArtistEntity artist;

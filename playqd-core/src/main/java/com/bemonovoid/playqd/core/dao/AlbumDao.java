@@ -15,7 +15,7 @@ public interface AlbumDao {
 
     List<String> getGenres();
 
-    List<Album> getAllByGenre(String genre);
+    List<Album> getGenreAlbums(String genre);
 
     List<Album> getArtistAlbums(long artistId);
 

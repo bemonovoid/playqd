@@ -18,7 +18,7 @@ public class Album {
     private Artist artist;
 
     @JsonIgnore
-    private Artwork artwork;
+    private Image image;
 
     @JsonIgnore
     private String simpleName;

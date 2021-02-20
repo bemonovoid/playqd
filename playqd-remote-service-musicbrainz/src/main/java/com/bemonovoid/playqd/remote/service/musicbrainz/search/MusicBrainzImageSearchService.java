@@ -7,7 +7,7 @@ import java.util.Optional;
 
 import com.bemonovoid.playqd.core.model.ArtworkOnlineSearchResult;
 import com.bemonovoid.playqd.core.model.query.ArtworkOnlineSearchQuery;
-import com.bemonovoid.playqd.core.service.ArtworkSearchService;
+import com.bemonovoid.playqd.core.service.ImageSearchService;
 import com.bemonovoid.playqd.remote.service.musicbrainz.model.MBQueryContext;
 import com.bemonovoid.playqd.remote.service.musicbrainz.model.api.MBArtist;
 import com.bemonovoid.playqd.remote.service.musicbrainz.model.api.MBArtistQueryResponse;
@@ -20,18 +20,17 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-class MusicBrainzArtworkSearchService implements ArtworkSearchService {
+class MusicBrainzImageSearchService {
 
     private final MusicBrainzApiClient musicBrainzApiClient;
     private final MusicBrainzCoverArtApiClient coverArtApiClient;
 
-    MusicBrainzArtworkSearchService(MusicBrainzApiClient musicBrainzApiClient,
-                                    MusicBrainzCoverArtApiClient coverArtApiClient) {
+    MusicBrainzImageSearchService(MusicBrainzApiClient musicBrainzApiClient,
+                                  MusicBrainzCoverArtApiClient coverArtApiClient) {
         this.musicBrainzApiClient = musicBrainzApiClient;
         this.coverArtApiClient = coverArtApiClient;
     }
 
-    @Override
     public synchronized Optional<ArtworkOnlineSearchResult> search(ArtworkOnlineSearchQuery onlineSearchQuery) {
 
         log.info("Searching album art by query: {}", onlineSearchQuery);

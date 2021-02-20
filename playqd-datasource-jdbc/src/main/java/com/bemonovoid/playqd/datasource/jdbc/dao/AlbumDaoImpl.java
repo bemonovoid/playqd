@@ -48,7 +48,7 @@ class AlbumDaoImpl implements AlbumDao {
     }
 
     @Override
-    public List<Album> getAllByGenre(String genre) {
+    public List<Album> getGenreAlbums(String genre) {
         return albumRepository.findAllByGenreEquals(genre).stream()
                 .map(AlbumHelper::fromEntity).collect(Collectors.toList());
     }
@@ -90,7 +90,7 @@ class AlbumDaoImpl implements AlbumDao {
     @Override
     public void setArtworkBinary(long albumId, byte[] binaryData) {
         albumRepository.findById(albumId).ifPresent(entity -> {
-            entity.setArtworkBinary(binaryData);
+//            entity.setArtworkBinary(binaryData);
             albumRepository.save(entity);
         });
     }

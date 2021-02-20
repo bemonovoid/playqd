@@ -10,7 +10,6 @@ import java.nio.file.Paths;
 import java.util.Optional;
 
 import com.bemonovoid.playqd.core.model.Song;
-import com.bemonovoid.playqd.core.service.LibraryDirectory;
 import com.bemonovoid.playqd.core.service.LibraryService;
 import lombok.extern.slf4j.Slf4j;
 import org.jaudiotagger.audio.AudioFile;
@@ -31,11 +30,9 @@ class AudioFileController {
 
     private static final int BYTE_RANGE = 128; // increase the byterange from here
 
-    private final LibraryDirectory libraryDirectory;
     private final LibraryService libraryService;
 
-    AudioFileController(LibraryDirectory libraryDirectory, LibraryService libraryService) {
-        this.libraryDirectory = libraryDirectory;
+    AudioFileController(LibraryService libraryService) {
         this.libraryService = libraryService;
     }
 

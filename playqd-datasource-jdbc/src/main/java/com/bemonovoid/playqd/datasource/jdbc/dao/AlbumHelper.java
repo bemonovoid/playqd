@@ -3,7 +3,7 @@ package com.bemonovoid.playqd.datasource.jdbc.dao;
 import java.time.LocalTime;
 
 import com.bemonovoid.playqd.core.model.Album;
-import com.bemonovoid.playqd.core.model.Artwork;
+import com.bemonovoid.playqd.core.model.Image;
 import com.bemonovoid.playqd.datasource.jdbc.entity.AlbumEntity;
 
 abstract class AlbumHelper {
@@ -18,7 +18,7 @@ abstract class AlbumHelper {
                 .totalTimeInSeconds(entity.getTotalTimeInSeconds())
                 .totalTimeHumanReadable(secondsToHumanReadableString(entity.getTotalTimeInSeconds()))
                 .artist(ArtistHelper.fromEntity(entity.getArtist()))
-                .artwork(Artwork.builder().binary(entity.getArtworkBinary()).build())
+                .image(entity.getImage() == null ? null : new Image("", entity.getImage(), null))
                 .build();
     }
 
@@ -32,7 +32,7 @@ abstract class AlbumHelper {
         albumEntity.setDate(album.getDate());
         albumEntity.setGenre(album.getGenre());
         albumEntity.setMbReleaseId(album.getMbReleaseId());
-        albumEntity.setArtworkBinary(album.getArtwork().getBinary());
+        albumEntity.setImage(album.getImage().getData());
         albumEntity.setArtist(ArtistHelper.toEntity(album.getArtist()));
 
         return albumEntity;

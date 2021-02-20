@@ -10,8 +10,8 @@ public interface ArtistDao {
 
     List<Artist> getAll();
 
-    void updateArtist(Artist artist);
+    boolean update(Artist artist);
 
-    void move(long artistIdFrom, long artistIdTo);
+    void move(long fromArtistId, long toArtistId);
 
 }

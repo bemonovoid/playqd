@@ -4,7 +4,7 @@ import java.io.File;
 
 import com.bemonovoid.playqd.core.dao.SongDao;
 import com.bemonovoid.playqd.core.model.Album;
-import com.bemonovoid.playqd.core.model.Artwork;
+import com.bemonovoid.playqd.core.model.Image;
 import com.bemonovoid.playqd.core.model.event.AlbumTagsUpdated;
 import lombok.extern.slf4j.Slf4j;
 import org.jaudiotagger.audio.AudioFile;
@@ -49,8 +49,8 @@ class AlbumTagsUpdatedHandler implements ApplicationListener<AlbumTagsUpdated> {
                 tag.setField(FieldKey.GENRE, album.getGenre());
             }
 
-            if (album.getArtwork() != null && album.getArtwork().getBinary() != null) {
-                tag.setField(buildArtworkTagFromResource(album.getArtwork()));
+            if (album.getImage() != null && album.getImage().getData() != null) {
+                tag.setField(buildArtworkTagFromResource(album.getImage()));
             }
 
             if (StringUtils.hasText(album.getMbReleaseId())) {
@@ -63,10 +63,10 @@ class AlbumTagsUpdatedHandler implements ApplicationListener<AlbumTagsUpdated> {
         }
     }
 
-    private org.jaudiotagger.tag.images.Artwork buildArtworkTagFromResource(Artwork artworkData) {
+    private org.jaudiotagger.tag.images.Artwork buildArtworkTagFromResource(Image albumImage) {
         org.jaudiotagger.tag.images.Artwork artwork = new StandardArtwork();
-        artwork.setImageUrl(artworkData.getSrc());
-        artwork.setBinaryData(artworkData.getBinary());
+        artwork.setImageUrl(albumImage.getUrl());
+        artwork.setBinaryData(albumImage.getData());
         return artwork;
     }
 }
