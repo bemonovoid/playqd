@@ -20,6 +20,6 @@ public class Artist {
     private String simpleName;
 
     @JsonIgnore
-    private String mbArtistId;
+    private String spotifyId;
 
 }

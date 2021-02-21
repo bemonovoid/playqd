@@ -2,8 +2,11 @@ package com.bemonovoid.playqd.remote.service.spotify.impl;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.Locale;
+import java.util.Map;
 
 import com.bemonovoid.playqd.remote.service.spotify.config.SpotifyProperties;
+import com.bemonovoid.playqd.remote.service.spotify.model.api.SpotifyArtistAlbumsResponse;
 import com.bemonovoid.playqd.remote.service.spotify.model.api.SpotifyRefreshTokenResponse;
 import com.bemonovoid.playqd.remote.service.spotify.model.api.SpotifySearchArtistResponse;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -14,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -30,43 +34,55 @@ class SpotifyApi {
     }
 
     SpotifySearchArtistResponse searchArtistByName(String artistName) {
-        String token = String.copyValueOf(accessToken);
-        if (tokenExpirationDate == null || tokenExpirationDate.isBefore(LocalDateTime.now())) {
-            token = getAccessToken();
-            accessToken = token.toCharArray();
-        }
         UriComponents uriComponents = UriComponentsBuilder.fromPath("/search")
                 .queryParam("q", String.format("\"%s\"", artistName))
                 .queryParam("type", "artist")
                 .build();
         RestTemplate restTemplate = new RestTemplateBuilder()
                 .rootUri(properties.getApiBaseUrl() + "/" + properties.getApiVersion())
-                .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken())
                 .build();
         ResponseEntity<SpotifySearchArtistResponse> response =
                 restTemplate.getForEntity(uriComponents.toUriString(), SpotifySearchArtistResponse.class);
         return response.getBody();
     }
 
-    private String getAccessToken() {
+    SpotifyArtistAlbumsResponse searchArtistAlbums(String artistId) {
         RestTemplate restTemplate = new RestTemplateBuilder()
-                .rootUri(properties.getAccountBaseUrl())
-                .basicAuthentication(properties.getClientId(), properties.getClientSecret(), StandardCharsets.UTF_8)
+                .rootUri(properties.getApiBaseUrl() + "/" + properties.getApiVersion())
+                .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken())
                 .build();
+        Map<String, String> pathVariables = Map.of("artistId", artistId);
+        ResponseEntity<SpotifyArtistAlbumsResponse> response =
+                restTemplate.getForEntity("/artists/{artistId}/albums", SpotifyArtistAlbumsResponse.class, pathVariables);
+        return response.getBody();
+    }
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+    private String getAccessToken() {
+        String token = String.copyValueOf(accessToken);
+        if (tokenExpirationDate == null || tokenExpirationDate.isBefore(LocalDateTime.now())) {
 
-        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-        map.add("grant_type", "client_credentials");
+            RestTemplate restTemplate = new RestTemplateBuilder()
+                    .rootUri(properties.getAccountBaseUrl())
+                    .basicAuthentication(properties.getClientId(), properties.getClientSecret(), StandardCharsets.UTF_8)
+                    .build();
 
-        ResponseEntity<SpotifyRefreshTokenResponse> response = restTemplate.postForEntity(
-                "/api/token", new HttpEntity<>(map, headers), SpotifyRefreshTokenResponse.class);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
-        SpotifyRefreshTokenResponse tokenInfo = response.getBody();
+            MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+            map.add("grant_type", "client_credentials");
 
-        tokenExpirationDate = LocalDateTime.now().plusSeconds(tokenInfo.getExpiresIn());
+            ResponseEntity<SpotifyRefreshTokenResponse> response = restTemplate.postForEntity(
+                    "/api/token", new HttpEntity<>(map, headers), SpotifyRefreshTokenResponse.class);
 
-        return tokenInfo.getAccessToken();
+            SpotifyRefreshTokenResponse tokenInfo = response.getBody();
+
+            tokenExpirationDate = LocalDateTime.now().plusSeconds(tokenInfo.getExpiresIn());
+
+            token = tokenInfo.getAccessToken();
+            accessToken = token.toCharArray();
+        }
+        return token;
     }
 }

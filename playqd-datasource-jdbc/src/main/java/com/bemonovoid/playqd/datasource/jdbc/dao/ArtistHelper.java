@@ -34,6 +34,7 @@ abstract class ArtistHelper {
     private static Artist fromEntityInternal(ArtistEntity artistEntity, ArtistMetadata metadata) {
         Artist.ArtistBuilder artistBuilder = Artist.builder()
                 .id(artistEntity.getId())
+                .spotifyId(artistEntity.getSpotifyArtistId())
                 .name(artistEntity.getName())
                 .simpleName(artistEntity.getSimpleName())
                 .country(artistEntity.getCountry());

@@ -26,7 +26,7 @@ public class ArtistEntity extends PersistentAuditableEntity<Long> {
     public static final String COL_PK_ID = "ID";
     public static final String COL_NAME = "NAME";
     public static final String COL_SIMPLE_NAME = "SIMPLE_NAME";
-    public static final String COL_MB_ARTIST_ID = "MB_ARTIST_ID";
+    public static final String COL_SPOTIFY_ARTIST_ID = "SPOTIFY_ARTIST_ID";
     public static final String COL_COUNTRY = "COUNTRY";
 
     @Id
@@ -34,8 +34,8 @@ public class ArtistEntity extends PersistentAuditableEntity<Long> {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = COL_MB_ARTIST_ID)
-    private String mbArtistId;
+    @Column(name = COL_SPOTIFY_ARTIST_ID)
+    private String spotifyArtistId;
 
     @Column(name = COL_NAME)
     private String name;

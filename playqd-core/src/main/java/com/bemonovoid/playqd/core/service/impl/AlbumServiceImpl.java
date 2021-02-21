@@ -9,14 +9,17 @@ import com.bemonovoid.playqd.core.dao.SongDao;
 import com.bemonovoid.playqd.core.model.Album;
 import com.bemonovoid.playqd.core.model.Albums;
 import com.bemonovoid.playqd.core.model.Image;
+import com.bemonovoid.playqd.core.model.ImageSize;
 import com.bemonovoid.playqd.core.model.UpdateAlbum;
 import com.bemonovoid.playqd.core.model.event.AlbumTagsUpdated;
 import com.bemonovoid.playqd.core.model.query.AlbumsQuery;
 import com.bemonovoid.playqd.core.service.AlbumService;
 import com.bemonovoid.playqd.core.service.ImageService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 class AlbumServiceImpl implements AlbumService {
 
@@ -52,12 +55,12 @@ class AlbumServiceImpl implements AlbumService {
     }
 
     @Override
-    public Optional<Image> getImage(long albumId, boolean findRemotely) {
+    public Optional<Image> getImage(long albumId, ImageSize size, boolean findRemotely) {
         Album album = albumDao.getOne(albumId);
         if (album.getImage() != null) {
             return Optional.of(album.getImage());
         }
-        return imageService.getAlbumImage(album, findRemotely);
+        return imageService.getAlbumImage(album, size, findRemotely);
     }
 
     @Override
@@ -86,4 +89,6 @@ class AlbumServiceImpl implements AlbumService {
         }
         eventPublisher.publishEvent(new AlbumTagsUpdated(this, album));
     }
+
+
 }

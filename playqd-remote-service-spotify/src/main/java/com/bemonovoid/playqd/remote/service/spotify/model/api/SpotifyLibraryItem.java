@@ -8,7 +8,9 @@ import lombok.Setter;
 
 @Getter
 @Setter(AccessLevel.PACKAGE)
-public class SpotifyArtists {
+public class SpotifyLibraryItem {
 
-    private List<SpotifyLibraryItem> items;
+    private String id;
+    private String name;
+    private List<SpotifyImage> images;
 }

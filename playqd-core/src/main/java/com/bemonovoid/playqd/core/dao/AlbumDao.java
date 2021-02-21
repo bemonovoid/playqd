@@ -23,7 +23,7 @@ public interface AlbumDao {
 
     void updateAlbum(Album album);
 
-    void setArtworkBinary(long albumId, byte[] binaryData);
+    void saveAlbumImage(long albumId, byte[] binaryData);
 
     void move(long albumIdFrom, Long albumIdTo);
 }

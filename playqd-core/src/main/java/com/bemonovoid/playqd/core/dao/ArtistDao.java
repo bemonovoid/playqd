@@ -10,6 +10,8 @@ public interface ArtistDao {
 
     List<Artist> getAll();
 
+    void setSpotifyArtistId(long artistId, String spotifyId);
+
     boolean update(Artist artist);
 
     void move(long fromArtistId, long toArtistId);

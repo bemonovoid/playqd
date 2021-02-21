@@ -15,7 +15,7 @@ public interface ImageService {
 
 //    void updateAlbumArtwork(long albumId, String resourceUrl);
 
-    Optional<Image> getAlbumImage(Album album, boolean findRemotely);
+    Optional<Image> getAlbumImage(Album album, ImageSize size, boolean findRemotely);
 
     Optional<Image> getArtistImage(Artist artist, ImageSize size, boolean findRemotely);
 }

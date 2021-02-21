@@ -4,6 +4,8 @@ import java.util.Optional;
 
 import com.bemonovoid.playqd.core.model.Album;
 import com.bemonovoid.playqd.core.model.Albums;
+import com.bemonovoid.playqd.core.model.Image;
+import com.bemonovoid.playqd.core.model.ImageSize;
 import com.bemonovoid.playqd.core.model.UpdateAlbum;
 import com.bemonovoid.playqd.core.model.query.AlbumsQuery;
 import com.bemonovoid.playqd.core.service.AlbumService;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -41,15 +44,19 @@ class AlbumController {
     }
 
     @GetMapping(path = "/{albumId}/image", produces = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE})
-    ResponseEntity<byte[]> getAlbumImageData(@PathVariable long albumId) {
-        return albumService.getImage(albumId, false)
+    ResponseEntity<byte[]> getAlbumImage(@PathVariable long albumId,
+                                         @RequestParam(defaultValue = "SMALL") ImageSize size) {
+        return albumService.getImage(albumId, size, false)
                 .map(image -> ResponseEntity.ok(image.getData()))
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/{albumId}/image/src")
     ResponseEntity<String> getAlbumImageSrc(@PathVariable long albumId) {
-        return ResponseEntity.ok("");
+        Optional<Image> artistImageOpt = albumService.getImage(albumId, ImageSize.SMALL, true);
+        return artistImageOpt
+                .map(artistImage -> ResponseEntity.ok(artistImage.getUrl()))
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PutMapping

@@ -53,20 +53,18 @@ class AlbumTagsUpdatedHandler implements ApplicationListener<AlbumTagsUpdated> {
                 tag.setField(buildArtworkTagFromResource(album.getImage()));
             }
 
-            if (StringUtils.hasText(album.getMbReleaseId())) {
-                tag.setField(FieldKey.MUSICBRAINZ_RELEASEID, album.getMbReleaseId());
-            }
-
             audioFile.commit();
         } catch (Exception e) {
             log.error(String.format("Failed to update tags for audio file: %s", fileLocation), e);
         }
     }
 
-    private org.jaudiotagger.tag.images.Artwork buildArtworkTagFromResource(Image albumImage) {
+    private org.jaudiotagger.tag.images.Artwork buildArtworkTagFromResource(Image image) {
         org.jaudiotagger.tag.images.Artwork artwork = new StandardArtwork();
-        artwork.setImageUrl(albumImage.getUrl());
-        artwork.setBinaryData(albumImage.getData());
+        artwork.setImageUrl(image.getUrl());
+        artwork.setBinaryData(image.getData());
+        artwork.setHeight(image.getDimensions().getHeight());
+        artwork.setWidth(image.getDimensions().getWidth());
         return artwork;
     }
 }

@@ -43,7 +43,6 @@ class MusicDirectoryScannerImpl implements MusicDirectoryScanner {
     private static final String UNKNOWN_ARTIST = "Unknown artist";
     private static final String UNKNOWN_ALBUM = "Unknown album";
 
-    private static final Set<String> IMAGE_EXTENSIONS = Set.of("jpeg", "jpg", "bmp", "png");
     private static final Set<String> AUDIO_EXTENSIONS = Set.of("flac", "m4a", "m4p", "mp3", "ogg", "wav", "wma");
 
     private static final List<String> TABLES = List.of(
@@ -153,7 +152,6 @@ class MusicDirectoryScannerImpl implements MusicDirectoryScanner {
             Tag tag = audioFile.getTag();
             if (tag != null) {
                 params.addValue(ArtistEntity.COL_COUNTRY, tag.getFirst(FieldKey.COUNTRY));
-                params.addValue(ArtistEntity.COL_MB_ARTIST_ID, tag.getFirst(FieldKey.MUSICBRAINZ_ARTISTID));
             }
             addAuditableParams(params);
             long artistId = simpleJdbcInsert.executeAndReturnKey(params).longValue();

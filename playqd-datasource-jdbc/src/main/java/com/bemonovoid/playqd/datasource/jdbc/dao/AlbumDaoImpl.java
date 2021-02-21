@@ -88,9 +88,9 @@ class AlbumDaoImpl implements AlbumDao {
     }
 
     @Override
-    public void setArtworkBinary(long albumId, byte[] binaryData) {
+    public void saveAlbumImage(long albumId, byte[] binaryData) {
         albumRepository.findById(albumId).ifPresent(entity -> {
-//            entity.setArtworkBinary(binaryData);
+            entity.setImage(binaryData);
             albumRepository.save(entity);
         });
     }

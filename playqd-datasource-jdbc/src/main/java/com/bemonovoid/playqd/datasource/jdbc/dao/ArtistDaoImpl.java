@@ -64,6 +64,13 @@ class ArtistDaoImpl implements ArtistDao {
     }
 
     @Override
+    public void setSpotifyArtistId(long artistId, String spotifyId) {
+        ArtistEntity entity = artistRepository.findOne(artistId);
+        entity.setSpotifyArtistId(spotifyId);
+        artistRepository.save(entity);
+    }
+
+    @Override
     public boolean update(Artist artist) {
         log.info("Updating artist with id='{}'.", artist.getId());
         ArtistEntity entity = artistRepository.findOne(artist.getId());
@@ -75,10 +82,6 @@ class ArtistDaoImpl implements ArtistDao {
         }
         if (shouldUpdate(entity.getCountry(), artist.getCountry())) {
             entity.setCountry(artist.getCountry());
-            hasUpdates = true;
-        }
-        if (shouldUpdate(entity.getMbArtistId(), artist.getMbArtistId())) {
-            entity.setMbArtistId(artist.getMbArtistId());
             hasUpdates = true;
         }
         if (hasUpdates) {

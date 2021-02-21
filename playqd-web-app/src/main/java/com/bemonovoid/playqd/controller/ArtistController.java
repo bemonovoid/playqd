@@ -8,6 +8,7 @@ import com.bemonovoid.playqd.core.model.Image;
 import com.bemonovoid.playqd.core.model.ImageSize;
 import com.bemonovoid.playqd.core.model.UpdateArtist;
 import com.bemonovoid.playqd.core.service.ArtistService;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,7 +33,7 @@ class ArtistController {
         return new Artists(artistService.getArtists());
     }
 
-    @GetMapping("/{artistId}/image")
+    @GetMapping(path = "/{artistId}/image", produces = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE})
     ResponseEntity<byte[]> getArtistImage(@PathVariable long artistId,
                                        @RequestParam(defaultValue = "SMALL") ImageSize size) {
         Optional<Image> artistImageOpt = artistService.getImage(artistId, size, false);

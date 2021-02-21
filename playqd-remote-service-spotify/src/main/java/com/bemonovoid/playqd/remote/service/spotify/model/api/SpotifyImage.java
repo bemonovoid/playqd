@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @Getter
 @Setter(AccessLevel.PACKAGE)
-public class SpotifyArtistImage {
+public class SpotifyImage {
 
     private int height;
     private int width;

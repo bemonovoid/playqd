@@ -43,8 +43,8 @@ class ArtistTagsUpdatedHandler implements ApplicationListener<ArtistTagsUpdated>
                 tag.setField(FieldKey.COUNTRY, artist.getCountry());
             }
 
-            if (StringUtils.hasText(artist.getMbArtistId())) {
-                tag.setField(FieldKey.MUSICBRAINZ_ARTISTID, artist.getMbArtistId());
+            if (StringUtils.hasText(artist.getSpotifyId())) {
+                tag.setField(FieldKey.MUSICBRAINZ_ARTISTID, artist.getSpotifyId());
             }
 
             audioFile.commit();
