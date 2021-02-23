@@ -2,5 +2,5 @@ package com.bemonovoid.playqd.core.service;
 
 public interface MusicDirectoryScanner {
 
-    void scan();
+    void scan(boolean cleanDatabase);
 }
