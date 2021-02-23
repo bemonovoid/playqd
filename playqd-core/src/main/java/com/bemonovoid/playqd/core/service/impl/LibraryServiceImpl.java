@@ -44,8 +44,10 @@ class LibraryServiceImpl implements LibraryService {
     public List<Song> getSongs(SongQuery query) {
         if (SongFilter.PLAY_COUNT == query.getFilter()) {
             return libraryDao.ofSong().getTopPlayedSongs(query.getPageSize());
-        } else if (SongFilter.LAST_PLAYED == query.getFilter()) {
+        } else if (SongFilter.RECENTLY_PLAYED == query.getFilter()) {
             return libraryDao.ofSong().getTopRecentlyPlayedSongs(query.getPageSize());
+        } else if (SongFilter.RECENTLY_ADDED == query.getFilter()) {
+            return libraryDao.ofSong().getRecentlyAdded(query.getPageSize());
         } else if (SongFilter.FAVORITES == query.getFilter()) {
             return libraryDao.ofSong().getFavoriteSongs(query.getPageSize());
         } else {

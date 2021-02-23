@@ -25,12 +25,12 @@ public interface SongRepository extends JpaRepository<SongEntity, Long> {
         saveAll(entities);
     }
 
+    Optional<SongEntity> findFirstByAlbumId(long albumId);
+
     List<SongEntity> findAllByAlbumId(long albumId);
 
     List<FileLocationProjection> findByArtistId(long artistId);
-
-    Optional<SongEntity> findFirstByAlbumId(long albumId);
-
+    
     @Query("SELECT s.artist.id as artistId, COUNT(DISTINCT s.album.id) as albumCount, COUNT(s.id) as songCount " +
             "FROM SongEntity s " +
             "GROUP BY s.artist.id " +

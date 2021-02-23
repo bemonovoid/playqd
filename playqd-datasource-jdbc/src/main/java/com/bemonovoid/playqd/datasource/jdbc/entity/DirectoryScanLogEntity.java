@@ -38,6 +38,6 @@ public class DirectoryScanLogEntity extends PersistentAuditableEntity<Long> {
     private DirectoryScanStatus status;
 
     @Column(name = COL_DURATION)
-    private long duration;
+    private String duration;
 
 }

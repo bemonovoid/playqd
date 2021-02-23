@@ -1,17 +1,16 @@
 package com.bemonovoid.playqd.datasource.jdbc.dao;
 
-import java.time.LocalDateTime;
+import java.util.Comparator;
 
 import com.bemonovoid.playqd.core.model.PlaybackHistorySong;
 import com.bemonovoid.playqd.core.model.Song;
+import com.bemonovoid.playqd.datasource.jdbc.entity.PersistentAuditableEntity;
 import com.bemonovoid.playqd.datasource.jdbc.entity.SongEntity;
 
 abstract class SongHelper {
 
     static Song fromEntity(SongEntity songEntity) {
-        PlaybackHistorySong playbackHistory = new PlaybackHistorySong(
-                songEntity.getId(), songEntity.getPlayBackHistory().size(), LocalDateTime.MIN);
-        return fromEntity(songEntity, playbackHistory);
+        return fromEntity(songEntity, null);
     }
 
     static Song fromEntity(SongEntity songEntity, PlaybackHistorySong playbackHistorySong) {
@@ -41,12 +40,20 @@ abstract class SongHelper {
 
         song.setShowFileNameAsSongName(songEntity.getShowFileNameAsSongName());
         song.setFavorite(songEntity.isFavorite());
-        song.setPlaybackHistory(playbackHistorySong);
 
         if (song.isShowFileNameAsSongName()) {
             song.setName(songEntity.getFileName());
         }
 
+        if (playbackHistorySong != null) {
+            song.setPlaybackHistory(playbackHistorySong);
+        } else if (songEntity.getPlayBackHistory().size() > 0) {
+            songEntity.getPlayBackHistory().stream()
+                    .max(Comparator.comparing(PersistentAuditableEntity::getCreatedDate))
+                    .map(historyEntity -> new PlaybackHistorySong(
+                            songEntity.getId(), songEntity.getPlayBackHistory().size(), historyEntity.getCreatedDate()))
+                    .ifPresent(song::setPlaybackHistory);
+        }
         return song;
     }
 

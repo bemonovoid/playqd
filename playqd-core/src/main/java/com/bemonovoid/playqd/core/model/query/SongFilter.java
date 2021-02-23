@@ -4,7 +4,9 @@ public enum SongFilter {
 
     FAVORITES,
 
-    LAST_PLAYED,
+    RECENTLY_ADDED,
+
+    RECENTLY_PLAYED,
 
     PLAY_COUNT;
 }

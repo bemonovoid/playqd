@@ -115,7 +115,7 @@ class MusicDirectoryScannerImpl implements MusicDirectoryScanner {
         } finally {
             libraryData = null;
             Duration duration = Duration.between(scanStartTime, LocalTime.now());
-            DirectoryScanLog directoryScanLog = dirScanLogBuilder.durationInSeconds(duration.getSeconds()).build();
+            DirectoryScanLog directoryScanLog = dirScanLogBuilder.duration(duration).build();
             eventPublisher.publishEvent(new DirectoryScanCompleted(this, directoryScanLog));
             LOG.info("Scan completed");
         }

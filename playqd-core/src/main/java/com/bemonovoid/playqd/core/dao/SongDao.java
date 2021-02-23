@@ -17,6 +17,8 @@ public interface SongDao {
 
     List<Song> getTopRecentlyPlayedSongs(int pageSize);
 
+    List<Song> getRecentlyAdded(int pageSize);
+
     List<Song> getFavoriteSongs(int pageSize);
 
     List<String> getArtistSongsFileLocations(long artistId);

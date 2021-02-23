@@ -10,10 +10,12 @@ import com.bemonovoid.playqd.core.dao.SongDao;
 import com.bemonovoid.playqd.core.model.PlaybackHistorySong;
 import com.bemonovoid.playqd.core.model.Song;
 import com.bemonovoid.playqd.datasource.jdbc.entity.FavoriteSongEntity;
+import com.bemonovoid.playqd.datasource.jdbc.entity.SongEntity;
 import com.bemonovoid.playqd.datasource.jdbc.projection.FileLocationProjection;
 import com.bemonovoid.playqd.datasource.jdbc.repository.FavoriteSongRepository;
 import com.bemonovoid.playqd.datasource.jdbc.repository.SongRepository;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -74,6 +76,13 @@ class SongDaoImpl implements SongDao {
         return songRepository.findAllById(recentlyPlayedSongs.keySet()).stream()
                 .map(songEntity -> SongHelper.fromEntity(songEntity, recentlyPlayedSongs.get(songEntity.getId())))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Song> getRecentlyAdded(int pageSize) {
+        Sort sort = Sort.sort(SongEntity.class).by(SongEntity::getCreatedDate).descending();
+        return songRepository.findAll(PageRequest.of(0, pageSize, sort)).stream()
+                .map(SongHelper::fromEntity).collect(Collectors.toList());
     }
 
     @Override
