@@ -7,6 +7,7 @@ import com.bemonovoid.playqd.core.model.Artist;
 import com.bemonovoid.playqd.core.model.Image;
 import com.bemonovoid.playqd.core.model.ImageSize;
 import com.bemonovoid.playqd.core.model.UpdateArtist;
+import com.bemonovoid.playqd.core.model.UpdateOptions;
 
 public interface ArtistService {
 
@@ -14,7 +15,7 @@ public interface ArtistService {
 
     Optional<Image> getImage(long artistId, ImageSize size, boolean findRemotely);
 
-    Artist move( long fromArtistId, long toArtistId);
+    Artist updateArtist(Artist artist, UpdateOptions updateOptions);
 
-    Artist updateArtist(UpdateArtist updateArtist);
+    Artist move( long fromArtistId, long toArtistId, UpdateOptions updateOptions);
 }

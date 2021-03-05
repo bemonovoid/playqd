@@ -117,8 +117,4 @@ class SongDaoImpl implements SongDao {
         playbackInfoRepository.save(playbackInfoEntity);
     }
 
-    @Override
-    public void setShowAlbumSongNameAsFileName(long albumId) {
-        songRepository.setShowFileNameAsSongName(albumId);
-    }
 }

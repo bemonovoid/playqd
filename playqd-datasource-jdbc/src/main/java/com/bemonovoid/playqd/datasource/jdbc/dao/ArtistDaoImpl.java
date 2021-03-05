@@ -10,6 +10,7 @@ import com.bemonovoid.playqd.core.dao.PlaybackHistoryDao;
 import com.bemonovoid.playqd.core.exception.PlayqdEntityNotFoundException;
 import com.bemonovoid.playqd.core.helpers.EntityNameHelper;
 import com.bemonovoid.playqd.core.model.Artist;
+import com.bemonovoid.playqd.core.model.MoveResult;
 import com.bemonovoid.playqd.core.model.PlaybackHistoryArtist;
 import com.bemonovoid.playqd.datasource.jdbc.entity.AlbumEntity;
 import com.bemonovoid.playqd.datasource.jdbc.entity.ArtistEntity;
@@ -71,27 +72,23 @@ class ArtistDaoImpl implements ArtistDao {
     }
 
     @Override
-    public boolean update(Artist artist) {
+    public void update(Artist artist) {
         log.info("Updating artist with id='{}'.", artist.getId());
         ArtistEntity entity = artistRepository.findOne(artist.getId());
-        boolean hasUpdates = false;
         if (shouldUpdate(entity.getName(), artist.getName())) {
             entity.setName(artist.getName());
             entity.setSimpleName(EntityNameHelper.toLookUpName(artist.getName()));
-            hasUpdates = true;
         }
         if (shouldUpdate(entity.getCountry(), artist.getCountry())) {
             entity.setCountry(artist.getCountry());
-            hasUpdates = true;
         }
-        if (hasUpdates) {
-            artistRepository.save(entity);
-            log.info("Artist with id='{} updated.'", artist.getId());
-        }
-        return hasUpdates;
+
+        artistRepository.save(entity);
+
+        log.info("Artist with id='{} updated.'", artist.getId());
     }
 
-    public void move(long fromArtistId, long toArtistId) {
+    public MoveResult move(long fromArtistId, long toArtistId) {
         log.info("Moving artist id={} to artist id={}", fromArtistId, toArtistId);
 
         ArtistEntity artistFrom = artistRepository.findOne(fromArtistId);
@@ -105,13 +102,18 @@ class ArtistDaoImpl implements ArtistDao {
                 .collect(Collectors.toList());
 
         albumRepository.saveAll(albumsFrom);
-        songRepository.saveAll(songsFrom);
+        List<SongEntity> movedSongs = songRepository.saveAll(songsFrom);
 
         log.info("Moving completed. Moved {} album(s) and {} song(s)", albumsFrom.size(), songsFrom.size());
 
         jdbcTemplate.update("DELETE FROM ARTIST a WHERE a.ID = ?", fromArtistId);
 
         log.info("Old artist id={} removed.", fromArtistId);
+
+        return MoveResult.builder()
+                .newArtist(ArtistHelper.fromEntity(artistTo))
+                .movedSongFiles(movedSongs.stream().map(SongEntity::getFileLocation).collect(Collectors.toList()))
+                .build();
     }
 
     private boolean shouldUpdate(String oldVal, String newVal) {

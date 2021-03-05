@@ -7,12 +7,15 @@ import com.bemonovoid.playqd.core.model.Artists;
 import com.bemonovoid.playqd.core.model.Image;
 import com.bemonovoid.playqd.core.model.ImageSize;
 import com.bemonovoid.playqd.core.model.UpdateArtist;
+import com.bemonovoid.playqd.core.model.UpdateOptions;
+import com.bemonovoid.playqd.core.model.request.MoveArtist;
 import com.bemonovoid.playqd.core.service.ArtistService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -54,10 +57,18 @@ class ArtistController {
 
     @PutMapping
     Artist updateArtist(@RequestBody UpdateArtist updateArtist) {
-        if (updateArtist.getMoveToArtistId() == null) {
-            return artistService.updateArtist(updateArtist);
-        } else {
-            return artistService.move(updateArtist.getId(), updateArtist.getMoveToArtistId());
-        }
+        Artist artist = Artist.builder()
+                .id(updateArtist.getId())
+                .name(updateArtist.getName())
+                .country(updateArtist.getCountry())
+                .build();
+        UpdateOptions updateOptions = UpdateOptions.builder().updateAudioTags(updateArtist.isUpdateAudioTags()).build();
+        return artistService.updateArtist(artist, updateOptions);
+    }
+
+    @PostMapping
+    Artist moveArtist(@RequestBody MoveArtist model) {
+        UpdateOptions updateOptions = UpdateOptions.builder().updateAudioTags(model.isUpdateAudioTags()).build();
+        return artistService.move(model.getArtistIdFrom(), model.getArtistIdTo(),  updateOptions);
     }
 }

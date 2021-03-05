@@ -9,7 +9,7 @@ import lombok.Setter;
 public class UpdateArtist {
 
     private long id;
-    private Long moveToArtistId;
     private String name;
     private String country;
+    private boolean updateAudioTags;
 }

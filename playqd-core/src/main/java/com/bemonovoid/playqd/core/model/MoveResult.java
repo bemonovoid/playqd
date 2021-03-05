@@ -9,6 +9,7 @@ import lombok.Getter;
 @Builder
 public class MoveResult {
 
+    private Artist newArtist;
     private Album newAlbum;
     private List<String> movedSongFiles;
 }

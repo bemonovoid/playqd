@@ -29,5 +29,4 @@ public interface SongDao {
 
     void updateFavoriteFlag(long songId, boolean isFavorite);
 
-    void setShowAlbumSongNameAsFileName(long albumId);
 }

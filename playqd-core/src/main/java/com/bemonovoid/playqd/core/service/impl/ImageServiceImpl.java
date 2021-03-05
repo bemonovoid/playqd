@@ -3,6 +3,7 @@ package com.bemonovoid.playqd.core.service.impl;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Comparator;
@@ -18,7 +19,6 @@ import com.bemonovoid.playqd.core.model.Artist;
 import com.bemonovoid.playqd.core.model.Dimensions;
 import com.bemonovoid.playqd.core.model.Image;
 import com.bemonovoid.playqd.core.model.ImageSize;
-import com.bemonovoid.playqd.core.model.Song;
 import com.bemonovoid.playqd.core.model.WorkingDir;
 import com.bemonovoid.playqd.core.service.BinaryResourceReader;
 import com.bemonovoid.playqd.core.service.ImageSearchService;
@@ -75,37 +75,42 @@ class ImageServiceImpl implements ImageService {
 
     @Override
     public Optional<Image> getArtistImage(Artist artist, ImageSize size, boolean findRemotely) {
+        try {
+            Path artistImagesPath = Paths.get(workingDir.getPath().toString(), "artists", artist.getName());
 
-        Path artistImagesPath = Paths.get(workingDir.getPath().toString(), "artists", artist.getName());
-
-        if (Files.exists(artistImagesPath)) {
-            try (Stream<Path> files = Files.list(artistImagesPath)) {
-                List<Path> sortedFiles = files.sorted(new ImageSizeComparator()).collect(Collectors.toList());
-                byte[] data;
-                if (ImageSize.SMALL == size) {
-                    data = Files.readAllBytes(sortedFiles.get(0));
-                } else {
-                    data = Files.readAllBytes(sortedFiles.get(sortedFiles.size() - 1));
+            if (Files.exists(artistImagesPath)) {
+                try (Stream<Path> files = Files.list(artistImagesPath)) {
+                    List<Path> sortedFiles = files.sorted(new ImageSizeComparator()).collect(Collectors.toList());
+                    byte[] data;
+                    if (ImageSize.SMALL == size) {
+                        data = Files.readAllBytes(sortedFiles.get(0));
+                    } else {
+                        data = Files.readAllBytes(sortedFiles.get(sortedFiles.size() - 1));
+                    }
+                    return Optional.of(new Image(artistImagesPath.toString(), data, null));
                 }
-                return Optional.of(new Image(artistImagesPath.toString(), data, null));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }  else if (findRemotely) {
-            List<Image> images = imageSearchService.searchArtistImage(artist);
-            if (!images.isEmpty()) {
-                List<Image> sortedImages = images.stream()
-                        .peek(artistImage -> saveArtistImage(artist, artistImage))
-                        .sorted(Comparator.comparingInt(i -> i.getDimensions().getHeight()))
-                        .collect(Collectors.toList());
-                if (ImageSize.SMALL == size) {
-                    return Optional.of(sortedImages.get(0));
-                } else {
-                    return Optional.of(sortedImages.get(sortedImages.size() - 1));
+            } else if (findRemotely) {
+                List<Image> images = imageSearchService.searchArtistImage(artist);
+                if (!images.isEmpty()) {
+                    List<Image> sortedImages = images.stream()
+                            .peek(artistImage -> saveArtistImage(artist, artistImage))
+                            .sorted(Comparator.comparingInt(i -> i.getDimensions().getHeight()))
+                            .collect(Collectors.toList());
+                    if (ImageSize.SMALL == size) {
+                        return Optional.of(sortedImages.get(0));
+                    } else {
+                        return Optional.of(sortedImages.get(sortedImages.size() - 1));
+                    }
                 }
+                return Optional.empty();
+            } else {
+                return Optional.empty();
             }
+        } catch (IOException e) {
+            log.error("Failed to read from file: " + e.getMessage());
             return Optional.empty();
-        } else {
+        } catch (InvalidPathException e) {
+            log.error("Failed to resolve audio file path: " + e.getInput());
             return Optional.empty();
         }
     }
