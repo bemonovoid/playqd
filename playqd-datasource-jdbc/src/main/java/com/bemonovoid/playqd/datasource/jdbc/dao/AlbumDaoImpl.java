@@ -6,7 +6,12 @@ import java.util.stream.Collectors;
 
 import com.bemonovoid.playqd.core.dao.AlbumDao;
 import com.bemonovoid.playqd.core.model.Album;
+import com.bemonovoid.playqd.core.model.AlbumPreferences;
+import com.bemonovoid.playqd.core.model.MoveResult;
 import com.bemonovoid.playqd.datasource.jdbc.entity.AlbumEntity;
+import com.bemonovoid.playqd.datasource.jdbc.entity.AlbumPreferencesEntity;
+import com.bemonovoid.playqd.datasource.jdbc.entity.SongEntity;
+import com.bemonovoid.playqd.datasource.jdbc.repository.AlbumPreferencesRepository;
 import com.bemonovoid.playqd.datasource.jdbc.repository.AlbumRepository;
 import com.bemonovoid.playqd.datasource.jdbc.repository.SongRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -18,12 +23,17 @@ import org.springframework.stereotype.Component;
 class AlbumDaoImpl implements AlbumDao {
 
     private final AlbumRepository albumRepository;
+    private final AlbumPreferencesRepository albumPreferencesRepository;
     private final SongRepository songRepository;
     private final JdbcTemplate jdbcTemplate;
 
-    AlbumDaoImpl(JdbcTemplate jdbcTemplate, AlbumRepository albumRepository, SongRepository songRepository) {
+    AlbumDaoImpl(JdbcTemplate jdbcTemplate,
+                 AlbumRepository albumRepository,
+                 AlbumPreferencesRepository albumPreferencesRepository,
+                 SongRepository songRepository) {
         this.jdbcTemplate = jdbcTemplate;
         this.albumRepository = albumRepository;
+        this.albumPreferencesRepository = albumPreferencesRepository;
         this.songRepository = songRepository;
     }
 
@@ -88,6 +98,24 @@ class AlbumDaoImpl implements AlbumDao {
     }
 
     @Override
+    public void updateAlbumPreferences(AlbumPreferences preferences) {
+
+        long albumId = preferences.getAlbumId();
+
+        log.info("Updating preferences for album with id='{}'.", albumId);
+
+        AlbumPreferencesEntity preferencesEntity = albumPreferencesRepository.findByAlbumId(albumId)
+                .orElseGet(() -> {
+                    AlbumPreferencesEntity entity = new AlbumPreferencesEntity();
+                    entity.setAlbum(albumRepository.findOne(albumId));
+                    return entity;
+                });
+        preferencesEntity.setSongNameAsFileName(preferences.isSongNameAsFileName());
+
+        albumPreferencesRepository.save(preferencesEntity);
+    }
+
+    @Override
     public void saveAlbumImage(long albumId, byte[] binaryData) {
         albumRepository.findById(albumId).ifPresent(entity -> {
             entity.setImage(binaryData);
@@ -96,7 +124,7 @@ class AlbumDaoImpl implements AlbumDao {
     }
 
     @Override
-    public void move(long albumIdFrom, Long albumIdTo) {
+    public MoveResult move(long albumIdFrom, Long albumIdTo) {
         log.info("Moving album id={} to album id={}", albumIdFrom, albumIdTo);
 
         AlbumEntity albumFrom = albumRepository.findOne(albumIdFrom);
@@ -104,14 +132,18 @@ class AlbumDaoImpl implements AlbumDao {
 
         albumFrom.getSongs().forEach(albumSongFromEntity -> albumSongFromEntity.setAlbum(albumTo));
 
-        songRepository.saveAll(albumFrom.getSongs());
+        List<SongEntity> movedSongs = songRepository.saveAll(albumFrom.getSongs());
 
-        log.info("Moving completed. Moved {} song(s)", albumFrom.getSongs().size());
+        log.info("Moved {} song(s). Move completed.", movedSongs.size());
 
         jdbcTemplate.update("DELETE FROM ALBUM a WHERE a.ID = ?", albumIdFrom);
 
         log.info("Old album id={} removed.", albumIdFrom);
 
+        return MoveResult.builder()
+                .newAlbum(AlbumHelper.fromEntity(albumTo))
+                .movedSongFiles(movedSongs.stream().map(SongEntity::getFileLocation).collect(Collectors.toList()))
+                .build();
     }
 
     private boolean shouldUpdate(String oldVal, String newVal) {

@@ -3,7 +3,9 @@ package com.bemonovoid.playqd.datasource.jdbc.dao;
 import java.time.LocalTime;
 
 import com.bemonovoid.playqd.core.model.Album;
+import com.bemonovoid.playqd.core.model.AlbumPreferences;
 import com.bemonovoid.playqd.core.model.Image;
+import com.bemonovoid.playqd.core.service.SecurityService;
 import com.bemonovoid.playqd.datasource.jdbc.entity.AlbumEntity;
 
 abstract class AlbumHelper {
@@ -19,6 +21,7 @@ abstract class AlbumHelper {
                 .totalTimeHumanReadable(secondsToHumanReadableString(entity.getTotalTimeInSeconds()))
                 .artist(ArtistHelper.fromEntity(entity.getArtist()))
                 .image(entity.getImage() == null ? null : new Image("", entity.getImage(), null))
+                .preferences(albumPreferences(entity))
                 .build();
     }
 
@@ -58,5 +61,18 @@ abstract class AlbumHelper {
             result = newTime.getSecond() + " seconds";
         }
         return result;
+    }
+
+    private static AlbumPreferences albumPreferences(AlbumEntity entity) {
+        AlbumPreferences preferences = null;
+        String username = SecurityService.getCurrentUser();
+        if (entity.getPreferences() != null && entity.getPreferences().size() > 0) {
+            preferences = entity.getPreferences().stream()
+                    .filter(preferencesEntity -> preferencesEntity.getCreatedBy().equals(username))
+                    .findFirst()
+                    .map(AlbumPreferencesHelper::fromEntity)
+                    .orElse(null);
+        }
+        return preferences;
     }
 }

@@ -1,19 +1,12 @@
 package com.bemonovoid.playqd.datasource.jdbc.dao;
 
-import java.util.Comparator;
-
-import com.bemonovoid.playqd.core.model.PlaybackHistorySong;
 import com.bemonovoid.playqd.core.model.Song;
-import com.bemonovoid.playqd.datasource.jdbc.entity.PersistentAuditableEntity;
+import com.bemonovoid.playqd.core.service.SecurityService;
 import com.bemonovoid.playqd.datasource.jdbc.entity.SongEntity;
 
 abstract class SongHelper {
 
     static Song fromEntity(SongEntity songEntity) {
-        return fromEntity(songEntity, null);
-    }
-
-    static Song fromEntity(SongEntity songEntity, PlaybackHistorySong playbackHistorySong) {
         Song song = new Song();
 
         song.setId(songEntity.getId());
@@ -38,22 +31,24 @@ abstract class SongHelper {
         song.setArtist(ArtistHelper.fromEntity(songEntity.getArtist()));
         song.setAlbum(AlbumHelper.fromEntity(songEntity.getAlbum()));
 
-        song.setShowFileNameAsSongName(songEntity.getShowFileNameAsSongName());
-        song.setFavorite(songEntity.isFavorite());
+        String username = SecurityService.getCurrentUser();
 
-        if (song.isShowFileNameAsSongName()) {
-            song.setName(songEntity.getFileName());
+        if (songEntity.getPlaybackInfo() != null && songEntity.getPlaybackInfo().size() > 0) {
+            songEntity.getPlaybackInfo().stream()
+                    .filter(playback -> playback.getCreatedBy().equals(username))
+                    .findFirst()
+                    .map(PlaybackInfoHelper::fromEntity)
+                    .ifPresent(song::setPlaybackInfo);
         }
 
-        if (playbackHistorySong != null) {
-            song.setPlaybackHistory(playbackHistorySong);
-        } else if (songEntity.getPlayBackHistory().size() > 0) {
-            songEntity.getPlayBackHistory().stream()
-                    .max(Comparator.comparing(PersistentAuditableEntity::getCreatedDate))
-                    .map(historyEntity -> new PlaybackHistorySong(
-                            songEntity.getId(), songEntity.getPlayBackHistory().size(), historyEntity.getCreatedDate()))
-                    .ifPresent(song::setPlaybackHistory);
+        if (songEntity.getPreferences() != null && songEntity.getPreferences().size() > 0) {
+            songEntity.getPreferences().stream()
+                    .filter(preferences -> preferences.getCreatedBy().equals(username))
+                    .findFirst()
+                    .map(SongPreferencesHelper::fromEntity)
+                    .ifPresent(song::setPreferences);
         }
+
         return song;
     }
 

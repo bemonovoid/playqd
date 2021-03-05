@@ -1,0 +1,8 @@
+package com.bemonovoid.playqd.datasource.jdbc.repository;
+
+import com.bemonovoid.playqd.datasource.jdbc.entity.MusicDatabaseUpdateLogEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface MusicDatabaseUpdateLogRepository extends JpaRepository<MusicDatabaseUpdateLogEntity, Long> {
+
+}

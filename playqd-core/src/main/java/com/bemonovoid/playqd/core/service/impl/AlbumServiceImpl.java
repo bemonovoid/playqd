@@ -6,17 +6,18 @@ import java.util.Optional;
 
 import com.bemonovoid.playqd.core.dao.AlbumDao;
 import com.bemonovoid.playqd.core.dao.SongDao;
+import com.bemonovoid.playqd.core.handler.AudioFileTagUpdater;
 import com.bemonovoid.playqd.core.model.Album;
+import com.bemonovoid.playqd.core.model.AlbumPreferences;
 import com.bemonovoid.playqd.core.model.Albums;
 import com.bemonovoid.playqd.core.model.Image;
 import com.bemonovoid.playqd.core.model.ImageSize;
-import com.bemonovoid.playqd.core.model.UpdateAlbum;
-import com.bemonovoid.playqd.core.model.event.AlbumTagsUpdated;
+import com.bemonovoid.playqd.core.model.MoveResult;
+import com.bemonovoid.playqd.core.model.UpdateOptions;
 import com.bemonovoid.playqd.core.model.query.AlbumsQuery;
 import com.bemonovoid.playqd.core.service.AlbumService;
 import com.bemonovoid.playqd.core.service.ImageService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -26,16 +27,13 @@ class AlbumServiceImpl implements AlbumService {
     private final AlbumDao albumDao;
     private final SongDao songDao;
     private final ImageService imageService;
-    private final ApplicationEventPublisher eventPublisher;
 
     AlbumServiceImpl(AlbumDao albumDao,
                      SongDao songDao,
-                     ImageService imageService,
-                     ApplicationEventPublisher eventPublisher) {
+                     ImageService imageService) {
         this.albumDao = albumDao;
         this.songDao = songDao;
         this.imageService = imageService;
-        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -64,31 +62,24 @@ class AlbumServiceImpl implements AlbumService {
     }
 
     @Override
-    public void updateAlbum(UpdateAlbum updateAlbum) {
-        Album album;
-        if (updateAlbum.getMoveToAlbumId() == null) {
-            album = Album.builder()
-                    .id(updateAlbum.getId())
-                    .name(updateAlbum.getName())
-                    .date(updateAlbum.getDate())
-                    .genre(updateAlbum.getGenre())
-                    .build();
-
-            albumDao.updateAlbum(album);
-
-//            if (StringUtils.hasText(updateAlbum.getArtworkSrc())) {
-//                imageService.updateAlbumArtwork(albumId, updateAlbum.getArtworkSrc());
-//            }
-
-            if (updateAlbum.isOverrideSongNameWithFileName()) {
-                songDao.setShowAlbumSongNameAsFileName(updateAlbum.getId());
-            }
-        } else {
-            albumDao.move(updateAlbum.getId(), updateAlbum.getMoveToAlbumId());
-            album = albumDao.getOne(updateAlbum.getId());
+    public void updateAlbum(Album album, UpdateOptions updateOptions) {
+        albumDao.updateAlbum(album);
+        if (updateOptions.isUpdateAudioTags()) {
+            AudioFileTagUpdater.updateAlbumTags(album, songDao.getAlbumSongsFileLocations(album.getId()));
         }
-        eventPublisher.publishEvent(new AlbumTagsUpdated(this, album));
     }
 
+    @Override
+    public void moveAlbum(long albumIdFrom, long albumIdTo, UpdateOptions updateOptions) {
+        MoveResult moveResult = albumDao.move(albumIdFrom, albumIdTo);
+        if (updateOptions.isUpdateAudioTags()) {
+            AudioFileTagUpdater.updateAlbumTags(moveResult.getNewAlbum(), moveResult.getMovedSongFiles());
+        }
+    }
+
+    @Override
+    public void updateAlbumPreferences(AlbumPreferences preferences) {
+        albumDao.updateAlbumPreferences(preferences);
+    }
 
 }

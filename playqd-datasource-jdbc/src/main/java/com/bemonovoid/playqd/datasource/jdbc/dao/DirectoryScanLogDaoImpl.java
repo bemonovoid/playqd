@@ -5,22 +5,22 @@ import java.util.concurrent.TimeUnit;
 
 import com.bemonovoid.playqd.core.dao.DirectoryScanLogDao;
 import com.bemonovoid.playqd.core.model.DirectoryScanLog;
-import com.bemonovoid.playqd.datasource.jdbc.entity.DirectoryScanLogEntity;
-import com.bemonovoid.playqd.datasource.jdbc.repository.DirectoryScanLogRepository;
+import com.bemonovoid.playqd.datasource.jdbc.entity.MusicDatabaseUpdateLogEntity;
+import com.bemonovoid.playqd.datasource.jdbc.repository.MusicDatabaseUpdateLogRepository;
 import org.springframework.stereotype.Component;
 
 @Component
 class DirectoryScanLogDaoImpl implements DirectoryScanLogDao {
 
-    private final DirectoryScanLogRepository directoryScanLogRepository;
+    private final MusicDatabaseUpdateLogRepository musicDatabaseUpdateLogRepository;
 
-    DirectoryScanLogDaoImpl(DirectoryScanLogRepository directoryScanLogRepository) {
-        this.directoryScanLogRepository = directoryScanLogRepository;
+    DirectoryScanLogDaoImpl(MusicDatabaseUpdateLogRepository musicDatabaseUpdateLogRepository) {
+        this.musicDatabaseUpdateLogRepository = musicDatabaseUpdateLogRepository;
     }
 
     @Override
     public void save(DirectoryScanLog directoryScanLog) {
-        DirectoryScanLogEntity entity = new DirectoryScanLogEntity();
+        MusicDatabaseUpdateLogEntity entity = new MusicDatabaseUpdateLogEntity();
         entity.setStatus(directoryScanLog.getStatus());
         entity.setDirectory(directoryScanLog.getDirectory());
         entity.setCleanAllApplied(directoryScanLog.isCleanAllApplied());
@@ -34,7 +34,7 @@ class DirectoryScanLogDaoImpl implements DirectoryScanLogDao {
             durationString = TimeUnit.MILLISECONDS.convert(duration) + " milliseconds";
         }
         entity.setDuration(durationString);
-        directoryScanLogRepository.save(entity);
+        musicDatabaseUpdateLogRepository.save(entity);
     }
 
 }

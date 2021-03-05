@@ -2,6 +2,7 @@ package com.bemonovoid.playqd.datasource.jdbc.config;
 
 import java.util.Optional;
 
+import com.bemonovoid.playqd.core.service.SecurityService;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.stereotype.Component;
 
@@ -10,6 +11,6 @@ class AuditorAwareImpl implements AuditorAware<String> {
 
     @Override
     public Optional<String> getCurrentAuditor() {
-        return Optional.of("system");
+        return Optional.ofNullable(SecurityService.getCurrentUser());
     }
 }

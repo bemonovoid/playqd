@@ -17,6 +17,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.provisioning.UserDetailsManager;
+import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.util.StringUtils;
 import org.springframework.web.cors.CorsConfiguration;
 
@@ -40,17 +41,17 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     corsConfiguration.addAllowedMethod("*");
                     corsConfiguration.addAllowedOrigin("*");
                     return corsConfiguration;
-        });
+        })
+                .and()
+                .authorizeRequests()
+                .antMatchers(HttpMethod.POST, Endpoints.USER_ACCOUNT_BASE_PATH).permitAll()
+                .antMatchers(HttpMethod.OPTIONS, Endpoints.USER_ACCOUNT_BASE_PATH).permitAll()
+                .antMatchers("/api/**").authenticated()
+                .and()
+                .formLogin().disable()
+                .httpBasic().authenticationEntryPoint(new UnauthorizedBasicAuthEntryPoint());
         if (StringUtils.hasText(activeProfile) && activeProfile.equalsIgnoreCase("local")) {
-             http.authorizeRequests().antMatchers("/**").permitAll();
-        } else {
-                http.authorizeRequests()
-                        .antMatchers(HttpMethod.POST, Endpoints.USER_ACCOUNT_BASE_PATH).permitAll()
-                        .antMatchers(HttpMethod.OPTIONS, Endpoints.USER_ACCOUNT_BASE_PATH).permitAll()
-                        .antMatchers("/api/**").authenticated()
-                        .and()
-                        .formLogin().disable()
-                        .httpBasic().authenticationEntryPoint(new UnauthorizedBasicAuthEntryPoint());
+             http.addFilterBefore(new LocalDevSecurityFilter(), AnonymousAuthenticationFilter.class);
         }
     }
 

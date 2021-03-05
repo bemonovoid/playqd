@@ -10,15 +10,18 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import com.bemonovoid.playqd.datasource.jdbc.entity.system.PersistentAuditableEntity;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Formula;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.annotations.Type;
 
-@Table(name = AlbumEntity.TABLE_NAME)
-@Entity
 @Getter
 @Setter
+@Entity
+@Table(name = AlbumEntity.TABLE_NAME)
 public class AlbumEntity extends PersistentAuditableEntity<Long> {
 
     public static final String TABLE_NAME = "ALBUM";
@@ -61,4 +64,8 @@ public class AlbumEntity extends PersistentAuditableEntity<Long> {
 
     @OneToMany(mappedBy = "album")
     private List<SongEntity> songs;
+
+    @OneToMany(mappedBy = "album")
+    @LazyCollection(LazyCollectionOption.EXTRA)
+    private List<AlbumPreferencesEntity> preferences;
 }

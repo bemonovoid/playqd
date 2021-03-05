@@ -4,6 +4,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import com.bemonovoid.playqd.config.properties.AppProperties;
 import com.bemonovoid.playqd.core.exception.PlayqdConfigurationException;
 import com.bemonovoid.playqd.core.model.WorkingDir;
 import org.springframework.boot.context.properties.ConfigurationProperties;

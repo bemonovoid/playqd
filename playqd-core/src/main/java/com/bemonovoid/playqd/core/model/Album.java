@@ -1,6 +1,7 @@
 package com.bemonovoid.playqd.core.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -26,6 +27,6 @@ public class Album {
     @JsonIgnore
     private String mbReleaseId;
 
-    @JsonIgnore
-    private boolean overrideSongNameWithFileName;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private AlbumPreferences preferences;
 }

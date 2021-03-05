@@ -9,13 +9,13 @@ public interface SongDao {
 
     Optional<Song> getOne(long id);
 
-    Optional<Song> getFirstSongInAlbum(long albumId);
+    Optional<String> getAnyAlbumSongFileLocation(long albumId);
 
     List<Song> getAlbumSongs(long albumId);
 
     List<Song> getTopPlayedSongs(int pageSize);
 
-    List<Song> getTopRecentlyPlayedSongs(int pageSize);
+    List<Song> getRecentlyPlayedSongs(int pageSize);
 
     List<Song> getRecentlyAdded(int pageSize);
 
@@ -25,7 +25,9 @@ public interface SongDao {
 
     List<String> getAlbumSongsFileLocations(long albumId);
 
-    void updateFavoriteStatus(long songId);
+    void updatePlayCount(long songId);
+
+    void updateFavoriteFlag(long songId, boolean isFavorite);
 
     void setShowAlbumSongNameAsFileName(long albumId);
 }

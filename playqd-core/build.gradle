@@ -16,5 +16,6 @@ dependencies {
     compileOnly 'com.fasterxml.jackson.core:jackson-annotations'
 
     compileOnly 'org.springframework:spring-context'
+    compileOnly 'org.springframework.security:spring-security-core'
     compileOnly 'org.springframework:spring-web'
 }

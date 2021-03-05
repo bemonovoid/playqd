@@ -3,6 +3,7 @@ package com.bemonovoid.playqd.controller;
 import java.security.Principal;
 
 import com.bemonovoid.playqd.core.model.account.CreateAccount;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "Users", description = "Users resource")
 @RestController
 @RequestMapping(Endpoints.USER_ACCOUNT_BASE_PATH)
 class UserAccountController {

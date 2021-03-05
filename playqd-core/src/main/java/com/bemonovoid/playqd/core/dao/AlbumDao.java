@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 
 import com.bemonovoid.playqd.core.model.Album;
+import com.bemonovoid.playqd.core.model.AlbumPreferences;
+import com.bemonovoid.playqd.core.model.MoveResult;
 
 public interface AlbumDao {
 
@@ -23,7 +25,9 @@ public interface AlbumDao {
 
     void updateAlbum(Album album);
 
+    void updateAlbumPreferences(AlbumPreferences preferences);
+
     void saveAlbumImage(long albumId, byte[] binaryData);
 
-    void move(long albumIdFrom, Long albumIdTo);
+    MoveResult move(long albumIdFrom, Long albumIdTo);
 }

@@ -55,9 +55,9 @@ class ImageServiceImpl implements ImageService {
 
     @Override
     public Optional<Image> getAlbumImage(Album album, ImageSize size, boolean findRemotely) {
-        Optional<Song> song = songDao.getFirstSongInAlbum(album.getId());
-        if (song.isPresent()) {
-            Image image = getArtworkFromAudioFile(song.get().getFileLocation());
+        Optional<String> fileLocationOpt = songDao.getAnyAlbumSongFileLocation(album.getId());
+        if (fileLocationOpt.isPresent()) {
+            Image image = getArtworkFromAudioFile(fileLocationOpt.get());
             if (image != null) {
                 return Optional.of(image);
             }

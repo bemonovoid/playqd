@@ -5,14 +5,9 @@ import java.util.stream.Collectors;
 
 import com.bemonovoid.playqd.core.dao.PlaybackHistoryDao;
 import com.bemonovoid.playqd.core.model.PlaybackHistoryArtist;
-import com.bemonovoid.playqd.core.model.PlaybackHistorySong;
-import com.bemonovoid.playqd.datasource.jdbc.entity.PlaybackHistoryEntity;
-import com.bemonovoid.playqd.datasource.jdbc.entity.SongEntity;
+import com.bemonovoid.playqd.core.service.SecurityService;
 import com.bemonovoid.playqd.datasource.jdbc.projection.PlaybackHistoryArtistProjection;
-import com.bemonovoid.playqd.datasource.jdbc.projection.PlaybackHistorySongProjection;
-import com.bemonovoid.playqd.datasource.jdbc.repository.PlaybackHistoryRepository;
-import com.bemonovoid.playqd.datasource.jdbc.repository.SongRepository;
-import org.springframework.data.domain.PageRequest;
+import com.bemonovoid.playqd.datasource.jdbc.repository.PlaybackInfoRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,25 +15,17 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 class PlaybackHistoryDaoImpl implements PlaybackHistoryDao {
 
-    private final SongRepository songRepository;
-    private final PlaybackHistoryRepository playbackHistoryRepository;
+    private final PlaybackInfoRepository playbackInfoRepository;
 
-    PlaybackHistoryDaoImpl(SongRepository songRepository, PlaybackHistoryRepository playbackHistoryRepository) {
-        this.songRepository = songRepository;
-        this.playbackHistoryRepository = playbackHistoryRepository;
+    PlaybackHistoryDaoImpl(PlaybackInfoRepository playbackInfoRepository) {
+        this.playbackInfoRepository = playbackInfoRepository;
     }
 
-    @Override
-    public Long save(long songId) {
-        SongEntity songEntity = songRepository.getOne(songId);
-        PlaybackHistoryEntity playbackHistoryEntity = new PlaybackHistoryEntity();
-        playbackHistoryEntity.setSong(songEntity);
-        return playbackHistoryRepository.save(playbackHistoryEntity).getId();
-    }
+
 
     @Override
     public Map<Long, PlaybackHistoryArtist> getArtistPlaybackHistory() {
-        return playbackHistoryRepository.groupByArtistPlaybackHistory().stream()
+        return playbackInfoRepository.groupByArtistPlaybackHistory(SecurityService.getCurrentUser()).stream()
                 .collect(Collectors.toMap(
                         PlaybackHistoryArtistProjection::getArtistId,
                         projection -> new PlaybackHistoryArtist(
@@ -47,25 +34,5 @@ class PlaybackHistoryDaoImpl implements PlaybackHistoryDao {
                                 projection.getMostRecentPlayDateTime().toString())));
     }
 
-    @Override
-    public Map<Long, PlaybackHistorySong> findTopPlayedSongs(int pageSize) {
-        return playbackHistoryRepository.findTopPlayedSongs(PageRequest.of(0, pageSize)).stream()
-                .collect(Collectors.toMap(PlaybackHistorySongProjection::getSongId,
-                        projection -> new PlaybackHistorySong(
-                                projection.getSongId(),
-                                projection.getPlayCount(),
-                                projection.getMostRecentPlayDateTime()
-                        )));
-    }
 
-    @Override
-    public Map<Long, PlaybackHistorySong> findTopRecentlyPlayedSongs(int pageSize) {
-        return playbackHistoryRepository.findTopRecentlyPlayedSongs(PageRequest.of(0, pageSize)).stream()
-                .collect(Collectors.toMap(PlaybackHistorySongProjection::getSongId,
-                        projection -> new PlaybackHistorySong(
-                                projection.getSongId(),
-                                projection.getPlayCount(),
-                                projection.getMostRecentPlayDateTime()
-                        )));
-    }
 }

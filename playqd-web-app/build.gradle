@@ -8,6 +8,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-security'
 
+    implementation "org.springdoc:springdoc-openapi-ui:${springDocVersion}"
+
     implementation project(':playqd-core')
     implementation project(':playqd-datasource-jdbc')
     implementation project(':playqd-remote-service-spotify')
@@ -33,7 +35,6 @@ jib {
                 os = 'linux'
             }
         }
-
     }
     to {
         image = 'playqd-app'

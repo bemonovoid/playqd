@@ -9,9 +9,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import com.bemonovoid.playqd.datasource.jdbc.entity.system.PersistentAuditableEntity;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.Formula;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
@@ -84,9 +84,6 @@ public class SongEntity extends PersistentAuditableEntity<Long> {
     @Column(name = COL_MB_TRACK_ID)
     private String mbTrackId;
 
-    @Column(name = COL_SHOW_FILE_NAME_AS_SONG_NAME)
-    private Boolean showFileNameAsSongName;
-
     @ManyToOne(fetch = FetchType.LAZY)
     private ArtistEntity artist;
 
@@ -95,17 +92,10 @@ public class SongEntity extends PersistentAuditableEntity<Long> {
 
     @OneToMany(mappedBy = ONE_TO_MANY_MAPPED_BY)
     @LazyCollection(LazyCollectionOption.EXTRA)
-    private List<PlaybackHistoryEntity> playBackHistory;
+    private List<PlaybackInfoEntity> playbackInfo;
 
-    @Formula("(SELECT COUNT(*) FROM FAVORITE_SONG f WHERE f.SONG_ID = ID)")
-    private int countOfFavorites;
-
-    public boolean isFavorite() {
-        return countOfFavorites > 0;
-    }
-
-    public boolean getShowFileNameAsSongName() {
-        return showFileNameAsSongName != null ? showFileNameAsSongName : false;
-    }
+    @OneToMany(mappedBy = "song")
+    @LazyCollection(LazyCollectionOption.EXTRA)
+    private List<SongPreferencesEntity> preferences;
 
 }

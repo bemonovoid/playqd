@@ -2,32 +2,46 @@ package com.bemonovoid.playqd.datasource.jdbc.entity;
 
 import java.util.Set;
 
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
-import javax.persistence.OneToMany;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.Table;
 
+import com.bemonovoid.playqd.datasource.jdbc.entity.system.AuditableEntity;
 import lombok.Getter;
 import lombok.Setter;
 
-//@Table(name = SecurityUserEntity.TABLE_NAME)
-//@Entity
-//@Getter
-//@Setter
-public class SecurityUserEntity extends PersistentAuditableEntity<Long> {
+@Getter
+@Setter
+@Entity
+@Table(name = SecurityUserEntity.TABLE_NAME)
+public class SecurityUserEntity extends AuditableEntity {
 
-    static final String TABLE_NAME = "SECURITY_USER";
+    static final String TABLE_NAME = "USER";
+    static final String AUTHORITIES_TABLE_NAME = "AUTHORITIES";
 
-    @Column(name = "NAME")
-    private String name;
+    static final String COL_PK_ID = "USERNAME";
+    static final String COL_PASSWORD = "PASSWORD";
+    static final String COL_ENABLED = "ENABLED";
+    static final String COL_AUTHORITIES_AUTHORITY = "AUTHORITY";
 
-    @Column(name = "PASSWORD")
+    @Id
+    @Column(name = COL_PK_ID)
+    private String id;
+
+    @Column(name = COL_PASSWORD)
     private String password;
 
-    @Column(name = "ENABLED")
+    @Column(name = COL_ENABLED)
     private boolean enabled;
 
-    @OneToMany(mappedBy = "user")
-    private Set<SecurityAuthoritiesEntity> authorities;
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = AUTHORITIES_TABLE_NAME, joinColumns = @JoinColumn(name = COL_PK_ID))
+    @Column(name = COL_AUTHORITIES_AUTHORITY)
+    private Set<String> authorities;
 
 }

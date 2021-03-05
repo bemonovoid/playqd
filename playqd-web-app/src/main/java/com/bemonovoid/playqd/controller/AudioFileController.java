@@ -10,7 +10,8 @@ import java.nio.file.Paths;
 import java.util.Optional;
 
 import com.bemonovoid.playqd.core.model.Song;
-import com.bemonovoid.playqd.core.service.LibraryService;
+import com.bemonovoid.playqd.core.service.SongService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "Audio File", description = "Audio File resource")
 @Slf4j
 @RestController
 @RequestMapping(Endpoints.AUDIO_API_BASE_PATH)
@@ -30,15 +32,15 @@ class AudioFileController {
 
     private static final int BYTE_RANGE = 128; // increase the byterange from here
 
-    private final LibraryService libraryService;
+    private final SongService songService;
 
-    AudioFileController(LibraryService libraryService) {
-        this.libraryService = libraryService;
+    AudioFileController(SongService songService) {
+        this.songService = songService;
     }
 
     @GetMapping("/debug/{songId}")
     ResponseEntity<String> debug(@PathVariable long songId) {
-        Optional<String> opt = libraryService.getSong(songId)
+        Optional<String> opt = songService.getSong(songId)
                 .map(song -> {
                     try {
                         AudioFile audioFile = AudioFileIO.read(new File(song.getFileLocation()));
@@ -53,7 +55,7 @@ class AudioFileController {
     @GetMapping("/open")
     ResponseEntity<byte[]> openAudioFile(@RequestHeader(value = "Range", required = false) String range,
                                          @RequestParam long songId) {
-        Optional<Song> songOpt = libraryService.getSong(songId);
+        Optional<Song> songOpt = songService.getSong(songId);
         if (songOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
