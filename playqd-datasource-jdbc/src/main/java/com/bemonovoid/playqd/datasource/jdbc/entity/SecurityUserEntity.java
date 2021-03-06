@@ -21,7 +21,7 @@ import lombok.Setter;
 @Table(name = SecurityUserEntity.TABLE_NAME)
 public class SecurityUserEntity extends AuditableEntity {
 
-    static final String TABLE_NAME = "USER";
+    static final String TABLE_NAME = "USERS";
     static final String AUTHORITIES_TABLE_NAME = "AUTHORITIES";
 
     static final String COL_PK_ID = "USERNAME";
