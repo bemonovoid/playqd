@@ -3,14 +3,13 @@ package com.bemonovoid.playqd.remote.service.spotify.impl;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import com.bemonovoid.playqd.core.dao.ArtistDao;
 import com.bemonovoid.playqd.core.model.Album;
 import com.bemonovoid.playqd.core.model.Artist;
-import com.bemonovoid.playqd.core.model.Image;
 import com.bemonovoid.playqd.core.model.Dimensions;
+import com.bemonovoid.playqd.core.model.Image;
 import com.bemonovoid.playqd.core.service.BinaryResourceReader;
 import com.bemonovoid.playqd.core.service.ImageSearchService;
 import com.bemonovoid.playqd.remote.service.spotify.model.api.SpotifyArtistAlbumsResponse;

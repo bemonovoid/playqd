@@ -8,7 +8,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 
-import com.bemonovoid.playqd.datasource.jdbc.entity.system.AuditableEntity;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.domain.Persistable;

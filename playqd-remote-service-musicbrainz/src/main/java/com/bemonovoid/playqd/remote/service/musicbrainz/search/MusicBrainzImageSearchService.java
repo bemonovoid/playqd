@@ -7,7 +7,6 @@ import java.util.Optional;
 
 import com.bemonovoid.playqd.core.model.ArtworkOnlineSearchResult;
 import com.bemonovoid.playqd.core.model.query.ArtworkOnlineSearchQuery;
-import com.bemonovoid.playqd.core.service.ImageSearchService;
 import com.bemonovoid.playqd.remote.service.musicbrainz.model.MBQueryContext;
 import com.bemonovoid.playqd.remote.service.musicbrainz.model.api.MBArtist;
 import com.bemonovoid.playqd.remote.service.musicbrainz.model.api.MBArtistQueryResponse;
