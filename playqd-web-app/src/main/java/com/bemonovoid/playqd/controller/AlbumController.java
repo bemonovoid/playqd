@@ -49,14 +49,6 @@ class AlbumController {
         return ResponseEntity.ok(albumOpt.get());
     }
 
-    @GetMapping(path = "/{albumId}/image", produces = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE})
-    ResponseEntity<byte[]> getAlbumImage(@PathVariable long albumId,
-                                         @RequestParam(defaultValue = "SMALL") ImageSize size) {
-        return albumService.getImage(albumId, size, false)
-                .map(image -> ResponseEntity.ok(image.getData()))
-                .orElse(ResponseEntity.notFound().build());
-    }
-
     @GetMapping("/{albumId}/image/src")
     ResponseEntity<String> getAlbumImageSrc(@PathVariable long albumId) {
         Optional<Image> artistImageOpt = albumService.getImage(albumId, ImageSize.SMALL, true);

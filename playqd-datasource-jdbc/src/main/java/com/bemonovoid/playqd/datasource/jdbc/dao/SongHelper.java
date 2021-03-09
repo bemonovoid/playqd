@@ -1,5 +1,9 @@
 package com.bemonovoid.playqd.datasource.jdbc.dao;
 
+import com.bemonovoid.playqd.core.helpers.ResourceIdHelper;
+import com.bemonovoid.playqd.core.model.LibraryResourceId;
+import com.bemonovoid.playqd.core.model.PlaybackInfo;
+import com.bemonovoid.playqd.core.model.ResourceTarget;
 import com.bemonovoid.playqd.core.model.Song;
 import com.bemonovoid.playqd.core.service.SecurityService;
 import com.bemonovoid.playqd.datasource.jdbc.entity.SongEntity;
@@ -31,7 +35,9 @@ abstract class SongHelper {
         song.setArtist(ArtistHelper.fromEntity(songEntity.getArtist()));
         song.setAlbum(AlbumHelper.fromEntity(songEntity.getAlbum()));
 
-        String username = SecurityService.getCurrentUser();
+        String username = SecurityService.getCurrentUserName();
+
+        song.setPlaybackInfo(PlaybackInfo.builder().build());
 
         if (songEntity.getPlaybackInfo() != null && songEntity.getPlaybackInfo().size() > 0) {
             songEntity.getPlaybackInfo().stream()
@@ -48,6 +54,9 @@ abstract class SongHelper {
                     .map(SongPreferencesHelper::fromEntity)
                     .ifPresent(song::setPreferences);
         }
+
+        var resourceId = new LibraryResourceId(song.getId(), ResourceTarget.SONG, SecurityService.getCurrentUserToken());
+        song.setResourceId(ResourceIdHelper.encode(resourceId));
 
         return song;
     }

@@ -1,6 +1,7 @@
 rootProject.name= 'playqd'
 
 include 'playqd-core'
+include 'playqd-security-jwt'
 include 'playqd-datasource-jdbc'
 include 'playqd-remote-service-musicbrainz'
 include 'playqd-remote-service-spotify'

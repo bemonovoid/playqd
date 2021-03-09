@@ -2,15 +2,20 @@ package com.bemonovoid.playqd.datasource.jdbc.dao;
 
 import java.time.LocalTime;
 
+import com.bemonovoid.playqd.core.helpers.ResourceIdHelper;
 import com.bemonovoid.playqd.core.model.Album;
 import com.bemonovoid.playqd.core.model.AlbumPreferences;
 import com.bemonovoid.playqd.core.model.Image;
+import com.bemonovoid.playqd.core.model.LibraryResourceId;
+import com.bemonovoid.playqd.core.model.ResourceTarget;
 import com.bemonovoid.playqd.core.service.SecurityService;
 import com.bemonovoid.playqd.datasource.jdbc.entity.AlbumEntity;
 
 abstract class AlbumHelper {
 
     static Album fromEntity(AlbumEntity entity) {
+        var resourceId =
+                new LibraryResourceId(entity.getId(), ResourceTarget.ALBUM, SecurityService.getCurrentUserToken());
         return Album.builder()
                 .id(entity.getId())
                 .name(entity.getName())
@@ -22,6 +27,7 @@ abstract class AlbumHelper {
                 .artist(ArtistHelper.fromEntity(entity.getArtist()))
                 .image(entity.getImage() == null ? null : new Image("", entity.getImage(), null))
                 .preferences(albumPreferences(entity))
+                .resourceId(ResourceIdHelper.encode(resourceId))
                 .build();
     }
 
@@ -65,7 +71,7 @@ abstract class AlbumHelper {
 
     private static AlbumPreferences albumPreferences(AlbumEntity entity) {
         AlbumPreferences preferences = null;
-        String username = SecurityService.getCurrentUser();
+        String username = SecurityService.getCurrentUserName();
         if (entity.getPreferences() != null && entity.getPreferences().size() > 0) {
             preferences = entity.getPreferences().stream()
                     .filter(preferencesEntity -> preferencesEntity.getCreatedBy().equals(username))

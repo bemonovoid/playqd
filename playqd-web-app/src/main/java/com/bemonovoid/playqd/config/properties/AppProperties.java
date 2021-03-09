@@ -9,11 +9,18 @@ import lombok.Setter;
 public class AppProperties {
 
     private String workDir;
+    private SecurityProperties security;
     private MusicDirectoryProperties library;
 
     @Getter
     @Setter(AccessLevel.PACKAGE)
     public static class MusicDirectoryProperties {
         private String location;
+    }
+
+    @Getter
+    @Setter(AccessLevel.PACKAGE)
+    public static class SecurityProperties {
+        private String tokenSecret;
     }
 }

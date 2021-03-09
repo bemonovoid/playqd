@@ -6,10 +6,11 @@ import com.bemonovoid.playqd.datasource.jdbc.entity.PlaybackInfoEntity;
 abstract class PlaybackInfoHelper {
 
     static PlaybackInfo fromEntity(PlaybackInfoEntity entity) {
-        return new PlaybackInfo(
-                entity.getSong().getId(),
-                entity.getPlayCount(),
-                entity.isFavorite(),
-                entity.getLastModifiedDate());
+        return PlaybackInfo.builder()
+                .songId(entity.getSong().getId())
+                .playCount(entity.getPlayCount())
+                .favorite(entity.isFavorite())
+                .lastPlayedTime(entity.getLastModifiedDate())
+                .build();
     }
 }

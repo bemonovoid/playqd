@@ -22,7 +22,7 @@ class AlbumPreferencesDaoImpl implements AlbumPreferencesDao {
 
     @Override
     public void save(AlbumPreferences albumPreferences) {
-        String userName = SecurityService.getCurrentUser();
+        String userName = SecurityService.getCurrentUserName();
         AlbumPreferencesEntity entity =
                 albumPreferencesRepository.findByAlbumIdAndCreatedBy(albumPreferences.getAlbumId(), userName)
                         .orElseGet(() -> {

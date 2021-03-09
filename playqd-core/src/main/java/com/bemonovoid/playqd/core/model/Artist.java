@@ -14,6 +14,7 @@ public class Artist {
     private String country;
     private long albumCount;
     private long songCount;
+    private String resourceId;
     private PlaybackHistoryArtist playbackHistory;
 
     @JsonIgnore

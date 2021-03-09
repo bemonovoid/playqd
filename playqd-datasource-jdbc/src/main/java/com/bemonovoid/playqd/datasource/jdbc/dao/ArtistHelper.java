@@ -2,8 +2,12 @@ package com.bemonovoid.playqd.datasource.jdbc.dao;
 
 import java.time.LocalDateTime;
 
+import com.bemonovoid.playqd.core.helpers.ResourceIdHelper;
 import com.bemonovoid.playqd.core.model.Artist;
+import com.bemonovoid.playqd.core.model.LibraryResourceId;
 import com.bemonovoid.playqd.core.model.PlaybackHistoryArtist;
+import com.bemonovoid.playqd.core.model.ResourceTarget;
+import com.bemonovoid.playqd.core.service.SecurityService;
 import com.bemonovoid.playqd.datasource.jdbc.entity.ArtistEntity;
 
 abstract class ArtistHelper {
@@ -32,12 +36,15 @@ abstract class ArtistHelper {
     }
 
     private static Artist fromEntityInternal(ArtistEntity artistEntity, ArtistMetadata metadata) {
+        var resourceId =
+                new LibraryResourceId(artistEntity.getId(), ResourceTarget.ARTIST, SecurityService.getCurrentUserToken());
         Artist.ArtistBuilder artistBuilder = Artist.builder()
                 .id(artistEntity.getId())
                 .spotifyId(artistEntity.getSpotifyArtistId())
                 .name(artistEntity.getName())
                 .simpleName(artistEntity.getSimpleName())
-                .country(artistEntity.getCountry());
+                .country(artistEntity.getCountry())
+                .resourceId(ResourceIdHelper.encode(resourceId));
         if (metadata.getCounts() != null) {
             artistBuilder
                     .albumCount(metadata.getCounts().getAlbumCount())

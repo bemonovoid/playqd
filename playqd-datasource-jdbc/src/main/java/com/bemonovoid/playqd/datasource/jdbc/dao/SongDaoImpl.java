@@ -56,14 +56,14 @@ class SongDaoImpl implements SongDao {
 
     @Override
     public List<Song> getTopPlayedSongs(int pageSize) {
-        return songRepository.findTopPlayedSongs(SecurityService.getCurrentUser(), PageRequest.of(0, pageSize)).stream()
+        return songRepository.findTopPlayedSongs(SecurityService.getCurrentUserName(), PageRequest.of(0, pageSize)).stream()
                 .map(SongHelper::fromEntity)
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<Song> getRecentlyPlayedSongs(int pageSize) {
-        String username = SecurityService.getCurrentUser();
+        String username = SecurityService.getCurrentUserName();
         return songRepository.findRecentlyPlayedSongs(username, PageRequest.of(0, pageSize)).stream()
                 .map(SongHelper::fromEntity)
                 .collect(Collectors.toList());
@@ -78,7 +78,7 @@ class SongDaoImpl implements SongDao {
 
     @Override
     public List<Song> getFavoriteSongs(int pageSize) {
-        String username = SecurityService.getCurrentUser();
+        String username = SecurityService.getCurrentUserName();
         return songRepository.findFavoriteSongs(username, PageRequest.of(0, pageSize)).stream()
                 .map(SongHelper::fromEntity)
                 .collect(Collectors.toList());
@@ -87,7 +87,7 @@ class SongDaoImpl implements SongDao {
     @Override
     public void updateFavoriteFlag(long songId, boolean isFavorite) {
         Optional<PlaybackInfoEntity> playbackInfoEntityOpt =
-                playbackInfoRepository.findBySongIdAndCreatedBy(songId, SecurityService.getCurrentUser());
+                playbackInfoRepository.findBySongIdAndCreatedBy(songId, SecurityService.getCurrentUserName());
 
         if (playbackInfoEntityOpt.isEmpty() && !isFavorite) {
             return;
@@ -106,7 +106,7 @@ class SongDaoImpl implements SongDao {
     @Override
     public void updatePlayCount(long songId) {
         PlaybackInfoEntity playbackInfoEntity =
-                playbackInfoRepository.findBySongIdAndCreatedBy(songId, SecurityService.getCurrentUser())
+                playbackInfoRepository.findBySongIdAndCreatedBy(songId, SecurityService.getCurrentUserName())
                         .orElseGet(() -> {
                             SongEntity songEntity = songRepository.findOne(songId);
                             PlaybackInfoEntity entity = new PlaybackInfoEntity();

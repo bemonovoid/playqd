@@ -38,15 +38,6 @@ class ArtistController {
         return new Artists(artistService.getArtists());
     }
 
-    @GetMapping(path = "/{artistId}/image", produces = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE})
-    ResponseEntity<byte[]> getArtistImage(@PathVariable long artistId,
-                                       @RequestParam(defaultValue = "SMALL") ImageSize size) {
-        Optional<Image> artistImageOpt = artistService.getImage(artistId, size, false);
-        return artistImageOpt
-                .map(artistImage -> ResponseEntity.ok(artistImage.getData()))
-                .orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
     @GetMapping("/{artistId}/image/src")
     ResponseEntity<String> getArtistImageSrc(@PathVariable long artistId) {
         Optional<Image> artistImageOpt = artistService.getImage(artistId, ImageSize.SMALL, true);

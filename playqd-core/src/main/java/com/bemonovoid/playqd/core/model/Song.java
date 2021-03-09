@@ -28,6 +28,7 @@ public class Song {
     private String fileLocation;
     private String fileExtension;
     private String fileName;
+    private String resourceId;
 
     private Artist artist;
     private Album album;

@@ -25,7 +25,7 @@ class PlaybackHistoryDaoImpl implements PlaybackHistoryDao {
 
     @Override
     public Map<Long, PlaybackHistoryArtist> getArtistPlaybackHistory() {
-        return playbackInfoRepository.groupByArtistPlaybackHistory(SecurityService.getCurrentUser()).stream()
+        return playbackInfoRepository.groupByArtistPlaybackHistory(SecurityService.getCurrentUserName()).stream()
                 .collect(Collectors.toMap(
                         PlaybackHistoryArtistProjection::getArtistId,
                         projection -> new PlaybackHistoryArtist(
