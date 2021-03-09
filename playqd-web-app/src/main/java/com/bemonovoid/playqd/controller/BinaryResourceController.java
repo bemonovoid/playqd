@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import com.bemonovoid.playqd.core.helpers.ResourceIdHelper;
 import com.bemonovoid.playqd.core.model.Image;
@@ -18,6 +19,7 @@ import com.bemonovoid.playqd.core.service.AlbumService;
 import com.bemonovoid.playqd.core.service.ArtistService;
 import com.bemonovoid.playqd.core.service.SongService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -57,7 +59,10 @@ class BinaryResourceController {
             return ResponseEntity.badRequest().build();
         }
         return imageOpt
-                .map(image -> ResponseEntity.ok(image.getData()))
+                .map(image -> ResponseEntity
+                        .ok()
+                        .cacheControl(CacheControl.maxAge(1, TimeUnit.HOURS))
+                        .body(image.getData()))
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 

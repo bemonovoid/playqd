@@ -1,6 +1,11 @@
 package com.bemonovoid.playqd.datasource.jdbc.dao;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import com.bemonovoid.playqd.core.helpers.ResourceIdHelper;
+import com.bemonovoid.playqd.core.model.Album;
 import com.bemonovoid.playqd.core.model.LibraryResourceId;
 import com.bemonovoid.playqd.core.model.PlaybackInfo;
 import com.bemonovoid.playqd.core.model.ResourceTarget;
@@ -10,7 +15,19 @@ import com.bemonovoid.playqd.datasource.jdbc.entity.SongEntity;
 
 abstract class SongHelper {
 
+    static List<Song> fromAlbumSongEntities(List<SongEntity> entities) {
+        if (entities.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Album songAlbum = AlbumHelper.fromEntity(entities.get(0).getAlbum());
+        return entities.stream().map(songEntity -> fromEntity(songEntity, songAlbum)).collect(Collectors.toList());
+    }
+
     static Song fromEntity(SongEntity songEntity) {
+        return fromEntity(songEntity, null);
+    }
+
+    private static Song fromEntity(SongEntity songEntity, Album album) {
         Song song = new Song();
 
         song.setId(songEntity.getId());
@@ -27,17 +44,21 @@ abstract class SongHelper {
         song.setAudioSampleRate(songEntity.getAudioSampleRate());
         song.setAudioEncodingType(songEntity.getAudioEncodingType());
 
-
         song.setFileLocation(songEntity.getFileLocation());
         song.setFileName(songEntity.getFileName());
         song.setFileExtension(songEntity.getFileExtension());
 
-        song.setArtist(ArtistHelper.fromEntity(songEntity.getArtist()));
-        song.setAlbum(AlbumHelper.fromEntity(songEntity.getAlbum()));
+        song.setPlaybackInfo(PlaybackInfo.builder().build());
+
+        Album songAlbum = album;
+        if (songAlbum == null) {
+            songAlbum = AlbumHelper.fromEntity(songEntity.getAlbum());
+        }
+
+        song.setArtist(songAlbum.getArtist());
+        song.setAlbum(songAlbum);
 
         String username = SecurityService.getCurrentUserName();
-
-        song.setPlaybackInfo(PlaybackInfo.builder().build());
 
         if (songEntity.getPlaybackInfo() != null && songEntity.getPlaybackInfo().size() > 0) {
             songEntity.getPlaybackInfo().stream()

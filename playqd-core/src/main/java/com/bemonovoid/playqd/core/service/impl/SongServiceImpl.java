@@ -5,9 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.bemonovoid.playqd.core.dao.SongDao;
-import com.bemonovoid.playqd.core.model.AlbumSongs;
 import com.bemonovoid.playqd.core.model.Song;
-import com.bemonovoid.playqd.core.model.query.AlbumSongsQuery;
 import com.bemonovoid.playqd.core.model.query.SongFilter;
 import com.bemonovoid.playqd.core.model.query.SongQuery;
 import com.bemonovoid.playqd.core.service.SongService;
@@ -38,9 +36,8 @@ class SongServiceImpl implements SongService {
     }
 
     @Override
-    public AlbumSongs getAlbumSongs(AlbumSongsQuery query) {
-        List<Song> songs = songDao.getAlbumSongs(query.getAlbumId());
-        return new AlbumSongs(songs.get(0).getArtist(), songs.get(0).getAlbum(), songs);
+    public List<Song> getAlbumSongs(long albumId) {
+        return songDao.getAlbumSongs(albumId);
     }
 
     @Override

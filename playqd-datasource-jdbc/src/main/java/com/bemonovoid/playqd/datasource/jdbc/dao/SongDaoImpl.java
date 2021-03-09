@@ -34,7 +34,7 @@ class SongDaoImpl implements SongDao {
 
     @Override
     public List<Song> getAlbumSongs(long albumId) {
-        return songRepository.findAllByAlbumId(albumId).stream().map(SongHelper::fromEntity).collect(Collectors.toList());
+        return SongHelper.fromAlbumSongEntities(songRepository.findAllByAlbumId(albumId));
     }
 
     @Override
@@ -56,7 +56,8 @@ class SongDaoImpl implements SongDao {
 
     @Override
     public List<Song> getTopPlayedSongs(int pageSize) {
-        return songRepository.findTopPlayedSongs(SecurityService.getCurrentUserName(), PageRequest.of(0, pageSize)).stream()
+        String username = SecurityService.getCurrentUserName();
+        return songRepository.findTopPlayedSongs(username, PageRequest.of(0, pageSize)).stream()
                 .map(SongHelper::fromEntity)
                 .collect(Collectors.toList());
     }

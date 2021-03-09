@@ -2,9 +2,7 @@ package com.bemonovoid.playqd.controller;
 
 import java.util.List;
 
-import com.bemonovoid.playqd.core.model.AlbumSongs;
 import com.bemonovoid.playqd.core.model.Song;
-import com.bemonovoid.playqd.core.model.query.AlbumSongsQuery;
 import com.bemonovoid.playqd.core.model.query.SongQuery;
 import com.bemonovoid.playqd.core.service.SongService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -40,8 +38,8 @@ class SongController {
     }
 
     @GetMapping("/album/{albumId}")
-    AlbumSongs getAlbumSongs(@PathVariable long albumId) {
-        return songService.getAlbumSongs(new AlbumSongsQuery(albumId));
+    List<Song> getAlbumSongs(@PathVariable long albumId) {
+        return songService.getAlbumSongs(albumId);
     }
 
     @PutMapping("/{songId}/favorite")
