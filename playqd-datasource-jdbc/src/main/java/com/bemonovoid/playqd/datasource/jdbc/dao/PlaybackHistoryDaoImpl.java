@@ -21,8 +21,6 @@ class PlaybackHistoryDaoImpl implements PlaybackHistoryDao {
         this.playbackInfoRepository = playbackInfoRepository;
     }
 
-
-
     @Override
     public Map<Long, PlaybackHistoryArtist> getArtistPlaybackHistory() {
         return playbackInfoRepository.groupByArtistPlaybackHistory(SecurityService.getCurrentUserName()).stream()

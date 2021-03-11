@@ -3,7 +3,7 @@ jar {
 }
 
 dependencies {
-    implementation "org.hsqldb:hsqldb:${hsqldbVersion}"
+    runtime "org.hsqldb:hsqldb:${hsqldbVersion}"
     implementation project (':playqd-core')
 
     compileOnly 'org.springframework.boot:spring-boot-starter-data-jpa'

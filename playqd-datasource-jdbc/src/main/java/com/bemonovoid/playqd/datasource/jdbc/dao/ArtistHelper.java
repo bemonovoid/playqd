@@ -1,43 +1,23 @@
 package com.bemonovoid.playqd.datasource.jdbc.dao;
 
-import java.time.LocalDateTime;
-
 import com.bemonovoid.playqd.core.helpers.ResourceIdHelper;
 import com.bemonovoid.playqd.core.model.Artist;
 import com.bemonovoid.playqd.core.model.LibraryResourceId;
-import com.bemonovoid.playqd.core.model.PlaybackHistoryArtist;
 import com.bemonovoid.playqd.core.model.ResourceTarget;
 import com.bemonovoid.playqd.core.service.SecurityService;
 import com.bemonovoid.playqd.datasource.jdbc.entity.ArtistEntity;
+import com.bemonovoid.playqd.datasource.jdbc.projection.CountProjection;
 
 abstract class ArtistHelper {
 
     static Artist fromEntity(ArtistEntity artistEntity) {
-        return fromEntityInternal(artistEntity);
-    }
-    static Artist fromEntity(ArtistEntity artistEntity, ArtistMetadata metadata) {
-        return fromEntityInternal(artistEntity, metadata);
+        return fromEntity(artistEntity, null);
     }
 
-    static ArtistEntity toEntity(Artist artist) {
+    static Artist fromEntity(ArtistEntity artistEntity, CountProjection countProjection) {
+        LibraryResourceId resourceId = new LibraryResourceId(
+                artistEntity.getId(), ResourceTarget.ARTIST, SecurityService.getCurrentUserToken());
 
-        ArtistEntity artistEntity = new ArtistEntity();
-
-        artistEntity.setId(artist.getId());
-        artistEntity.setName(artist.getName());
-        artistEntity.setSimpleName(artist.getSimpleName());
-        artistEntity.setCountry(artist.getCountry());
-
-        return artistEntity;
-    }
-
-    private static Artist fromEntityInternal(ArtistEntity artistEntity) {
-        return fromEntityInternal(artistEntity, new ArtistMetadata(null, null));
-    }
-
-    private static Artist fromEntityInternal(ArtistEntity artistEntity, ArtistMetadata metadata) {
-        var resourceId =
-                new LibraryResourceId(artistEntity.getId(), ResourceTarget.ARTIST, SecurityService.getCurrentUserToken());
         Artist.ArtistBuilder artistBuilder = Artist.builder()
                 .id(artistEntity.getId())
                 .spotifyId(artistEntity.getSpotifyArtistId())
@@ -45,17 +25,20 @@ abstract class ArtistHelper {
                 .simpleName(artistEntity.getSimpleName())
                 .country(artistEntity.getCountry())
                 .resourceId(ResourceIdHelper.encode(resourceId));
-        if (metadata.getCounts() != null) {
+        if (countProjection != null) {
             artistBuilder
-                    .albumCount(metadata.getCounts().getAlbumCount())
-                    .songCount(metadata.getCounts().getSongCount());
-        }
-        if (metadata.getPlaybackHistory() != null) {
-            artistBuilder.playbackHistory(metadata.getPlaybackHistory());
-        } else {
-            artistBuilder.playbackHistory(
-                    new PlaybackHistoryArtist(artistEntity.getId(), 0, LocalDateTime.MIN.toString()));
+                    .albumCount(countProjection.getAlbumCount())
+                    .songCount(countProjection.getSongCount());
         }
         return artistBuilder.build();
+    }
+
+    static ArtistEntity toEntity(Artist artist) {
+        ArtistEntity artistEntity = new ArtistEntity();
+        artistEntity.setId(artist.getId());
+        artistEntity.setName(artist.getName());
+        artistEntity.setSimpleName(artist.getSimpleName());
+        artistEntity.setCountry(artist.getCountry());
+        return artistEntity;
     }
 }

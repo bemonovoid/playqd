@@ -30,6 +30,8 @@ public class ArtistEntity extends PersistentAuditableEntity<Long> {
     public static final String COL_SPOTIFY_ARTIST_ID = "SPOTIFY_ARTIST_ID";
     public static final String COL_COUNTRY = "COUNTRY";
 
+    public static final String FLD_NAME = "name";
+
     @Id
     @Column(name = COL_PK_ID)
     @GeneratedValue(strategy = GenerationType.IDENTITY)

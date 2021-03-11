@@ -1,27 +1,33 @@
 package com.bemonovoid.playqd.datasource.jdbc.dao;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.bemonovoid.playqd.core.dao.ArtistDao;
-import com.bemonovoid.playqd.core.dao.PlaybackHistoryDao;
 import com.bemonovoid.playqd.core.exception.PlayqdEntityNotFoundException;
 import com.bemonovoid.playqd.core.helpers.EntityNameHelper;
 import com.bemonovoid.playqd.core.model.Artist;
+import com.bemonovoid.playqd.core.model.FindArtistsRequest;
 import com.bemonovoid.playqd.core.model.MoveResult;
-import com.bemonovoid.playqd.core.model.PlaybackHistoryArtist;
+import com.bemonovoid.playqd.core.model.PageableArtistRequest;
+import com.bemonovoid.playqd.core.model.PageableResult;
+import com.bemonovoid.playqd.core.service.SecurityService;
 import com.bemonovoid.playqd.datasource.jdbc.entity.AlbumEntity;
 import com.bemonovoid.playqd.datasource.jdbc.entity.ArtistEntity;
 import com.bemonovoid.playqd.datasource.jdbc.entity.SongEntity;
 import com.bemonovoid.playqd.datasource.jdbc.projection.CountProjection;
 import com.bemonovoid.playqd.datasource.jdbc.repository.AlbumRepository;
 import com.bemonovoid.playqd.datasource.jdbc.repository.ArtistRepository;
+import com.bemonovoid.playqd.datasource.jdbc.repository.PlaybackInfoRepository;
 import com.bemonovoid.playqd.datasource.jdbc.repository.SongRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 @Slf4j
 @Component
@@ -30,38 +36,45 @@ class ArtistDaoImpl implements ArtistDao {
     private final ArtistRepository artistRepository;
     private final AlbumRepository albumRepository;
     private final SongRepository songRepository;
-    private final PlaybackHistoryDao playbackHistoryDao;
+    private final PlaybackInfoRepository playbackInfoRepository;
 
     private final JdbcTemplate jdbcTemplate;
 
     ArtistDaoImpl(ArtistRepository artistRepository,
                   AlbumRepository albumRepository,
                   SongRepository songRepository,
-                  PlaybackHistoryDao playbackHistoryDao,
+                  PlaybackInfoRepository playbackInfoRepository,
                   JdbcTemplate jdbcTemplate) {
         this.artistRepository = artistRepository;
         this.albumRepository = albumRepository;
         this.songRepository = songRepository;
-        this.playbackHistoryDao = playbackHistoryDao;
+        this.playbackInfoRepository = playbackInfoRepository;
         this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override
     public Artist getOne(long id) {
-        ArtistEntity artistEntity = artistRepository.findById(id)
+        return artistRepository.findById(id)
+                .map(ArtistHelper::fromEntity)
                 .orElseThrow(() -> new PlayqdEntityNotFoundException(id, "artist"));
-        return ArtistHelper.fromEntity(artistEntity);
     }
 
     @Override
-    public List<Artist> getAll() {
-        Map<Long, PlaybackHistoryArtist> artistPlaybackHistory = playbackHistoryDao.getArtistPlaybackHistory();
+    public PageableResult<Artist> getAll(FindArtistsRequest request) {
+        String username = SecurityService.getCurrentUserName();
         Map<Long, CountProjection> counts = songRepository.getArtistAlbumSongCount();
-        return artistRepository.findAll().stream()
-                .map(e -> ArtistHelper.fromEntity(
-                        e, new ArtistMetadata(counts.get(e.getId()), artistPlaybackHistory.get(e.getId()))))
-                .sorted(Comparator.comparing(Artist::getName))
-                .collect(Collectors.toList());
+        switch (request.getSortBy()) {
+            case RECENTLY_PLAYED:
+                return new PageableResultWrapper<>(getRecentlyPlayedArtists(username, counts, request));
+            case MOST_PLAYED:
+                return new PageableResultWrapper<>(getMostPlayedArtists(username, counts, request));
+            case TOTAL_ALBUMS:
+
+            case TOTAL_SONGS:
+
+            default:
+                return new PageableResultWrapper<>(getArtistsOrderedByName(counts, request));
+        }
     }
 
     @Override
@@ -118,6 +131,36 @@ class ArtistDaoImpl implements ArtistDao {
 
     private boolean shouldUpdate(String oldVal, String newVal) {
         return newVal != null && !newVal.isBlank() && !newVal.equalsIgnoreCase(oldVal);
+    }
+
+    private Page<Artist> getArtistsOrderedByName(Map<Long, CountProjection> counts, FindArtistsRequest request) {
+        Sort sort = Sort.by(Sort.Direction.fromString(request.getDirection().name()), ArtistEntity.FLD_NAME);
+        PageRequest pageRequest = PageRequest.of(request.getPage(), request.getSize(), sort);
+        if (StringUtils.hasText(request.getName())) {
+            String nameContaining = EntityNameHelper.toLookUpName(request.getName());
+            return artistRepository.findBySimpleNameContaining(nameContaining, pageRequest)
+                    .map(artistEntity -> ArtistHelper.fromEntity(artistEntity, counts.get(artistEntity.getId())));
+        }
+        return artistRepository.findAll(pageRequest)
+                .map(artistEntity -> ArtistHelper.fromEntity(artistEntity, counts.get(artistEntity.getId())));
+    }
+
+    private Page<Artist> getRecentlyPlayedArtists(String username,
+                                                  Map<Long, CountProjection> counts,
+                                                  PageableArtistRequest request) {
+        PageRequest pageRequest = PageRequest.of(request.getPage(), request.getSize());
+        return artistRepository.findRecentlyPlayedArtists(username, pageRequest)
+                .map(artistRepository::findOne)
+                .map(artistEntity -> ArtistHelper.fromEntity(artistEntity, counts.get(artistEntity.getId())));
+    }
+
+    private Page<Artist> getMostPlayedArtists(String username,
+                                              Map<Long, CountProjection> counts,
+                                              PageableArtistRequest request) {
+        PageRequest pageRequest = PageRequest.of(request.getPage(), request.getSize());
+        return artistRepository.findMostPlayedArtists(username, pageRequest)
+                .map(artistRepository::findOne)
+                .map(artistEntity -> ArtistHelper.fromEntity(artistEntity, counts.get(artistEntity.getId())));
     }
 
 }

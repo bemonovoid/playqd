@@ -1,15 +1,16 @@
 package com.bemonovoid.playqd.core.service.impl;
 
-import java.util.List;
 import java.util.Optional;
 
 import com.bemonovoid.playqd.core.dao.ArtistDao;
 import com.bemonovoid.playqd.core.dao.SongDao;
 import com.bemonovoid.playqd.core.handler.AudioFileTagUpdater;
 import com.bemonovoid.playqd.core.model.Artist;
+import com.bemonovoid.playqd.core.model.FindArtistsRequest;
 import com.bemonovoid.playqd.core.model.Image;
 import com.bemonovoid.playqd.core.model.ImageSize;
 import com.bemonovoid.playqd.core.model.MoveResult;
+import com.bemonovoid.playqd.core.model.PageableResult;
 import com.bemonovoid.playqd.core.model.UpdateOptions;
 import com.bemonovoid.playqd.core.service.ArtistService;
 import com.bemonovoid.playqd.core.service.ImageService;
@@ -31,8 +32,8 @@ class ArtistServiceImpl implements ArtistService {
     }
 
     @Override
-    public List<Artist> getArtists() {
-        return artistDao.getAll();
+    public PageableResult<Artist> getArtists(FindArtistsRequest request) {
+        return artistDao.getAll(request);
     }
 
     @Override

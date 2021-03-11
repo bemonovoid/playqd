@@ -87,35 +87,36 @@ class SongDaoImpl implements SongDao {
 
     @Override
     public void updateFavoriteFlag(long songId, boolean isFavorite) {
-        Optional<PlaybackInfoEntity> playbackInfoEntityOpt =
-                playbackInfoRepository.findBySongIdAndCreatedBy(songId, SecurityService.getCurrentUserName());
+        SongEntity songEntity = songRepository.findOne(songId);
 
-        if (playbackInfoEntityOpt.isEmpty() && !isFavorite) {
+        PlaybackInfoEntity playbackInfoEntity = songEntity.getPlaybackInfo().stream()
+                .filter(p -> p.getCreatedBy().equals(SecurityService.getCurrentUserName()))
+                .findFirst()
+                .orElseGet(() -> {
+                    PlaybackInfoEntity entity = new PlaybackInfoEntity();
+                    entity.setSong(songEntity);
+                    return entity;
+                });
+        if (playbackInfoEntity.isFavorite() == isFavorite) {
             return;
         }
-
-        PlaybackInfoEntity playbackInfoEntity = playbackInfoEntityOpt.orElseGet(() -> {
-                SongEntity songEntity = songRepository.findOne(songId);
-                PlaybackInfoEntity entity = new PlaybackInfoEntity();
-                entity.setSong(songEntity);
-                return entity;
-            });
         playbackInfoEntity.setFavorite(isFavorite);
         playbackInfoRepository.save(playbackInfoEntity);
     }
 
     @Override
     public void updatePlayCount(long songId) {
-        PlaybackInfoEntity playbackInfoEntity =
-                playbackInfoRepository.findBySongIdAndCreatedBy(songId, SecurityService.getCurrentUserName())
-                        .orElseGet(() -> {
-                            SongEntity songEntity = songRepository.findOne(songId);
-                            PlaybackInfoEntity entity = new PlaybackInfoEntity();
-                            entity.setSong(songEntity);
-                            return entity;
+        String username = SecurityService.getCurrentUserName();
+        SongEntity songEntity = songRepository.findOne(songId);
+        PlaybackInfoEntity playbackInfoEntity = songEntity.getPlaybackInfo().stream()
+                .filter(p -> p.getCreatedBy().equals(username))
+                .findFirst()
+                .orElseGet(() -> {
+                    PlaybackInfoEntity entity = new PlaybackInfoEntity();
+                    entity.setSong(songEntity);
+                    return entity;
                 });
         playbackInfoEntity.setPlayCount(playbackInfoEntity.getPlayCount() + 1);
         playbackInfoRepository.save(playbackInfoEntity);
     }
-
 }
