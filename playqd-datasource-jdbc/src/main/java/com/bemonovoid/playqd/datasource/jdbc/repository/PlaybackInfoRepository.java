@@ -5,13 +5,11 @@ import java.util.Optional;
 
 import com.bemonovoid.playqd.datasource.jdbc.entity.ArtistEntity;
 import com.bemonovoid.playqd.datasource.jdbc.entity.PlaybackInfoEntity;
-import com.bemonovoid.playqd.datasource.jdbc.entity.SongEntity;
 import com.bemonovoid.playqd.datasource.jdbc.projection.PlaybackHistoryArtistProjection;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.domain.Page;
-import com.bemonovoid.playqd.datasource.jdbc.projection.RecentlyPlayedSongProjection;
 
 public interface PlaybackInfoRepository extends JpaRepository<PlaybackInfoEntity, Long> {
 

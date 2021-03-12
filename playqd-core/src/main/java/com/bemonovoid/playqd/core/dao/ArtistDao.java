@@ -4,8 +4,8 @@ import java.util.List;
 
 import com.bemonovoid.playqd.core.model.Artist;
 import com.bemonovoid.playqd.core.model.BasicArtist;
-import com.bemonovoid.playqd.core.model.pageable.FindArtistsRequest;
 import com.bemonovoid.playqd.core.model.MoveResult;
+import com.bemonovoid.playqd.core.model.pageable.FindArtistsRequest;
 import com.bemonovoid.playqd.core.model.pageable.PageableResult;
 
 public interface ArtistDao {

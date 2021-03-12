@@ -4,10 +4,10 @@ import java.util.Optional;
 
 import com.bemonovoid.playqd.core.model.Album;
 import com.bemonovoid.playqd.core.model.AlbumPreferences;
-import com.bemonovoid.playqd.core.model.pageable.FindAlbumRequest;
 import com.bemonovoid.playqd.core.model.Image;
 import com.bemonovoid.playqd.core.model.ImageSize;
 import com.bemonovoid.playqd.core.model.UpdateOptions;
+import com.bemonovoid.playqd.core.model.pageable.FindAlbumRequest;
 import com.bemonovoid.playqd.core.model.pageable.PageableAlbumResponse;
 import com.bemonovoid.playqd.core.model.pageable.PageableResult;
 import com.bemonovoid.playqd.core.model.query.UpdateAlbum;
