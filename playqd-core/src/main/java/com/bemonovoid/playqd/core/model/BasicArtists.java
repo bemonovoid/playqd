@@ -7,7 +7,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class Albums {
+public class BasicArtists {
 
-    private final List<Album> albums;
+    private final List<BasicArtist> artists;
 }

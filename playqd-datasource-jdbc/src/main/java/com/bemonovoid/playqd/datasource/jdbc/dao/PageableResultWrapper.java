@@ -2,7 +2,7 @@ package com.bemonovoid.playqd.datasource.jdbc.dao;
 
 import java.util.List;
 
-import com.bemonovoid.playqd.core.model.PageableResult;
+import com.bemonovoid.playqd.core.model.pageable.PageableResult;
 import org.springframework.data.domain.Page;
 
 class PageableResultWrapper<T> implements PageableResult<T> {

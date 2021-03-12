@@ -8,15 +8,24 @@ import com.bemonovoid.playqd.core.dao.AlbumDao;
 import com.bemonovoid.playqd.core.model.Album;
 import com.bemonovoid.playqd.core.model.AlbumPreferences;
 import com.bemonovoid.playqd.core.model.MoveResult;
+import com.bemonovoid.playqd.core.model.SortDirection;
+import com.bemonovoid.playqd.core.model.pageable.FindAlbumRequest;
+import com.bemonovoid.playqd.core.model.pageable.FindGenresRequest;
+import com.bemonovoid.playqd.core.model.pageable.PageableResult;
 import com.bemonovoid.playqd.datasource.jdbc.entity.AlbumEntity;
 import com.bemonovoid.playqd.datasource.jdbc.entity.AlbumPreferencesEntity;
 import com.bemonovoid.playqd.datasource.jdbc.entity.SongEntity;
+import com.bemonovoid.playqd.datasource.jdbc.projection.GenreProjection;
 import com.bemonovoid.playqd.datasource.jdbc.repository.AlbumPreferencesRepository;
 import com.bemonovoid.playqd.datasource.jdbc.repository.AlbumRepository;
 import com.bemonovoid.playqd.datasource.jdbc.repository.SongRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 @Slf4j
 @Component
@@ -53,20 +62,57 @@ class AlbumDaoImpl implements AlbumDao {
     }
 
     @Override
-    public List<String> getGenres() {
-        return albumRepository.findDistinctGenre();
+    public PageableResult<Album> getAlbums(FindAlbumRequest request) {
+        FindAlbumRequest.AlbumsSortBy sortBy = request.getSortBy();
+        SortDirection direction = request.getDirection();
+        if (sortBy == null) {
+            sortBy = FindAlbumRequest.AlbumsSortBy.NAME;
+        }
+        if (direction == null) {
+            direction = SortDirection.ASC;
+        }
+        String sortFldName = "";
+        switch (sortBy) {
+            case NAME:
+                sortFldName = AlbumEntity.FLD_NAME;
+                break;
+            case DATE:
+                sortFldName = AlbumEntity.FLD_DATE;
+        }
+
+        Sort sort = Sort.by(Sort.Direction.fromString(direction.name()), sortFldName);
+        PageRequest pageRequest = PageRequest.of(request.getPage(), request.getSize(), sort);
+
+        Page<Album> albumPage;
+
+        if (request.getArtistId() != null) {
+            if (StringUtils.hasText(request.getName())) {
+                albumPage = albumRepository.findByArtistIdAndNameContaining(
+                        request.getArtistId(), request.getName(), pageRequest).map(AlbumHelper::fromEntity);
+            } else {
+                albumPage = albumRepository.findByArtistId(
+                        request.getArtistId(), pageRequest).map(AlbumHelper::fromEntity);
+            }
+        } else if (StringUtils.hasText(request.getGenre())) {
+            albumPage = albumRepository.findByGenreEquals(request.getGenre(), pageRequest).map(AlbumHelper::fromEntity);
+        } else {
+            albumPage = Page.empty(pageRequest);
+        }
+        return new PageableResultWrapper<>(albumPage);
     }
 
     @Override
-    public List<Album> getGenreAlbums(String genre) {
-        return albumRepository.findAllByGenreEquals(genre).stream()
-                .map(AlbumHelper::fromEntity).collect(Collectors.toList());
-    }
+    public PageableResult<String> getGenres(FindGenresRequest request) {
+        if (StringUtils.hasText(request.getName())) {
+            PageRequest pageRequest = PageRequest.of(request.getPage(), request.getSize());
 
-    @Override
-    public List<Album> getArtistAlbums(long artistId) {
-        return albumRepository.findAllByArtistId(artistId).stream()
-                .map(AlbumHelper::fromEntity).collect(Collectors.toList());
+            Page<String> genrePage = albumRepository.findDistinctByGenreIgnoreCaseContaining(
+                    request.getName().toUpperCase(), pageRequest).map(GenreProjection::getGenre);
+
+            return new PageableResultWrapper<>(genrePage);
+        }
+        return new PageableResultWrapper<>(
+                albumRepository.findDistinctGenre(PageRequest.of(request.getPage(), request.getSize())));
     }
 
     @Override

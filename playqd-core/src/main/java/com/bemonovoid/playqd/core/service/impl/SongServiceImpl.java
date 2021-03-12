@@ -1,13 +1,11 @@
 package com.bemonovoid.playqd.core.service.impl;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 import com.bemonovoid.playqd.core.dao.SongDao;
 import com.bemonovoid.playqd.core.model.Song;
-import com.bemonovoid.playqd.core.model.query.SongFilter;
-import com.bemonovoid.playqd.core.model.query.SongQuery;
+import com.bemonovoid.playqd.core.model.pageable.FindSongsRequest;
+import com.bemonovoid.playqd.core.model.pageable.PageableResult;
 import com.bemonovoid.playqd.core.service.SongService;
 import org.springframework.stereotype.Component;
 
@@ -36,22 +34,7 @@ class SongServiceImpl implements SongService {
     }
 
     @Override
-    public List<Song> getAlbumSongs(long albumId) {
-        return songDao.getAlbumSongs(albumId);
-    }
-
-    @Override
-    public List<Song> getSongs(SongQuery query) {
-        if (SongFilter.PLAY_COUNT == query.getFilter()) {
-            return songDao.getTopPlayedSongs(query.getPageSize());
-        } else if (SongFilter.RECENTLY_PLAYED == query.getFilter()) {
-            return songDao.getRecentlyPlayedSongs(query.getPageSize());
-        } else if (SongFilter.RECENTLY_ADDED == query.getFilter()) {
-            return songDao.getRecentlyAdded(query.getPageSize());
-        } else if (SongFilter.FAVORITES == query.getFilter()) {
-            return songDao.getFavoriteSongs(query.getPageSize());
-        } else {
-            return Collections.emptyList();
-        }
+    public PageableResult<Song> getSongs(FindSongsRequest request) {
+        return songDao.getSongs(request);
     }
 }

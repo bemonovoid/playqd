@@ -1,7 +1,5 @@
 package com.bemonovoid.playqd.core.service.impl;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 import com.bemonovoid.playqd.core.dao.AlbumDao;
@@ -9,12 +7,12 @@ import com.bemonovoid.playqd.core.dao.SongDao;
 import com.bemonovoid.playqd.core.handler.AudioFileTagUpdater;
 import com.bemonovoid.playqd.core.model.Album;
 import com.bemonovoid.playqd.core.model.AlbumPreferences;
-import com.bemonovoid.playqd.core.model.Albums;
 import com.bemonovoid.playqd.core.model.Image;
 import com.bemonovoid.playqd.core.model.ImageSize;
 import com.bemonovoid.playqd.core.model.MoveResult;
 import com.bemonovoid.playqd.core.model.UpdateOptions;
-import com.bemonovoid.playqd.core.model.query.AlbumsQuery;
+import com.bemonovoid.playqd.core.model.pageable.FindAlbumRequest;
+import com.bemonovoid.playqd.core.model.pageable.PageableResult;
 import com.bemonovoid.playqd.core.service.AlbumService;
 import com.bemonovoid.playqd.core.service.ImageService;
 import lombok.extern.slf4j.Slf4j;
@@ -42,14 +40,8 @@ class AlbumServiceImpl implements AlbumService {
     }
 
     @Override
-    public Albums getAlbums(AlbumsQuery query) {
-        List<Album> albums = Collections.emptyList();
-        if (query.getArtistId() != null) {
-            albums = albumDao.getArtistAlbums(query.getArtistId());
-        } else if (query.getGenre() != null) {
-            albums = albumDao.getGenreAlbums(query.getGenre());
-        }
-        return new Albums(albums);
+    public PageableResult<Album> getAlbums(FindAlbumRequest request) {
+       return albumDao.getAlbums(request);
     }
 
     @Override

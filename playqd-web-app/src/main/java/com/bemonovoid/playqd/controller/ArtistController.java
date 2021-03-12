@@ -2,16 +2,15 @@ package com.bemonovoid.playqd.controller;
 
 import java.util.Optional;
 
-import javax.validation.Valid;
-
 import com.bemonovoid.playqd.core.model.Artist;
-import com.bemonovoid.playqd.core.model.FindArtistsRequest;
+import com.bemonovoid.playqd.core.model.BasicArtists;
 import com.bemonovoid.playqd.core.model.Image;
 import com.bemonovoid.playqd.core.model.ImageSize;
-import com.bemonovoid.playqd.core.model.PageableArtistRequest;
-import com.bemonovoid.playqd.core.model.PageableResult;
 import com.bemonovoid.playqd.core.model.UpdateArtist;
 import com.bemonovoid.playqd.core.model.UpdateOptions;
+import com.bemonovoid.playqd.core.model.pageable.FindArtistsRequest;
+import com.bemonovoid.playqd.core.model.pageable.PageableArtistsResponse;
+import com.bemonovoid.playqd.core.model.pageable.PageableResult;
 import com.bemonovoid.playqd.core.model.request.MoveArtist;
 import com.bemonovoid.playqd.core.service.ArtistService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -22,7 +21,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Artists", description = "Artists resource")
@@ -37,9 +35,14 @@ class ArtistController {
     }
 
     @GetMapping
-    PageableArtistsResponse listArtists(FindArtistsRequest request) {
+    PageableArtistsResponse getArtists(FindArtistsRequest request) {
         PageableResult<Artist> pageableResult = artistService.getArtists(request);
         return new PageableArtistsResponse(pageableResult);
+    }
+
+    @GetMapping("/basic")
+    BasicArtists getAllArtistNames() {
+        return new BasicArtists(artistService.getAllBasicArtists());
     }
 
     @GetMapping("/{artistId}/image/src")

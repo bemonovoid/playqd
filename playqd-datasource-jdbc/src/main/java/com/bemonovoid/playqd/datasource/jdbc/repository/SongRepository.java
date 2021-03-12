@@ -9,7 +9,9 @@ import com.bemonovoid.playqd.core.exception.PlayqdEntityNotFoundException;
 import com.bemonovoid.playqd.datasource.jdbc.entity.SongEntity;
 import com.bemonovoid.playqd.datasource.jdbc.projection.CountProjection;
 import com.bemonovoid.playqd.datasource.jdbc.projection.FileLocationProjection;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -23,11 +25,21 @@ public interface SongRepository extends JpaRepository<SongEntity, Long> {
         return getAlbumSongCount().stream().collect(Collectors.toMap(CountProjection::getArtistId, p -> p));
     }
 
+    default Page<SongEntity> findByName(String name, Pageable pageable) {
+        return findByNameIgnoreCaseOrFileNameIgnoreCaseContaining(name, name, pageable);
+    }
+
     Optional<FileLocationProjection> findFirstByAlbumId(long albumId);
 
-    List<SongEntity> findAllByAlbumId(long albumId);
+    List<SongEntity> findAllByAlbumId(long albumId, Pageable pageable);
 
-    List<FileLocationProjection> findByArtistId(long artistId);
+    Page<SongEntity> findByNameIgnoreCaseOrFileNameIgnoreCaseContaining(String name, String fileName, Pageable pageable);
+
+    @Query("SELECT s.fileLocation from SongEntity s WHERE s.album.id = ?1")
+    List<String> findAlbumSongsFileLocations(long albumId);
+
+    @Query("SELECT s.fileLocation from SongEntity s WHERE s.artist.id = ?1")
+    List<String> findArtistSongsFileLocations(long artistId);
     
     @Query("SELECT s.artist.id as artistId, COUNT(DISTINCT s.album.id) as albumCount, COUNT(s.id) as songCount " +
             "FROM SongEntity s " +
@@ -35,14 +47,16 @@ public interface SongRepository extends JpaRepository<SongEntity, Long> {
             "ORDER BY songCount DESC")
     List<CountProjection> getAlbumSongCount();
 
-    @Query("SELECT p.song FROM PlaybackInfoEntity p WHERE p.createdBy = ?1 ORDER BY p.playCount DESC")
-    List<SongEntity> findTopPlayedSongs(String createdBy, PageRequest page);
+    @Query("SELECT p.song FROM PlaybackInfoEntity p WHERE p.createdBy = ?1 AND p.playCount > 0 " +
+            "ORDER BY p.playCount DESC")
+    Page<SongEntity> findMostPlayedSongs(String createdBy, PageRequest page);
 
-    @Query("SELECT p.song FROM PlaybackInfoEntity p WHERE p.createdBy = ?1 ORDER BY p.lastModifiedDate DESC")
-    List<SongEntity> findRecentlyPlayedSongs(String createdBy, PageRequest page);
+    @Query("SELECT p.song FROM PlaybackInfoEntity p WHERE p.createdBy = ?1 AND p.playCount > 0 " +
+            "ORDER BY p.lastModifiedDate DESC")
+    Page<SongEntity> findRecentlyPlayedSongs(String createdBy, PageRequest page);
 
     @Query("SELECT p.song FROM PlaybackInfoEntity p WHERE p.createdBy = ?1 AND p.favorite = 1 " +
             "ORDER BY p.song.name ASC")
-    List<SongEntity> findFavoriteSongs(String createdBy, PageRequest page);
+    Page<SongEntity> findFavoriteSongs(String createdBy, PageRequest page);
 
 }

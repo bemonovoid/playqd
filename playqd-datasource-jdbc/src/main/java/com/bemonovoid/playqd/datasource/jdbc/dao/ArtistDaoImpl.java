@@ -8,10 +8,10 @@ import com.bemonovoid.playqd.core.dao.ArtistDao;
 import com.bemonovoid.playqd.core.exception.PlayqdEntityNotFoundException;
 import com.bemonovoid.playqd.core.helpers.EntityNameHelper;
 import com.bemonovoid.playqd.core.model.Artist;
-import com.bemonovoid.playqd.core.model.FindArtistsRequest;
+import com.bemonovoid.playqd.core.model.BasicArtist;
+import com.bemonovoid.playqd.core.model.pageable.FindArtistsRequest;
 import com.bemonovoid.playqd.core.model.MoveResult;
-import com.bemonovoid.playqd.core.model.PageableArtistRequest;
-import com.bemonovoid.playqd.core.model.PageableResult;
+import com.bemonovoid.playqd.core.model.pageable.PageableResult;
 import com.bemonovoid.playqd.core.service.SecurityService;
 import com.bemonovoid.playqd.datasource.jdbc.entity.AlbumEntity;
 import com.bemonovoid.playqd.datasource.jdbc.entity.ArtistEntity;
@@ -60,18 +60,27 @@ class ArtistDaoImpl implements ArtistDao {
     }
 
     @Override
+    public List<BasicArtist> getAllBasicArtists() {
+        return artistRepository.findAllBasicArtists().stream()
+                .map(projection -> new BasicArtist(projection.getId(), projection.getName()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public PageableResult<Artist> getAll(FindArtistsRequest request) {
         String username = SecurityService.getCurrentUserName();
         Map<Long, CountProjection> counts = songRepository.getArtistAlbumSongCount();
-        switch (request.getSortBy()) {
+        FindArtistsRequest.ArtistSortBy sortBy = request.getSortBy();
+        if (sortBy == null) {
+            sortBy = FindArtistsRequest.ArtistSortBy.NAME;
+        }
+        switch (sortBy) {
             case RECENTLY_PLAYED:
                 return new PageableResultWrapper<>(getRecentlyPlayedArtists(username, counts, request));
             case MOST_PLAYED:
                 return new PageableResultWrapper<>(getMostPlayedArtists(username, counts, request));
             case TOTAL_ALBUMS:
-
             case TOTAL_SONGS:
-
             default:
                 return new PageableResultWrapper<>(getArtistsOrderedByName(counts, request));
         }
@@ -147,7 +156,7 @@ class ArtistDaoImpl implements ArtistDao {
 
     private Page<Artist> getRecentlyPlayedArtists(String username,
                                                   Map<Long, CountProjection> counts,
-                                                  PageableArtistRequest request) {
+                                                  FindArtistsRequest request) {
         PageRequest pageRequest = PageRequest.of(request.getPage(), request.getSize());
         return artistRepository.findRecentlyPlayedArtists(username, pageRequest)
                 .map(artistRepository::findOne)
@@ -156,7 +165,7 @@ class ArtistDaoImpl implements ArtistDao {
 
     private Page<Artist> getMostPlayedArtists(String username,
                                               Map<Long, CountProjection> counts,
-                                              PageableArtistRequest request) {
+                                              FindArtistsRequest request) {
         PageRequest pageRequest = PageRequest.of(request.getPage(), request.getSize());
         return artistRepository.findMostPlayedArtists(username, pageRequest)
                 .map(artistRepository::findOne)

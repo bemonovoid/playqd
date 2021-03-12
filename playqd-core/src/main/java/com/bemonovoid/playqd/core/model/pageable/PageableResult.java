@@ -1,4 +1,4 @@
-package com.bemonovoid.playqd.core.model;
+package com.bemonovoid.playqd.core.model.pageable;
 
 import java.util.List;
 

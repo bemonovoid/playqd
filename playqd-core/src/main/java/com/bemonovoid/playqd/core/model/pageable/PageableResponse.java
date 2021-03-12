@@ -1,12 +1,10 @@
-package com.bemonovoid.playqd.controller;
+package com.bemonovoid.playqd.core.model.pageable;
 
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-
-import com.bemonovoid.playqd.core.model.PageableResult;
 
 @JsonPropertyOrder({"totalElements", "totalPages", "page", "pageSize"})
 public abstract class PageableResponse<T> {

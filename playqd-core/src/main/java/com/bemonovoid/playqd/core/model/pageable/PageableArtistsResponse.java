@@ -1,11 +1,10 @@
-package com.bemonovoid.playqd.controller;
+package com.bemonovoid.playqd.core.model.pageable;
 
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import com.bemonovoid.playqd.core.model.Artist;
-import com.bemonovoid.playqd.core.model.PageableResult;
 import lombok.Getter;
 
 @Getter

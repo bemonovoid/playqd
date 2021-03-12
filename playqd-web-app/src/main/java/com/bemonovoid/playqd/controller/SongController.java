@@ -1,9 +1,8 @@
 package com.bemonovoid.playqd.controller;
 
-import java.util.List;
-
 import com.bemonovoid.playqd.core.model.Song;
-import com.bemonovoid.playqd.core.model.query.SongQuery;
+import com.bemonovoid.playqd.core.model.pageable.FindSongsRequest;
+import com.bemonovoid.playqd.core.model.pageable.PageableSongsResponse;
 import com.bemonovoid.playqd.core.service.SongService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
@@ -26,8 +25,8 @@ class SongController {
     }
 
     @GetMapping
-    List<Song> librarySongs(SongQuery query) {
-        return songService.getSongs(query);
+    PageableSongsResponse getSongs(FindSongsRequest request) {
+        return new PageableSongsResponse(songService.getSongs(request));
     }
 
     @GetMapping("/{songId}")
@@ -35,11 +34,6 @@ class SongController {
         return songService.getSong(songId)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
-    }
-
-    @GetMapping("/album/{albumId}")
-    List<Song> getAlbumSongs(@PathVariable long albumId) {
-        return songService.getAlbumSongs(albumId);
     }
 
     @PutMapping("/{songId}/favorite")
@@ -52,7 +46,7 @@ class SongController {
         songService.updateFavoriteFlag(songId, false);
     }
 
-    @PutMapping("/{songId}/stats/played")
+    @PutMapping("/{songId}/played")
     void played(@PathVariable long songId) {
         songService.updatePlayCount(songId);
     }

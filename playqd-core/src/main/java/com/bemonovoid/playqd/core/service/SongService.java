@@ -1,18 +1,16 @@
 package com.bemonovoid.playqd.core.service;
 
-import java.util.List;
 import java.util.Optional;
 
 import com.bemonovoid.playqd.core.model.Song;
-import com.bemonovoid.playqd.core.model.query.SongQuery;
+import com.bemonovoid.playqd.core.model.pageable.FindSongsRequest;
+import com.bemonovoid.playqd.core.model.pageable.PageableResult;
 
 public interface SongService {
 
     Optional<Song> getSong(long songId);
 
-    List<Song> getAlbumSongs(long albumId);
-
-    List<Song> getSongs(SongQuery query);
+    PageableResult<Song> getSongs(FindSongsRequest request);
 
     void updatePlayCount(long songId);
 
