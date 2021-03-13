@@ -34,13 +34,8 @@ public class AlbumEntity extends PersistentAuditableEntity<Long> {
     public static final String COL_ARTIST_ID = "ARTIST_ID";
     public static final String COL_IMAGE = "IMAGE";
 
-    public static final String COL_MB_RELEASE_ID = "MB_RELEASE_ID";
-
     public static final String FLD_NAME = "name";
     public static final String FLD_DATE = "date";
-
-    @Column(name = COL_MB_RELEASE_ID)
-    private String mbReleaseId;
 
     @Column(name = COL_NAME)
     private String name;

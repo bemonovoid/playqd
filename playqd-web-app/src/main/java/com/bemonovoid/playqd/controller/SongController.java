@@ -31,9 +31,7 @@ class SongController {
 
     @GetMapping("/{songId}")
     ResponseEntity<Song> getSong(@PathVariable long songId) {
-        return songService.getSong(songId)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        return ResponseEntity.ok(songService.getSong(songId));
     }
 
     @PutMapping("/{songId}/favorite")

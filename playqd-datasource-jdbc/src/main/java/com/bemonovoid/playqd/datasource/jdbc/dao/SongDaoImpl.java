@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.bemonovoid.playqd.core.dao.SongDao;
+import com.bemonovoid.playqd.core.exception.PlayqdEntityNotFoundException;
 import com.bemonovoid.playqd.core.model.Song;
 import com.bemonovoid.playqd.core.model.pageable.FindSongsRequest;
 import com.bemonovoid.playqd.core.model.pageable.PageableResult;
@@ -33,8 +34,16 @@ class SongDaoImpl implements SongDao {
     }
 
     @Override
-    public Optional<Song> getOne(long id) {
-        return songRepository.findById(id).map(SongHelper::fromEntity);
+    public Song getOne(long id) {
+        return songRepository.findById(id)
+                .map(SongHelper::fromEntity)
+                .orElseThrow(() -> new PlayqdEntityNotFoundException(id, "song"));
+    }
+
+    @Override
+    public String getSongFileLocation(long songId) {
+        return songRepository.findSongFileLocation(songId)
+                .orElseThrow(() -> new PlayqdEntityNotFoundException(songId, "song"));
     }
 
     @Override

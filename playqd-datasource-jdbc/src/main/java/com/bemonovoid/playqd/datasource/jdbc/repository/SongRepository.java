@@ -35,6 +35,9 @@ public interface SongRepository extends JpaRepository<SongEntity, Long> {
 
     Page<SongEntity> findByNameIgnoreCaseOrFileNameIgnoreCaseContaining(String name, String fileName, Pageable pageable);
 
+    @Query("SELECT s.fileLocation FROM SongEntity s WHERE s.id = ?1")
+    Optional<String> findSongFileLocation(long songId);
+
     @Query("SELECT s.fileLocation from SongEntity s WHERE s.album.id = ?1")
     List<String> findAlbumSongsFileLocations(long albumId);
 

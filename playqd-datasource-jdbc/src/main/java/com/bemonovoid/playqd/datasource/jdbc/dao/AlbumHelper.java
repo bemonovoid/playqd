@@ -40,7 +40,6 @@ abstract class AlbumHelper {
         albumEntity.setSimpleName(album.getSimpleName());
         albumEntity.setDate(album.getDate());
         albumEntity.setGenre(album.getGenre());
-        albumEntity.setMbReleaseId(album.getMbReleaseId());
         albumEntity.setImage(album.getImage().getData());
         albumEntity.setArtist(ArtistHelper.toEntity(album.getArtist()));
 

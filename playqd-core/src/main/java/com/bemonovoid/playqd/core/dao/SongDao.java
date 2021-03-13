@@ -9,15 +9,17 @@ import com.bemonovoid.playqd.core.model.pageable.PageableResult;
 
 public interface SongDao {
 
-    Optional<Song> getOne(long id);
+    Song getOne(long songId);
+
+    String getSongFileLocation(long songId);
 
     Optional<String> getAnyAlbumSongFileLocation(long albumId);
 
     PageableResult<Song> getSongs(FindSongsRequest request);
 
-    List<String> getArtistSongsFileLocations(long artistId);
-
     List<String> getAlbumSongsFileLocations(long albumId);
+
+    List<String> getArtistSongsFileLocations(long artistId);
 
     void updatePlayCount(long songId);
 

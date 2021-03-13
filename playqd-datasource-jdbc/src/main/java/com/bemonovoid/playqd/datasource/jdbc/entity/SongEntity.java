@@ -36,8 +36,6 @@ public class SongEntity extends PersistentAuditableEntity<Long> {
     public static final String COL_AUDIO_CHANNEL_TYPE = "AUDIO_CHANNEL_TYPE";
     public static final String COL_AUDIO_BIT_RATE = "AUDIO_BIT_RATE";
 
-    public static final String COL_MB_TRACK_ID = "MB_TRACK_ID";
-
     public static final String COL_ARTIST_ID = "ARTIST_ID";
     public static final String COL_ALBUM_ID = "ALBUM_ID";
 
@@ -80,9 +78,6 @@ public class SongEntity extends PersistentAuditableEntity<Long> {
 
     @Column(name = COL_LYRICS, length = 8000)
     private String lyrics;
-
-    @Column(name = COL_MB_TRACK_ID)
-    private String mbTrackId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private ArtistEntity artist;

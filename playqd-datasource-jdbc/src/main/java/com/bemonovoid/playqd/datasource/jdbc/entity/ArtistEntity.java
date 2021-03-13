@@ -4,9 +4,6 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -31,11 +28,6 @@ public class ArtistEntity extends PersistentAuditableEntity<Long> {
     public static final String COL_COUNTRY = "COUNTRY";
 
     public static final String FLD_NAME = "name";
-
-    @Id
-    @Column(name = COL_PK_ID)
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
     @Column(name = COL_SPOTIFY_ARTIST_ID)
     private String spotifyArtistId;

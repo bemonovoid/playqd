@@ -156,8 +156,7 @@ class MusicDatabaseBuilderImpl implements MusicDatabaseBuilder {
                     .addValue(SongEntity.COL_NAME, songName)
                     .addValue(SongEntity.COL_TRACK_ID, tag.getFirst(FieldKey.TRACK))
                     .addValue(SongEntity.COL_COMMENT, tag.getFirst(FieldKey.COMMENT))
-                    .addValue(SongEntity.COL_LYRICS, tag.getFirst(FieldKey.LYRICS))
-                    .addValue(SongEntity.COL_MB_TRACK_ID, tag.getFirst(FieldKey.MUSICBRAINZ_TRACK_ID));
+                    .addValue(SongEntity.COL_LYRICS, tag.getFirst(FieldKey.LYRICS));
 
         } else {
             params.addValue(SongEntity.COL_NAME, fileName);
@@ -216,11 +215,10 @@ class MusicDatabaseBuilderImpl implements MusicDatabaseBuilder {
                 Tag tag = audioFile.getTag();
                 params
                         .addValue(AlbumEntity.COL_GENRE, tag.getFirst(FieldKey.GENRE))
-                        .addValue(AlbumEntity.COL_DATE, tag.getFirst(FieldKey.YEAR))
-                        .addValue(AlbumEntity.COL_MB_RELEASE_ID, tag.getFirst(FieldKey.MUSICBRAINZ_RELEASEID));
+                        .addValue(AlbumEntity.COL_DATE, tag.getFirst(FieldKey.YEAR));
             }
             addAuditableParams(params);
-            Long albumId = albumJdbcInsert.executeAndReturnKey(params).longValue();
+            long albumId = albumJdbcInsert.executeAndReturnKey(params).longValue();
             return new LibraryAlbumItem(albumId, nameAsKey);
         }).getId();
     }
@@ -257,10 +255,6 @@ class MusicDatabaseBuilderImpl implements MusicDatabaseBuilder {
         return UNKNOWN_ALBUM;
     }
 
-    private Set<String> getScannedFilesLocations() {
-        return new HashSet<>(jdbcTemplate.queryForList("SELECT s.FILE_LOCATION FROM SONG s", String.class));
-    }
-
     private static String getFileNameWithoutExtension(File file) {
         String fileName = file.getName();
         return fileName.substring(0, fileName.lastIndexOf("."));
@@ -271,9 +265,7 @@ class MusicDatabaseBuilderImpl implements MusicDatabaseBuilder {
     }
 
     private void dropTables() {
-        TABLES.forEach(tableName -> {
-            jdbcTemplate.execute(String.format("TRUNCATE TABLE %s", tableName));
-        });
+        TABLES.forEach(tableName -> jdbcTemplate.execute(String.format("TRUNCATE TABLE %s", tableName)));
     }
 
     private static void addAuditableParams(MapSqlParameterSource params) {
@@ -300,8 +292,8 @@ class MusicDatabaseBuilderImpl implements MusicDatabaseBuilder {
 
     @Getter
     private static class LibraryData {
-        private Map<String, LibraryArtistItem> artists = new HashMap<>();
-        private Set<String> fileLocations = new HashSet<>();
+        private final Map<String, LibraryArtistItem> artists = new HashMap<>();
+        private final Set<String> fileLocations = new HashSet<>();
     }
 
     @Getter

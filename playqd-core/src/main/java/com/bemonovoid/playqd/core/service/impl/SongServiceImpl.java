@@ -24,12 +24,17 @@ class SongServiceImpl implements SongService {
     }
 
     @Override
+    public String getSongFileLocation(long songId) {
+        return songDao.getSongFileLocation(songId);
+    }
+
+    @Override
     public void updateFavoriteFlag(long songId, boolean isFavorite) {
         songDao.updateFavoriteFlag(songId, isFavorite);
     }
 
     @Override
-    public Optional<Song> getSong(long songId) {
+    public Song getSong(long songId) {
         return songDao.getOne(songId);
     }
 
