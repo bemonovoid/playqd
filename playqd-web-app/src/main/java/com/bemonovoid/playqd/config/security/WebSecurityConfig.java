@@ -47,6 +47,7 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
+                .csrf().disable()
                 .cors().configurationSource(request -> createCorsConfiguration())
                 .and()
                 .authorizeRequests()
@@ -57,12 +58,6 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .addFilterBefore(new JwtAuthenticationFilter(authenticationManager()), BasicAuthenticationFilter.class)
                 .addFilterBefore(new JwtEncodedAuthenticationFilter(), JwtAuthenticationFilter.class);
-
-        if (StringUtils.hasText(activeProfile) && activeProfile.equalsIgnoreCase("local")) {
-            http.csrf().disable();
-        } else {
-            http.csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
-        }
     }
 
     @Override
