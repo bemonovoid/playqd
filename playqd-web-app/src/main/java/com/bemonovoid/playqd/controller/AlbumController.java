@@ -10,7 +10,7 @@ import com.bemonovoid.playqd.core.model.UpdateOptions;
 import com.bemonovoid.playqd.core.model.pageable.FindAlbumRequest;
 import com.bemonovoid.playqd.core.model.pageable.PageableAlbumResponse;
 import com.bemonovoid.playqd.core.model.pageable.PageableResult;
-import com.bemonovoid.playqd.core.model.query.UpdateAlbum;
+import com.bemonovoid.playqd.core.model.UpdateAlbum;
 import com.bemonovoid.playqd.core.model.request.MoveAlbum;
 import com.bemonovoid.playqd.core.service.AlbumService;
 import io.swagger.v3.oas.annotations.tags.Tag;

@@ -21,6 +21,14 @@ public class AppProperties {
     @Getter
     @Setter(AccessLevel.PACKAGE)
     public static class SecurityProperties {
+        private ApplicationMainUser user;
         private String tokenSecret;
+    }
+
+    @Getter
+    @Setter(AccessLevel.PACKAGE)
+    public static class ApplicationMainUser {
+        private String login;
+        private String password;
     }
 }

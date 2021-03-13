@@ -17,6 +17,9 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
@@ -47,8 +50,6 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .cors().configurationSource(request -> createCorsConfiguration())
                 .and()
                 .authorizeRequests()
-//                .antMatchers(HttpMethod.POST, Endpoints.USER_ACCOUNT_BASE_PATH).permitAll()
-//                .antMatchers(HttpMethod.OPTIONS, Endpoints.USER_ACCOUNT_BASE_PATH).permitAll()
                 .antMatchers("/api/**").authenticated()
                 .and()
                 .formLogin().disable()
@@ -72,8 +73,19 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     @Primary
-    UserDetailsManager jdbcUserDetailsManager() {
-        return new JdbcUserDetailsManager(dataSource);
+    UserDetailsManager jdbcUserDetailsManager(PasswordEncoder passwordEncoder) {
+        AppProperties.ApplicationMainUser applicationUser = getApplicationUser();
+        JdbcUserDetailsManager userDetailsManager = new JdbcUserDetailsManager(dataSource);
+        if (!userDetailsManager.userExists(applicationUser.getLogin())) {
+            UserDetails userDetails = User.builder()
+                    .username(applicationUser.getLogin())
+                    .password(applicationUser.getPassword())
+                    .authorities(new SimpleGrantedAuthority("ADMIN"))
+                    .passwordEncoder(passwordEncoder::encode)
+                    .build();
+            userDetailsManager.createUser(userDetails);
+        }
+        return userDetailsManager;
     }
 
     @Bean
@@ -92,6 +104,22 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         corsConfiguration.addAllowedMethod("*");
         corsConfiguration.addAllowedOrigin("*");
         return corsConfiguration;
+    }
+
+    private AppProperties.ApplicationMainUser getApplicationUser() {
+        if (appProperties.getSecurity() != null) {
+            AppProperties.ApplicationMainUser user = appProperties.getSecurity().getUser();
+            if (user != null) {
+                if (!StringUtils.hasText(user.getLogin())) {
+                    throw new IllegalStateException("'playqd.security.user.login' must be set");
+                }
+                if (!StringUtils.hasText(user.getLogin())) {
+                    throw new IllegalStateException("'playqd.security.user.password' must be set");
+                }
+                return user;
+            }
+        }
+        throw new IllegalStateException("'playqd.security.user' must be set");
     }
 
 }

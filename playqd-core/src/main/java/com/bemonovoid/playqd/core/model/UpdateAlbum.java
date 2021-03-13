@@ -1,4 +1,4 @@
-package com.bemonovoid.playqd.core.model.query;
+package com.bemonovoid.playqd.core.model;
 
 import lombok.AccessLevel;
 import lombok.Getter;
