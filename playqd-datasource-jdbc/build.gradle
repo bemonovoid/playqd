@@ -4,6 +4,7 @@ jar {
 
 dependencies {
     runtime "org.hsqldb:hsqldb:${hsqldbVersion}"
+    runtime "mysql:mysql-connector-java:${mysqldbVersion}"
     implementation project (':playqd-core')
 
     compileOnly 'org.springframework.boot:spring-boot-starter-data-jpa'

@@ -67,16 +67,16 @@ public class SongEntity extends PersistentAuditableEntity<Long> {
     @Column(name = COL_FILE_NAME)
     private String fileName;
 
-    @Column(name = COL_FILE_LOCATION, length = 8000)
+    @Column(name = COL_FILE_LOCATION)
     private String fileLocation;
 
     @Column(name = COL_FILE_EXTENSION)
     private String fileExtension;
 
-    @Column(name = COL_COMMENT, length = 8000)
+    @Column(name = COL_COMMENT)
     private String comment;
 
-    @Column(name = COL_LYRICS, length = 8000)
+    @Column(name = COL_LYRICS)
     private String lyrics;
 
     @ManyToOne(fetch = FetchType.LAZY)
