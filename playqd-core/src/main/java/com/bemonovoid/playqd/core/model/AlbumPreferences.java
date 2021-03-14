@@ -7,7 +7,6 @@ import lombok.Setter;
 @Setter
 public class AlbumPreferences {
 
-    private long albumId;
     private boolean songNameAsFileName;
 
 }

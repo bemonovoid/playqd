@@ -7,7 +7,6 @@ abstract class AlbumPreferencesHelper {
 
     static AlbumPreferences fromEntity(AlbumPreferencesEntity entity) {
         AlbumPreferences preferences = new AlbumPreferences();
-        preferences.setAlbumId(entity.getAlbum().getId());
         preferences.setSongNameAsFileName(entity.isSongNameAsFileName());
         return preferences;
     }

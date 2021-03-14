@@ -8,7 +8,6 @@ import lombok.Setter;
 @Setter(AccessLevel.PACKAGE)
 public class UpdateAlbum {
 
-    private long id;
     private String name;
     private String genre;
     private String date;

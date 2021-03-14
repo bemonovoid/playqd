@@ -40,7 +40,12 @@ class ArtistController {
         return new PageableArtistsResponse(pageableResult);
     }
 
-    @GetMapping("/basic")
+    @GetMapping("/{artistId}")
+    Artist getArtist(@PathVariable long artistId) {
+        return artistService.getArtist(artistId);
+    }
+
+    @GetMapping("/view/basic")
     BasicArtists getAllArtistNames() {
         return new BasicArtists(artistService.getAllBasicArtists());
     }
@@ -53,10 +58,10 @@ class ArtistController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PutMapping
-    Artist updateArtist(@RequestBody UpdateArtist updateArtist) {
+    @PutMapping("/{artistId}")
+    Artist updateArtist(@PathVariable long artistId, @RequestBody UpdateArtist updateArtist) {
         Artist artist = Artist.builder()
-                .id(updateArtist.getId())
+                .id(artistId)
                 .name(updateArtist.getName())
                 .country(updateArtist.getCountry())
                 .build();
@@ -64,7 +69,7 @@ class ArtistController {
         return artistService.updateArtist(artist, updateOptions);
     }
 
-    @PostMapping
+    @PostMapping("/moved")
     Artist moveArtist(@RequestBody MoveArtist model) {
         UpdateOptions updateOptions = UpdateOptions.builder().updateAudioTags(model.isUpdateAudioTags()).build();
         return artistService.move(model.getArtistIdFrom(), model.getArtistIdTo(),  updateOptions);

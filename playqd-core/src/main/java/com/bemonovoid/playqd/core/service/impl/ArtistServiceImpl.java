@@ -34,6 +34,11 @@ class ArtistServiceImpl implements ArtistService {
     }
 
     @Override
+    public Artist getArtist(long artistId) {
+        return artistDao.getOne(artistId);
+    }
+
+    @Override
     public List<BasicArtist> getAllBasicArtists() {
         return artistDao.getAllBasicArtists();
     }

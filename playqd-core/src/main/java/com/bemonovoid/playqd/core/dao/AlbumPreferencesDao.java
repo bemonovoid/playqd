@@ -4,5 +4,5 @@ import com.bemonovoid.playqd.core.model.AlbumPreferences;
 
 public interface AlbumPreferencesDao {
 
-    void save(AlbumPreferences albumPreferences);
+    void save(long albumId, AlbumPreferences albumPreferences);
 }

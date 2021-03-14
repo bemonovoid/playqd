@@ -13,6 +13,8 @@ import com.bemonovoid.playqd.core.model.pageable.PageableResult;
 
 public interface ArtistService {
 
+    Artist getArtist(long artistId);
+
     List<BasicArtist> getAllBasicArtists();
 
     PageableResult<Artist> getArtists(FindArtistsRequest pageableRequest);

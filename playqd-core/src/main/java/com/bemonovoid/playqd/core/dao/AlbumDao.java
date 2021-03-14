@@ -26,7 +26,7 @@ public interface AlbumDao {
 
     void updateAlbum(Album album);
 
-    void updateAlbumPreferences(AlbumPreferences preferences);
+    void updateAlbumPreferences(long albumId, AlbumPreferences preferences);
 
     void saveAlbumImage(long albumId, byte[] binaryData);
 

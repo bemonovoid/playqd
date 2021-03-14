@@ -57,10 +57,10 @@ class AlbumController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PutMapping
-    void updateAlbum(@RequestBody UpdateAlbum model) {
+    @PutMapping("/{albumId}")
+    void updateAlbum(@PathVariable long albumId, @RequestBody UpdateAlbum model) {
         Album album = Album.builder()
-                .id(model.getId())
+                .id(albumId)
                 .name(model.getName())
                 .date(model.getDate())
                 .genre(model.getGenre())
@@ -69,12 +69,12 @@ class AlbumController {
         albumService.updateAlbum(album, options);
     }
 
-    @PutMapping("/preferences")
-    void updateAlbumPreferences(@RequestBody AlbumPreferences preferences) {
-        albumService.updateAlbumPreferences(preferences);
+    @PutMapping("/{albumId}/preferences")
+    void updateAlbumPreferences(@PathVariable long albumId, @RequestBody AlbumPreferences preferences) {
+        albumService.updateAlbumPreferences(albumId, preferences);
     }
 
-    @PostMapping("/move")
+    @PostMapping("/moved")
     void moveAlbum(@RequestBody MoveAlbum model) {
         UpdateOptions updateOptions = UpdateOptions.builder().updateAudioTags(model.isUpdateAudioTags()).build();
         albumService.moveAlbum(model.getAlbumIdFrom(), model.getAlbumIdTo(), updateOptions);

@@ -8,7 +8,6 @@ import lombok.Setter;
 @Setter(AccessLevel.PACKAGE)
 public class UpdateArtist {
 
-    private long id;
     private String name;
     private String country;
     private boolean updateAudioTags;

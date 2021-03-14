@@ -70,8 +70,8 @@ class AlbumServiceImpl implements AlbumService {
     }
 
     @Override
-    public void updateAlbumPreferences(AlbumPreferences preferences) {
-        albumDao.updateAlbumPreferences(preferences);
+    public void updateAlbumPreferences(long albumId, AlbumPreferences preferences) {
+        albumDao.updateAlbumPreferences(albumId, preferences);
     }
 
 }

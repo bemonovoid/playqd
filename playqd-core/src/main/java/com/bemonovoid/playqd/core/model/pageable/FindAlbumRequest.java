@@ -1,7 +1,10 @@
 package com.bemonovoid.playqd.core.model.pageable;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import com.bemonovoid.playqd.core.model.SortDirection;
 import lombok.Getter;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Getter
 public class FindAlbumRequest extends PageableRequest {

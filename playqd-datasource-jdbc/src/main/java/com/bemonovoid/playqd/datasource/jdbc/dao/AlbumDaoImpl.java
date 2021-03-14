@@ -79,7 +79,6 @@ class AlbumDaoImpl implements AlbumDao {
             case DATE:
                 sortFldName = AlbumEntity.FLD_DATE;
         }
-
         Sort sort = Sort.by(Sort.Direction.fromString(direction.name()), sortFldName);
         PageRequest pageRequest = PageRequest.of(request.getPage(), request.getSize(), sort);
 
@@ -144,9 +143,7 @@ class AlbumDaoImpl implements AlbumDao {
     }
 
     @Override
-    public void updateAlbumPreferences(AlbumPreferences preferences) {
-
-        long albumId = preferences.getAlbumId();
+    public void updateAlbumPreferences(long albumId, AlbumPreferences preferences) {
 
         log.info("Updating preferences for album with id='{}'.", albumId);
 

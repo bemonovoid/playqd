@@ -20,7 +20,7 @@ public interface AlbumService {
 
     void updateAlbum(Album album, UpdateOptions updateOptions);
 
-    void updateAlbumPreferences(AlbumPreferences preferences);
+    void updateAlbumPreferences(long albumId, AlbumPreferences preferences);
 
     void moveAlbum(long albumIdFrom, long albumIdTo, UpdateOptions updateOptions);
 }
