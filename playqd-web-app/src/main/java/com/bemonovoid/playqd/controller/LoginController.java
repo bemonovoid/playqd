@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "User login", description = "Return auth token")
+@Tag(name = "Security Login", description = "Logs a user in and provided api access token")
 @RestController
 @RequestMapping("/login")
 @CrossOrigin(origins = "*", allowedHeaders = "*", methods = RequestMethod.POST)

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "Songs", description = "Songs resource")
+@Tag(name = "Library Songs", description = "Songs resource")
 @RestController
 @RequestMapping(Endpoints.LIBRARY_API_BASE_PATH + "/songs")
 class SongController {

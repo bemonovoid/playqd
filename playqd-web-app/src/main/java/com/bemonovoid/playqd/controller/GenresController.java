@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "Genres", description = "Genres resource")
+@Tag(name = "Library Genres", description = "Genres resource")
 @RestController
 @RequestMapping(Endpoints.LIBRARY_API_BASE_PATH + "/genres")
 class GenresController {

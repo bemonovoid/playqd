@@ -13,6 +13,7 @@ import com.bemonovoid.playqd.core.model.ResourceTarget;
 import com.bemonovoid.playqd.core.service.AlbumService;
 import com.bemonovoid.playqd.core.service.ArtistService;
 import com.bemonovoid.playqd.core.service.SongService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
+@Tag(name = "Library Binary Resource", description = "Images and Audio files")
 @RestController
 @RequestMapping(Endpoints.LIBRARY_API_BASE_PATH + "/resource")
 class BinaryResourceController {

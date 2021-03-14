@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "Albums", description = "Albums resource")
+@Tag(name = "Library Albums", description = "Albums resource")
 @RestController
 @RequestMapping(Endpoints.LIBRARY_API_BASE_PATH + "/albums")
 class AlbumController {

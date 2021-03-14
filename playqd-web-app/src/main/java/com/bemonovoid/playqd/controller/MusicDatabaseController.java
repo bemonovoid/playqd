@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "Music Database", description = "Music Database resource")
+@Tag(name = "Library Database Manager", description = "Music Database resource")
 @RestController
 @RequestMapping(Endpoints.LIBRARY_API_BASE_PATH + "/directory")
 class MusicDatabaseController {
