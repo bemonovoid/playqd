@@ -16,18 +16,16 @@ import com.bemonovoid.playqd.remote.service.spotify.model.api.SpotifyArtistAlbum
 import com.bemonovoid.playqd.remote.service.spotify.model.api.SpotifyLibraryItem;
 import com.bemonovoid.playqd.remote.service.spotify.model.api.SpotifySearchArtistResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 
 @Slf4j
-@Component
-class SpotifyImageSearchService implements ImageSearchService {
+public class SpotifyImageSearchService implements ImageSearchService {
 
     private final ArtistDao artistDao;
     private final SpotifyApi spotifyApi;
     private final BinaryResourceReader binaryResourceReader;
 
-    SpotifyImageSearchService(ArtistDao artistDao,
-                              SpotifyApi spotifyApi,
+    public SpotifyImageSearchService(SpotifyApi spotifyApi,
+                              ArtistDao artistDao,
                               BinaryResourceReader binaryResourceReader) {
         this.artistDao = artistDao;
         this.spotifyApi = spotifyApi;

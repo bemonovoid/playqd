@@ -9,12 +9,6 @@ import com.bemonovoid.playqd.core.model.ImageSize;
 
 public interface ImageService {
 
-//    Artwork getAlbumArtworkFromLibrary(ArtworkLocalSearchQuery localQuery);
-
-//    Optional<String> getAlbumArtworkOnline(ArtworkLocalSearchQuery localQuery);
-
-//    void updateAlbumArtwork(long albumId, String resourceUrl);
-
     Optional<Image> getAlbumImage(Album album, ImageSize size, boolean findRemotely);
 
     Optional<Image> getArtistImage(Artist artist, ImageSize size, boolean findRemotely);

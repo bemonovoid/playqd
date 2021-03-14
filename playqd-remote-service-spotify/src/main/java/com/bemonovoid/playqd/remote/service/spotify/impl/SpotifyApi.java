@@ -13,21 +13,19 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
-@Component
-class SpotifyApi {
+public class SpotifyApi {
 
     private final SpotifyProperties properties;
     private LocalDateTime tokenExpirationDate;
     private char[] accessToken = new char[0];
 
-    SpotifyApi(SpotifyProperties properties) {
+    public SpotifyApi(SpotifyProperties properties) {
         this.properties = properties;
     }
 

@@ -8,6 +8,8 @@ import lombok.Setter;
 @Setter(AccessLevel.PACKAGE)
 public class SpotifyProperties {
 
+    private boolean enabled;
+
     private String apiBaseUrl = "https://api.spotify.com";
     private String accountBaseUrl = "https://accounts.spotify.com";
     private String apiVersion = "v1";

@@ -4,18 +4,28 @@ server:
     context-path: "/playqd"
 
 spring:
+  datasource:
+    driver-class-name: "org.hsqldb.jdbc.JDBCDriver"
+    url: "jdbc:hsqldb:mem:playqd_db"
+    username: playqd
+    password: playqd
   jpa:
     hibernate:
       ddl-auto: update
-    propersties:
+    properties:
       hibernate:
-        jdbc:
-          batch_size: 100
+        dialect: "org.hibernate.dialect.HSQLDialect"
+
 springdoc:
   swagger-ui:
     persistAuthorization: true
     tags-sorter: alpha
 
-logging:
-  level:
-    web: DEBUG
+playqd:
+#  library:
+#    location: "path to your music folder"
+  security:
+    user:
+      login: admin
+      password: admin
+    tokenSecret: "a19a27a5-6da3-481b-ba8d-345a6f206960" # any >= 256 bits secret

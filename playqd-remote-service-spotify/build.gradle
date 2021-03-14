@@ -7,5 +7,6 @@ dependencies {
     compileOnly 'org.springframework:spring-context'
     compileOnly 'org.springframework:spring-web'
     compileOnly 'org.springframework.boot:spring-boot'
+    compileOnly 'org.springframework.boot:spring-boot-autoconfigure'
     compileOnly project(':playqd-core')
 }
