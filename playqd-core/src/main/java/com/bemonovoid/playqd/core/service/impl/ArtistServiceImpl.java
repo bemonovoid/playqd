@@ -13,11 +13,15 @@ import com.bemonovoid.playqd.core.model.ImageSize;
 import com.bemonovoid.playqd.core.model.MoveResult;
 import com.bemonovoid.playqd.core.model.UpdateOptions;
 import com.bemonovoid.playqd.core.model.pageable.FindArtistsRequest;
+import com.bemonovoid.playqd.core.model.pageable.PageableRequest;
 import com.bemonovoid.playqd.core.model.pageable.PageableResult;
+import com.bemonovoid.playqd.core.model.pageable.SortBy;
+import com.bemonovoid.playqd.core.model.pageable.SortRequest;
 import com.bemonovoid.playqd.core.service.ArtistService;
 import com.bemonovoid.playqd.core.service.ImageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 @Slf4j
 @Component
@@ -45,7 +49,25 @@ class ArtistServiceImpl implements ArtistService {
 
     @Override
     public PageableResult<Artist> getArtists(FindArtistsRequest request) {
-        return artistDao.getAll(request);
+        SortBy sortBy = SortBy.NAME;
+        SortRequest sortRequest = SortRequest.builder().direction(request.getDirection()).build();
+        if (request.getSortBy() != null) {
+            sortBy = SortBy.valueOf(request.getSortBy().name());
+        }
+
+        PageableRequest pageableRequest = new PageableRequest(request.getPage(), request.getSize(), sortRequest);
+
+        if (StringUtils.hasText(request.getName())) {
+            return artistDao.getArtistsWithNameContaining(request.getName(), pageableRequest);
+        }
+        if (SortBy.RECENTLY_PLAYED == sortBy) {
+            return artistDao.getRecentlyPlayedArtists(pageableRequest);
+        } else if (SortBy.MOST_PLAYED == sortBy) {
+            return artistDao.getMostPlayedArtists(pageableRequest);
+        } else {
+            return artistDao.getArtists(pageableRequest);
+        }
+
     }
 
     @Override

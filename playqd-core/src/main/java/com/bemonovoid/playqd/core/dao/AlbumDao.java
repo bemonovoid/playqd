@@ -6,8 +6,8 @@ import java.util.Optional;
 import com.bemonovoid.playqd.core.model.Album;
 import com.bemonovoid.playqd.core.model.AlbumPreferences;
 import com.bemonovoid.playqd.core.model.MoveResult;
-import com.bemonovoid.playqd.core.model.pageable.FindAlbumRequest;
 import com.bemonovoid.playqd.core.model.pageable.FindGenresRequest;
+import com.bemonovoid.playqd.core.model.pageable.PageableRequest;
 import com.bemonovoid.playqd.core.model.pageable.PageableResult;
 
 public interface AlbumDao {
@@ -16,11 +16,18 @@ public interface AlbumDao {
 
     Album getOne(long id);
 
-    List<Album> getAll();
+    PageableResult<Album> getAlbums(PageableRequest pageableRequest);
 
-    PageableResult<Album> getAlbums(FindAlbumRequest request);
+    PageableResult<Album> getGenreAlbums(String genre, PageableRequest pageableRequest);
 
-    PageableResult<String> getGenres(FindGenresRequest request);
+    PageableResult<Album> getArtistAlbums(long artistId, PageableRequest pageableRequest);
+
+    PageableResult<Album> getArtistAlbumsWithNameContaining(
+            long artistId, String albumName, PageableRequest pageableRequest);
+
+    PageableResult<String> getGenres(PageableRequest pageableRequest);
+
+    PageableResult<String> getGenresWithNameContaining(String genre, PageableRequest pageableRequest);
 
     Album save(Album albumEntity);
 

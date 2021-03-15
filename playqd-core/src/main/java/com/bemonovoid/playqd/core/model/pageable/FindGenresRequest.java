@@ -1,16 +1,26 @@
 package com.bemonovoid.playqd.core.model.pageable;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
+
 import com.bemonovoid.playqd.core.model.SortDirection;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
-public class FindGenresRequest extends PageableRequest {
+@Setter
+public class FindGenresRequest {
 
-    private final String name;
+    @PositiveOrZero
+    private int page;
 
-    public FindGenresRequest(int page, int size, SortDirection direction, String name) {
-        super(page, size, direction);
-        this.name = name;
-    }
+    @Positive
+    private int size;
+
+    private String name;
+
+    @NotNull
+    private SortDirection direction = SortDirection.ASC;
 
 }

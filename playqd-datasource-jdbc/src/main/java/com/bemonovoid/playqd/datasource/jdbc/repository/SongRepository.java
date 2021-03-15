@@ -25,13 +25,13 @@ public interface SongRepository extends JpaRepository<SongEntity, Long> {
         return getAlbumSongCount().stream().collect(Collectors.toMap(CountProjection::getArtistId, p -> p));
     }
 
-    default Page<SongEntity> findByName(String name, Pageable pageable) {
+    default Page<SongEntity> findWithNameContaining(String name, Pageable pageable) {
         return findByNameIgnoreCaseOrFileNameIgnoreCaseContaining(name, name, pageable);
     }
 
     Optional<FileLocationProjection> findFirstByAlbumId(long albumId);
 
-    List<SongEntity> findAllByAlbumId(long albumId, Pageable pageable);
+    List<SongEntity> findByAlbumId(long albumId);
 
     Page<SongEntity> findByNameIgnoreCaseOrFileNameIgnoreCaseContaining(String name, String fileName, Pageable pageable);
 

@@ -1,5 +1,7 @@
 package com.bemonovoid.playqd.controller;
 
+import java.util.List;
+
 import com.bemonovoid.playqd.core.model.Song;
 import com.bemonovoid.playqd.core.model.pageable.FindSongsRequest;
 import com.bemonovoid.playqd.core.model.pageable.PageableSongsResponse;
@@ -27,6 +29,11 @@ class SongController {
     @GetMapping
     PageableSongsResponse getSongs(FindSongsRequest request) {
         return new PageableSongsResponse(songService.getSongs(request));
+    }
+
+    @GetMapping("/album/{albumId}")
+    List<Song> getAlbumSongs(@PathVariable long albumId) {
+        return songService.getAlbumSongs(albumId);
     }
 
     @GetMapping("/{songId}")

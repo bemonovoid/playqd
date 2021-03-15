@@ -5,6 +5,7 @@ buildscript {
         springDependencyVersion = '1.0.10.RELEASE'
         springBootVersion = '2.4.1'
         springDocVersion = '1.5.5'
+        swaggerVersion = '2.1.6'
         hsqldbVersion = '2.5.1'
         mysqldbVersion = '8.0.23'
         jibPluginVersion = '2.8.0'

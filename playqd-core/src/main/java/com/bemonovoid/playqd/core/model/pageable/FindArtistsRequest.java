@@ -1,19 +1,26 @@
 package com.bemonovoid.playqd.core.model.pageable;
 
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
+
 import com.bemonovoid.playqd.core.model.SortDirection;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
-public class FindArtistsRequest extends PageableRequest {
+@Setter
+public class FindArtistsRequest {
 
-    private final ArtistSortBy sortBy;
-    private final String name;
+    @PositiveOrZero
+    private int page;
 
-    public FindArtistsRequest(int page, int size, SortDirection direction, ArtistSortBy sortBy, String name) {
-        super(page, size, direction);
-        this.name = name;
-        this.sortBy = sortBy;
-    }
+    @Positive
+    private int size;
+
+    private SortDirection direction = SortDirection.ASC;
+    private FindArtistsRequest.ArtistSortBy sortBy = FindArtistsRequest.ArtistSortBy.NAME;
+
+    private String name;
 
     public enum ArtistSortBy {
 

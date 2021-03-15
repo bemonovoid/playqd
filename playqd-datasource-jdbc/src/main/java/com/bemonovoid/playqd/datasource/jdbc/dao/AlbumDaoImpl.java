@@ -9,9 +9,11 @@ import com.bemonovoid.playqd.core.model.Album;
 import com.bemonovoid.playqd.core.model.AlbumPreferences;
 import com.bemonovoid.playqd.core.model.MoveResult;
 import com.bemonovoid.playqd.core.model.SortDirection;
-import com.bemonovoid.playqd.core.model.pageable.FindAlbumRequest;
 import com.bemonovoid.playqd.core.model.pageable.FindGenresRequest;
+import com.bemonovoid.playqd.core.model.pageable.PageableRequest;
 import com.bemonovoid.playqd.core.model.pageable.PageableResult;
+import com.bemonovoid.playqd.core.model.pageable.SortBy;
+import com.bemonovoid.playqd.core.model.pageable.SortRequest;
 import com.bemonovoid.playqd.datasource.jdbc.entity.AlbumEntity;
 import com.bemonovoid.playqd.datasource.jdbc.entity.AlbumPreferencesEntity;
 import com.bemonovoid.playqd.datasource.jdbc.entity.SongEntity;
@@ -57,61 +59,64 @@ class AlbumDaoImpl implements AlbumDao {
     }
 
     @Override
-    public List<Album> getAll() {
-        return albumRepository.findAll().stream().map(AlbumHelper::fromEntity).collect(Collectors.toList());
+    public PageableResult<Album> getAlbums(PageableRequest pageableRequest) {
+        Sort sort = getAlbumSort(pageableRequest.getSort());
+        PageRequest pageRequest = PageRequest.of(pageableRequest.getPage(), pageableRequest.getSize(), sort);
+        return new PageableResultWrapper<>(albumRepository.findAll(pageRequest).map(AlbumHelper::fromEntity));
     }
 
     @Override
-    public PageableResult<Album> getAlbums(FindAlbumRequest request) {
-        FindAlbumRequest.AlbumsSortBy sortBy = request.getSortBy();
-        SortDirection direction = request.getDirection();
-        if (sortBy == null) {
-            sortBy = FindAlbumRequest.AlbumsSortBy.NAME;
-        }
-        if (direction == null) {
-            direction = SortDirection.ASC;
-        }
-        String sortFldName = "";
-        switch (sortBy) {
-            case NAME:
-                sortFldName = AlbumEntity.FLD_NAME;
-                break;
-            case DATE:
-                sortFldName = AlbumEntity.FLD_DATE;
-        }
-        Sort sort = Sort.by(Sort.Direction.fromString(direction.name()), sortFldName);
-        PageRequest pageRequest = PageRequest.of(request.getPage(), request.getSize(), sort);
-
-        Page<Album> albumPage;
-
-        if (request.getArtistId() != null) {
-            if (StringUtils.hasText(request.getName())) {
-                albumPage = albumRepository.findByArtistIdAndNameContaining(
-                        request.getArtistId(), request.getName(), pageRequest).map(AlbumHelper::fromEntity);
-            } else {
-                albumPage = albumRepository.findByArtistId(
-                        request.getArtistId(), pageRequest).map(AlbumHelper::fromEntity);
-            }
-        } else if (StringUtils.hasText(request.getGenre())) {
-            albumPage = albumRepository.findByGenreEquals(request.getGenre(), pageRequest).map(AlbumHelper::fromEntity);
-        } else {
-            albumPage = Page.empty(pageRequest);
-        }
-        return new PageableResultWrapper<>(albumPage);
+    public PageableResult<Album> getGenreAlbums(String genre, PageableRequest pageableRequest) {
+        Sort sort = getAlbumSort(pageableRequest.getSort());
+        PageRequest pageRequest = PageRequest.of(pageableRequest.getPage(), pageableRequest.getSize(), sort);
+        return new PageableResultWrapper<>(albumRepository.findByGenreEquals(genre, pageRequest)
+                .map(AlbumHelper::fromEntity));
     }
 
     @Override
-    public PageableResult<String> getGenres(FindGenresRequest request) {
-        if (StringUtils.hasText(request.getName())) {
-            PageRequest pageRequest = PageRequest.of(request.getPage(), request.getSize());
-
-            Page<String> genrePage = albumRepository.findDistinctByGenreIgnoreCaseContaining(
-                    request.getName().toUpperCase(), pageRequest).map(GenreProjection::getGenre);
-
-            return new PageableResultWrapper<>(genrePage);
-        }
+    public PageableResult<Album> getArtistAlbums(long artistId, PageableRequest pageableRequest) {
+        Sort sort = getAlbumSort(pageableRequest.getSort());
+        PageRequest pageRequest = PageRequest.of(pageableRequest.getPage(), pageableRequest.getSize(), sort);
         return new PageableResultWrapper<>(
-                albumRepository.findDistinctGenre(PageRequest.of(request.getPage(), request.getSize())));
+                albumRepository.findByArtistId(artistId, pageRequest).map(AlbumHelper::fromEntity));
+    }
+
+    @Override
+    public PageableResult<Album> getArtistAlbumsWithNameContaining(long artistId,
+                                                                   String albumName,
+                                                                   PageableRequest pageableRequest) {
+        Sort sort = Sort.unsorted();
+        if (pageableRequest.getSort() != null) {
+            sort = Sort.sort(AlbumEntity.class).by(AlbumEntity::getName).ascending();
+            if (SortDirection.DESC == pageableRequest.getSort().getDirection()) {
+                sort = sort.descending();
+            }
+        }
+        PageRequest pageRequest = PageRequest.of(pageableRequest.getPage(), pageableRequest.getSize(), sort);
+        return new PageableResultWrapper<>(albumRepository.findByArtistIdAndNameContaining(
+                artistId, albumName, pageRequest).map(AlbumHelper::fromEntity));
+    }
+
+    @Override
+    public PageableResult<String> getGenres(PageableRequest pageableRequest) {
+        Sort sort = Sort.sort(AlbumEntity.class).by(AlbumEntity::getGenre).ascending();
+        if (pageableRequest.getSort() != null && SortDirection.DESC == pageableRequest.getSort().getDirection()) {
+            sort = sort.descending();
+        }
+        PageRequest pageRequest = PageRequest.of(pageableRequest.getPage(), pageableRequest.getSize(), sort);
+        return new PageableResultWrapper<>(albumRepository.findDistinctGenre(pageRequest));
+    }
+
+    @Override
+    public PageableResult<String> getGenresWithNameContaining(String genre, PageableRequest pageableRequest) {
+        Sort sort = Sort.sort(AlbumEntity.class).by(AlbumEntity::getGenre).ascending();
+        if (pageableRequest.getSort() != null && SortDirection.DESC == pageableRequest.getSort().getDirection()) {
+            sort = sort.descending();
+        }
+        PageRequest pageRequest = PageRequest.of(pageableRequest.getPage(), pageableRequest.getSize(), sort);
+        Page<String> genrePage = albumRepository.findDistinctByGenreIgnoreCaseContaining(
+                genre.toUpperCase(), pageRequest).map(GenreProjection::getGenre);
+        return new PageableResultWrapper<>(genrePage);
     }
 
     @Override
@@ -191,5 +196,19 @@ class AlbumDaoImpl implements AlbumDao {
 
     private boolean shouldUpdate(String oldVal, String newVal) {
         return newVal != null && !newVal.isBlank() && !newVal.equalsIgnoreCase(oldVal);
+    }
+
+    private Sort getAlbumSort(SortRequest sortRequest) {
+        Sort sort = Sort.unsorted();
+        if (sortRequest != null) {
+            sort = Sort.sort(AlbumEntity.class).by(AlbumEntity::getName).ascending();
+            if (SortBy.DATE == sortRequest.getSortBy()) {
+                sort = Sort.sort(AlbumEntity.class).by(AlbumEntity::getDate);
+            }
+            if (SortDirection.DESC == sortRequest.getDirection()) {
+                sort = sort.descending();
+            }
+        }
+        return sort;
     }
 }

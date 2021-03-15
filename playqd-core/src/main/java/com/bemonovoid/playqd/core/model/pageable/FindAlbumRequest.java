@@ -1,32 +1,29 @@
 package com.bemonovoid.playqd.core.model.pageable;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 
 import com.bemonovoid.playqd.core.model.SortDirection;
 import lombok.Getter;
-import org.springframework.web.bind.annotation.RequestParam;
+import lombok.Setter;
 
 @Getter
-public class FindAlbumRequest extends PageableRequest {
+@Setter
+public class FindAlbumRequest {
 
-    private final AlbumsSortBy sortBy;
-    private final Long artistId;
-    private final String name;
-    private final String genre;
+    @PositiveOrZero
+    private int page;
 
-    public FindAlbumRequest(int page,
-                            int size,
-                            SortDirection direction,
-                            AlbumsSortBy sortBy,
-                            Long artistId,
-                            String name,
-                            String genre) {
-        super(page, size, direction);
-        this.sortBy = sortBy;
-        this.artistId = artistId;
-        this.name = name;
-        this.genre = genre;
-    }
+    @Positive
+    private int size;
+
+    private AlbumsSortBy sortBy = AlbumsSortBy.NAME;
+
+    private SortDirection direction = SortDirection.ASC;
+
+    private Long artistId;
+    private String name;
+    private String genre;
 
     public enum AlbumsSortBy {
 

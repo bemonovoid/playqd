@@ -10,13 +10,18 @@ import com.bemonovoid.playqd.core.model.AlbumPreferences;
 import com.bemonovoid.playqd.core.model.Image;
 import com.bemonovoid.playqd.core.model.ImageSize;
 import com.bemonovoid.playqd.core.model.MoveResult;
+import com.bemonovoid.playqd.core.model.SortDirection;
 import com.bemonovoid.playqd.core.model.UpdateOptions;
 import com.bemonovoid.playqd.core.model.pageable.FindAlbumRequest;
+import com.bemonovoid.playqd.core.model.pageable.PageableRequest;
 import com.bemonovoid.playqd.core.model.pageable.PageableResult;
+import com.bemonovoid.playqd.core.model.pageable.SortBy;
+import com.bemonovoid.playqd.core.model.pageable.SortRequest;
 import com.bemonovoid.playqd.core.service.AlbumService;
 import com.bemonovoid.playqd.core.service.ImageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 @Slf4j
 @Component
@@ -41,7 +46,23 @@ class AlbumServiceImpl implements AlbumService {
 
     @Override
     public PageableResult<Album> getAlbums(FindAlbumRequest request) {
-       return albumDao.getAlbums(request);
+
+        SortRequest sort = SortRequest.builder()
+                .sortBy(SortBy.valueOf(request.getSortBy().name())).direction(request.getDirection()).build();
+
+        PageableRequest pageable = new PageableRequest(request.getPage(), request.getSize(), sort);
+
+        if (request.getArtistId() != null) {
+            if (StringUtils.hasText(request.getName())) {
+                return albumDao.getArtistAlbumsWithNameContaining(request.getArtistId(), request.getName(), pageable);
+            } else {
+                return albumDao.getArtistAlbums(request.getArtistId(), pageable);
+            }
+        } else if (StringUtils.hasText(request.getGenre())) {
+            return albumDao.getGenreAlbums(request.getGenre(), pageable);
+        } else {
+            return albumDao.getAlbums(pageable);
+        }
     }
 
     @Override

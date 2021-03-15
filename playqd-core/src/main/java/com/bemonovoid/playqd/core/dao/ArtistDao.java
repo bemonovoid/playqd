@@ -5,7 +5,7 @@ import java.util.List;
 import com.bemonovoid.playqd.core.model.Artist;
 import com.bemonovoid.playqd.core.model.BasicArtist;
 import com.bemonovoid.playqd.core.model.MoveResult;
-import com.bemonovoid.playqd.core.model.pageable.FindArtistsRequest;
+import com.bemonovoid.playqd.core.model.pageable.PageableRequest;
 import com.bemonovoid.playqd.core.model.pageable.PageableResult;
 
 public interface ArtistDao {
@@ -14,7 +14,13 @@ public interface ArtistDao {
 
     List<BasicArtist> getAllBasicArtists();
 
-    PageableResult<Artist> getAll(FindArtistsRequest request);
+    PageableResult<Artist> getArtists(PageableRequest pageableRequest);
+
+    PageableResult<Artist> getRecentlyPlayedArtists(PageableRequest pageableRequest);
+
+    PageableResult<Artist> getMostPlayedArtists(PageableRequest pageableRequest);
+
+    PageableResult<Artist> getArtistsWithNameContaining(String name, PageableRequest pageableRequest);
 
     void setSpotifyArtistId(long artistId, String spotifyId);
 

@@ -6,7 +6,7 @@ import java.util.Optional;
 import com.bemonovoid.playqd.core.dao.SongDao;
 import com.bemonovoid.playqd.core.exception.PlayqdEntityNotFoundException;
 import com.bemonovoid.playqd.core.model.Song;
-import com.bemonovoid.playqd.core.model.pageable.FindSongsRequest;
+import com.bemonovoid.playqd.core.model.pageable.PageableRequest;
 import com.bemonovoid.playqd.core.model.pageable.PageableResult;
 import com.bemonovoid.playqd.core.service.SecurityService;
 import com.bemonovoid.playqd.datasource.jdbc.entity.PlaybackInfoEntity;
@@ -14,13 +14,10 @@ import com.bemonovoid.playqd.datasource.jdbc.entity.SongEntity;
 import com.bemonovoid.playqd.datasource.jdbc.projection.FileLocationProjection;
 import com.bemonovoid.playqd.datasource.jdbc.repository.PlaybackInfoRepository;
 import com.bemonovoid.playqd.datasource.jdbc.repository.SongRepository;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 @Component
 class SongDaoImpl implements SongDao {
@@ -47,54 +44,54 @@ class SongDaoImpl implements SongDao {
     }
 
     @Override
-    public PageableResult<Song> getSongs(FindSongsRequest request) {
+    public PageableResult<Song> getSongs(PageableRequest pageableRequest) {
+        Sort sort = Sort.sort(SongEntity.class).by(SongEntity::getName).ascending();
+        PageRequest pageRequest = PageRequest.of(pageableRequest.getPage(), pageableRequest.getSize(), sort);
+        return new PageableResultWrapper<>(songRepository.findAll(pageRequest).map(SongHelper::fromEntity));
+    }
 
-        if (request.getAlbumId() != null) {
-            Sort trackIdSort = Sort.sort(SongEntity.class).by(SongEntity::getTrackId).ascending();
-            List<Song> songs = SongHelper.fromAlbumSongEntities(
-                    songRepository.findAllByAlbumId(request.getAlbumId(), PageRequest.of(0, 1000, trackIdSort)));
-            return new PageableResultWrapper<>(new PageImpl<>(songs));
-        }
-
-        if (StringUtils.hasText(request.getName())) {
-            Sort sort = Sort.sort(SongEntity.class).by(SongEntity::getName).ascending();
-            PageRequest pageRequest = PageRequest.of(request.getPage(), request.getSize(), sort);
-            Page<Song> songPage = songRepository.findByName(request.getName(), pageRequest).map(SongHelper::fromEntity);
-            return new PageableResultWrapper<>(songPage);
-        }
-
+    @Override
+    public PageableResult<Song> getFavoriteSongs(PageableRequest pageableRequest) {
         String username = SecurityService.getCurrentUserName();
+        PageRequest pageRequest = PageRequest.of(pageableRequest.getPage(), pageableRequest.getSize());
+        return new PageableResultWrapper<>(
+                songRepository.findFavoriteSongs(username, pageRequest).map(SongHelper::fromEntity));
+    }
 
-        FindSongsRequest.SongSortBy sortBy =
-                request.getSortBy() != null ? request.getSortBy() :FindSongsRequest.SongSortBy.NAME;
+    @Override
+    public PageableResult<Song> getMostPlayedSongs(PageableRequest pageableRequest) {
+        String username = SecurityService.getCurrentUserName();
+        PageRequest pageRequest = PageRequest.of(pageableRequest.getPage(), pageableRequest.getSize());
+        return new PageableResultWrapper<>(
+                songRepository.findMostPlayedSongs(username, pageRequest).map(SongHelper::fromEntity));
+    }
 
-        Page<Song> songPage = null;
+    @Override
+    public PageableResult<Song> getRecentlyPlayedSongs(PageableRequest pageableRequest) {
+        String username = SecurityService.getCurrentUserName();
+        PageRequest pageRequest = PageRequest.of(pageableRequest.getPage(), pageableRequest.getSize());
+        return new PageableResultWrapper<>(
+                songRepository.findRecentlyPlayedSongs(username, pageRequest).map(SongHelper::fromEntity));
+    }
 
-        switch (sortBy) {
-            case NAME:
-                Sort sort = Sort.sort(SongEntity.class).by(SongEntity::getName).ascending();
-                PageRequest namePageRequest = PageRequest.of(request.getPage(), request.getSize(), sort);
-                songPage = songRepository.findAll(namePageRequest).map(SongHelper::fromEntity);
-                break;
-            case FAVORITES:
-                songPage = songRepository.findFavoriteSongs(
-                        username, PageRequest.of(request.getPage(), request.getSize())).map(SongHelper::fromEntity);
-                break;
-            case MOST_PLAYED:
-                songPage = songRepository.findMostPlayedSongs(
-                        username, PageRequest.of(request.getPage(), request.getSize())).map(SongHelper::fromEntity);
-                break;
-            case RECENTLY_PLAYED:
-                songPage = songRepository.findRecentlyPlayedSongs(
-                        username, PageRequest.of(request.getPage(), request.getSize())).map(SongHelper::fromEntity);
-                break;
-            case RECENTLY_ADDED:
-                Sort recentlyAddedSort = Sort.sort(SongEntity.class).by(SongEntity::getCreatedDate).descending();
-                PageRequest recentlyAddedPageRequest =
-                        PageRequest.of(request.getPage(), request.getSize(), recentlyAddedSort);
-                songPage = songRepository.findAll(recentlyAddedPageRequest).map(SongHelper::fromEntity);
-        }
-        return new PageableResultWrapper<>(songPage);
+    @Override
+    public PageableResult<Song> getRecentlyAddedSongs(PageableRequest pageableRequest) {
+        Sort sort = Sort.sort(SongEntity.class).by(SongEntity::getCreatedDate).descending();
+        PageRequest pageRequest = PageRequest.of(pageableRequest.getPage(), pageableRequest.getSize(), sort);
+        return new PageableResultWrapper<>(songRepository.findAll(pageRequest).map(SongHelper::fromEntity));
+    }
+
+    @Override
+    public PageableResult<Song> getSongsWithNameContaining(String name, PageableRequest pageableRequest) {
+        Sort sort = Sort.sort(SongEntity.class).by(SongEntity::getName).ascending();
+        PageRequest pageRequest = PageRequest.of(pageableRequest.getPage(), pageableRequest.getSize(), sort);
+        return new PageableResultWrapper<>(
+                songRepository.findWithNameContaining(name, pageRequest).map(SongHelper::fromEntity));
+    }
+
+    @Override
+    public List<Song> getAlbumSongs(long albumId) {
+        return SongHelper.fromAlbumSongEntities(songRepository.findByAlbumId(albumId));
     }
 
     @Override

@@ -1,21 +1,26 @@
 package com.bemonovoid.playqd.core.model.pageable;
 
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
+
 import com.bemonovoid.playqd.core.model.SortDirection;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
-public class FindSongsRequest extends PageableRequest {
+@Setter
+public class FindSongsRequest {
 
-    private final Long albumId;
-    private final String name;
-    private final SongSortBy sortBy;
+    @PositiveOrZero
+    private int page;
 
-    public FindSongsRequest(int page, int size, SortDirection direction, Long albumId, String name, SongSortBy sortBy) {
-        super(page, size, direction);
-        this.albumId = albumId;
-        this.name = name;
-        this.sortBy = sortBy;
-    }
+    @Positive
+    private int size;
+
+    private SortDirection direction = SortDirection.ASC;
+    private SongSortBy sortBy = SongSortBy.NAME;
+
+    private String name;
 
     public enum SongSortBy {
 
