@@ -14,6 +14,7 @@ import com.bemonovoid.playqd.core.model.UpdateAlbum;
 import com.bemonovoid.playqd.core.model.request.MoveAlbum;
 import com.bemonovoid.playqd.core.service.AlbumService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,13 +35,13 @@ class AlbumController {
         this.albumService = albumService;
     }
 
-    @GetMapping
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     PageableAlbumResponse getAlbums(FindAlbumRequest request) {
         PageableResult<Album> albums = albumService.getAlbums(request);
         return new PageableAlbumResponse(albums);
     }
 
-    @GetMapping("/{albumId}")
+    @GetMapping(path = "/{albumId}", produces = MediaType.APPLICATION_JSON_VALUE)
     ResponseEntity<Album> getAlbum(@PathVariable long albumId) {
         Optional<Album> albumOpt = albumService.getAlbum(albumId);
         if (albumOpt.isEmpty()) {
@@ -57,7 +58,7 @@ class AlbumController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PutMapping("/{albumId}")
+    @PutMapping(path = "/{albumId}", consumes =  MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     void updateAlbum(@PathVariable long albumId, @RequestBody UpdateAlbum model) {
         Album album = Album.builder()
                 .id(albumId)
@@ -69,12 +70,12 @@ class AlbumController {
         albumService.updateAlbum(album, options);
     }
 
-    @PutMapping("/{albumId}/preferences")
+    @PutMapping(path = "/{albumId}/preferences", consumes =  MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     void updateAlbumPreferences(@PathVariable long albumId, @RequestBody AlbumPreferences preferences) {
         albumService.updateAlbumPreferences(albumId, preferences);
     }
 
-    @PostMapping("/moved")
+    @PostMapping(path = "/moved", consumes =  MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     void moveAlbum(@RequestBody MoveAlbum model) {
         UpdateOptions updateOptions = UpdateOptions.builder().updateAudioTags(model.isUpdateAudioTags()).build();
         albumService.moveAlbum(model.getAlbumIdFrom(), model.getAlbumIdTo(), updateOptions);
