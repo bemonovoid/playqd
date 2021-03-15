@@ -14,6 +14,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
+import org.hibernate.annotations.Type;
 
 @Table(name = SongEntity.TABLE_NAME)
 @Entity
@@ -73,10 +74,11 @@ public class SongEntity extends PersistentAuditableEntity<Long> {
     @Column(name = COL_FILE_EXTENSION)
     private String fileExtension;
 
-    @Column(name = COL_COMMENT)
+    @Column(name = COL_COMMENT, length = 3000)
     private String comment;
 
     @Column(name = COL_LYRICS)
+    @Type(type="org.hibernate.type.TextType")
     private String lyrics;
 
     @ManyToOne(fetch = FetchType.LAZY)
