@@ -10,5 +10,5 @@ public class MoveArtist {
 
     private long artistIdFrom;
     private long artistIdTo;
-    private boolean updateAudioTags = true;
+    private boolean updateAudioTags;
 }

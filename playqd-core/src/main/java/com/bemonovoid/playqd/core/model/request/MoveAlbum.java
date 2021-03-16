@@ -10,5 +10,5 @@ public class MoveAlbum {
 
     private long albumIdFrom;
     private long albumIdTo;
-    private boolean updateAudioTags = true;
+    private boolean updateAudioTags;
 }

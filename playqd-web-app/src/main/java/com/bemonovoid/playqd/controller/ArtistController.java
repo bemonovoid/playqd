@@ -69,9 +69,9 @@ class ArtistController {
         return artistService.updateArtist(artist, updateOptions);
     }
 
-    @PostMapping("/moved")
+    @PutMapping("/moved")
     Artist moveArtist(@RequestBody MoveArtist model) {
         UpdateOptions updateOptions = UpdateOptions.builder().updateAudioTags(model.isUpdateAudioTags()).build();
-        return artistService.move(model.getArtistIdFrom(), model.getArtistIdTo(),  updateOptions);
+        return artistService.move(model.getArtistIdFrom(), model.getArtistIdTo(), updateOptions);
     }
 }

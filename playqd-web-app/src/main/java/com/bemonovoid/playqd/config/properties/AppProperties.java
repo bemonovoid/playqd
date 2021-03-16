@@ -23,7 +23,6 @@ public class AppProperties {
     private SecurityProperties security;
 
     @Valid
-    @NotNull
     private MusicDirectoryProperties library;
 
     @Getter
