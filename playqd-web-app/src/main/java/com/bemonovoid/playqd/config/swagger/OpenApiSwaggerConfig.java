@@ -10,11 +10,16 @@ import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.models.servers.Server;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 class OpenApiSwaggerConfig {
+
+    @Value("${server.servlet.context-path}")
+    private String contextPath;
 
     @Bean
     OpenAPI openAPI() {
@@ -40,11 +45,14 @@ class OpenApiSwaggerConfig {
                 new SecurityRequirement().addList("basicScheme"),
                 new SecurityRequirement().addList("jwtScheme"));
 
+        Server server = new Server().url(contextPath);
+
         return new OpenAPI()
                 .components(new Components().securitySchemes(securitySchemas))
                 .security(securityRequirements)
                 .info(new Info().title("Playqd API").version("1.0.0")
-                .license(new License().url("http://playqd.org")));
+                .license(new License().url("http://playqd.org")))
+                .addServersItem(server);
     }
 
 }

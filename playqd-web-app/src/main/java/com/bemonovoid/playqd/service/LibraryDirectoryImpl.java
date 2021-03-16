@@ -13,7 +13,7 @@ class LibraryDirectoryImpl implements LibraryDirectory {
     private final String baseLocation;
 
     LibraryDirectoryImpl(AppProperties appProperties) {
-        this.baseLocation = appProperties.getLibrary().getLocation();
+        this.baseLocation = appProperties.getLibrary().getMusicDir();
     }
 
     @Override

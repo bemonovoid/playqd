@@ -22,7 +22,9 @@ springdoc:
 
 playqd:
 #  library:
-#    location: "path to your music folder"
+#    musicDir: "path to your music folder"
+#    scanOnStartup: true
+
   security:
     user:
       login: admin

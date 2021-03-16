@@ -31,7 +31,8 @@ public class AppProperties {
     public static class MusicDirectoryProperties {
 
         @NotEmpty
-        private String location;
+        private String musicDir;
+        private boolean scanOnStartup;
     }
 
     @Getter
