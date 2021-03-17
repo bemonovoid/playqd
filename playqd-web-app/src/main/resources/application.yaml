@@ -26,6 +26,7 @@ playqd:
 #    scanOnStartup: true
 
   security:
+    enabled: true
     user:
       login: admin
       password: admin

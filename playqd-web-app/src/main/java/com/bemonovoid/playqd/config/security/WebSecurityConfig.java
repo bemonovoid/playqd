@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -25,7 +26,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.util.StringUtils;
 import org.springframework.web.cors.CorsConfiguration;
 
@@ -43,21 +43,32 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private AppProperties appProperties;
 
     @Override
+    public void configure(WebSecurity web) throws Exception {
+        if (appProperties.getSecurity().isEnabled()) {
+            super.configure(web);
+        } else {
+            web.ignoring().antMatchers("/**");
+        }
+    }
+
+    @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                .csrf().disable()
-                .cors().configurationSource(request -> createCorsConfiguration())
-                .and()
-                .authorizeRequests()
-                .antMatchers("/api/**").authenticated()
-                .and()
-                .formLogin().disable()
-                .httpBasic().authenticationEntryPoint(new UnauthorizedBasicAuthEntryPoint())
-                .and()
-                .addFilterBefore(new JwtAuthenticationFilter(authenticationManager()), BasicAuthenticationFilter.class)
-                .addFilterBefore(new JwtEncodedAuthenticationFilter(), JwtAuthenticationFilter.class);
+        if (appProperties.getSecurity().isEnabled()) {
+            http
+                    .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                    .and()
+                    .csrf().disable()
+                    .cors().configurationSource(request -> createCorsConfiguration())
+                    .and()
+                    .authorizeRequests()
+                    .antMatchers("/api/**").authenticated()
+                    .and()
+                    .formLogin().disable()
+                    .httpBasic().authenticationEntryPoint(new UnauthorizedBasicAuthEntryPoint())
+                    .and()
+                    .addFilterBefore(new JwtAuthenticationFilter(authenticationManager()), BasicAuthenticationFilter.class)
+                    .addFilterBefore(new JwtEncodedAuthenticationFilter(), JwtAuthenticationFilter.class);
+        }
     }
 
     @Override

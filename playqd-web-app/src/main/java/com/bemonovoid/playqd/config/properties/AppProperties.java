@@ -38,6 +38,8 @@ public class AppProperties {
     @Setter(AccessLevel.PACKAGE)
     public static class SecurityProperties {
 
+        private boolean enabled;
+
         @Valid
         @NotNull
         private ApplicationMainUser user;
