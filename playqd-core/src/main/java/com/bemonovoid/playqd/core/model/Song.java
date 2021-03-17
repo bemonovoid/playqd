@@ -14,7 +14,7 @@ public class Song {
     private String originalName;
     private int duration;
     private String comment;
-    private int trackId;
+    private String trackId;
     private String originalTrackId;
     private String lyrics;
 

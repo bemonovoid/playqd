@@ -5,6 +5,7 @@ import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.Index;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -16,7 +17,9 @@ import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.annotations.Type;
 
-@Table(name = SongEntity.TABLE_NAME)
+@Table(name = SongEntity.TABLE_NAME, indexes = {
+        @Index(name = "SONG_IDX", columnList = SongEntity.COL_NAME + "," + SongEntity.COL_FILE_NAME)
+})
 @Entity
 @Getter
 @Setter

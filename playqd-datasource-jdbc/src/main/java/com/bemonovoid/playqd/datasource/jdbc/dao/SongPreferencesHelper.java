@@ -10,6 +10,5 @@ abstract class SongPreferencesHelper {
                 .songId(entity.getSong().getId())
                 .songNameAsFileName(entity.isSongNameAsFileName())
                 .build();
-
     }
 }

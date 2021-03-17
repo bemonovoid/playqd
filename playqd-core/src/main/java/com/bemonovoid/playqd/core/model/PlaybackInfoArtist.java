@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class PlaybackHistoryArtist {
+public class PlaybackInfoArtist {
 
     private final Long artistId;
     private final int playCount;

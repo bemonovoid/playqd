@@ -2,6 +2,7 @@ package com.bemonovoid.playqd.datasource.jdbc.dao;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.bemonovoid.playqd.core.helpers.ResourceIdHelper;
@@ -12,22 +13,32 @@ import com.bemonovoid.playqd.core.model.ResourceTarget;
 import com.bemonovoid.playqd.core.model.Song;
 import com.bemonovoid.playqd.core.service.SecurityService;
 import com.bemonovoid.playqd.datasource.jdbc.entity.SongEntity;
+import com.bemonovoid.playqd.datasource.jdbc.entity.SongPreferencesEntity;
 
 abstract class SongHelper {
 
-    static List<Song> fromAlbumSongEntities(List<SongEntity> entities) {
+    static List<Song> fromAlbumSongEntities(List<SongEntity> entities,
+                                            Map<Long, SongPreferencesEntity> songPreferences) {
         if (entities.isEmpty()) {
             return Collections.emptyList();
         }
         Album songAlbum = AlbumHelper.fromEntity(entities.get(0).getAlbum());
-        return entities.stream().map(songEntity -> fromEntity(songEntity, songAlbum)).collect(Collectors.toList());
+        return entities.stream().map(songEntity -> {
+            Song song = fromEntity(songEntity, false);
+            song.setAlbum(songAlbum);
+            song.setArtist(songAlbum.getArtist());
+            if (songPreferences.containsKey(song.getId())) {
+                song.setPreferences(SongPreferencesHelper.fromEntity(songPreferences.get(song.getId())));
+            }
+            return song;
+        }).collect(Collectors.toList());
     }
 
     static Song fromEntity(SongEntity songEntity) {
-        return fromEntity(songEntity, null);
+        return fromEntity(songEntity, true);
     }
 
-    private static Song fromEntity(SongEntity songEntity, Album album) {
+    private static Song fromEntity(SongEntity songEntity, boolean deepCopy) {
         Song song = new Song();
 
         song.setId(songEntity.getId());
@@ -37,7 +48,7 @@ abstract class SongHelper {
         song.setDuration(songEntity.getDuration());
         song.setOriginalTrackId(songEntity.getTrackId());
         song.setLyrics(songEntity.getLyrics());
-        song.setTrackId(resolveTrackId(songEntity.getTrackId()));
+        song.setTrackId(songEntity.getTrackId());
 
         song.setAudioBitRate(songEntity.getAudioBitRate());
         song.setAudioChannelType(songEntity.getAudioChannelType());
@@ -50,46 +61,33 @@ abstract class SongHelper {
 
         song.setPlaybackInfo(PlaybackInfo.builder().build());
 
-        Album songAlbum = album;
-        if (songAlbum == null) {
-            songAlbum = AlbumHelper.fromEntity(songEntity.getAlbum());
-        }
-
-        song.setArtist(songAlbum.getArtist());
-        song.setAlbum(songAlbum);
-
         String username = SecurityService.getCurrentUserName();
 
-        if (songEntity.getPlaybackInfo() != null && songEntity.getPlaybackInfo().size() > 0) {
-            songEntity.getPlaybackInfo().stream()
-                    .filter(playback -> playback.getCreatedBy().equals(username))
-                    .findFirst()
-                    .map(PlaybackInfoHelper::fromEntity)
-                    .ifPresent(song::setPlaybackInfo);
-        }
+        if (deepCopy) {
+            Album songAlbum = AlbumHelper.fromEntity(songEntity.getAlbum());
+            song.setArtist(songAlbum.getArtist());
+            song.setAlbum(songAlbum);
 
-        if (songEntity.getPreferences() != null && songEntity.getPreferences().size() > 0) {
-            songEntity.getPreferences().stream()
-                    .filter(preferences -> preferences.getCreatedBy().equals(username))
-                    .findFirst()
-                    .map(SongPreferencesHelper::fromEntity)
-                    .ifPresent(song::setPreferences);
+            if (songEntity.getPlaybackInfo() != null && songEntity.getPlaybackInfo().size() > 0) {
+                songEntity.getPlaybackInfo().stream()
+                        .filter(playback -> playback.getCreatedBy().equals(username))
+                        .findFirst()
+                        .map(PlaybackInfoHelper::fromEntity)
+                        .ifPresent(song::setPlaybackInfo);
+            }
+
+            if (songEntity.getPreferences() != null && songEntity.getPreferences().size() > 0) {
+                songEntity.getPreferences().stream()
+                        .filter(preferences -> preferences.getCreatedBy().equals(username))
+                        .findFirst()
+                        .map(SongPreferencesHelper::fromEntity)
+                        .ifPresent(song::setPreferences);
+            }
         }
 
         var resourceId = new LibraryResourceId(song.getId(), ResourceTarget.SONG, SecurityService.getCurrentUserToken());
         song.setResourceId(ResourceIdHelper.encode(resourceId));
 
         return song;
-    }
-
-    private static int resolveTrackId(String trackId) {
-        if (trackId != null && !trackId.isBlank()) {
-            if (trackId.startsWith("0")) {
-                return Integer.parseInt(trackId.replaceFirst("0", ""));
-            }
-            return Integer.parseInt(trackId);
-        } else {
-            return -1;
-        }
     }
 }

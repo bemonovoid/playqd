@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Index;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -13,7 +14,9 @@ import lombok.Setter;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
-@Table(name = ArtistEntity.TABLE_NAME)
+@Table(name = ArtistEntity.TABLE_NAME, indexes = {
+        @Index(name = "ARTIST_IDX", columnList = ArtistEntity.COL_NAME + "," + ArtistEntity.COL_SIMPLE_NAME)
+})
 @Entity
 @Getter
 @Setter

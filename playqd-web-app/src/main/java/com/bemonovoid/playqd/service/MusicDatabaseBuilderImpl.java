@@ -154,7 +154,7 @@ class MusicDatabaseBuilderImpl implements MusicDatabaseBuilder {
 
             params
                     .addValue(SongEntity.COL_NAME, songName)
-                    .addValue(SongEntity.COL_TRACK_ID, tag.getFirst(FieldKey.TRACK))
+                    .addValue(SongEntity.COL_TRACK_ID, resolveTrackId(tag.getFirst(FieldKey.TRACK)))
                     .addValue(SongEntity.COL_COMMENT, tag.getFirst(FieldKey.COMMENT))
                     .addValue(SongEntity.COL_LYRICS, tag.getFirst(FieldKey.LYRICS));
 
@@ -262,6 +262,13 @@ class MusicDatabaseBuilderImpl implements MusicDatabaseBuilder {
 
     private static String getFileExtension(File file) {
         return Utils.getExtension(file);
+    }
+
+    private static String resolveTrackId(String trackId) {
+        if (trackId != null && trackId.startsWith("0")) {
+            return trackId.replaceFirst("0", "");
+        }
+        return trackId;
     }
 
     private void dropTables() {

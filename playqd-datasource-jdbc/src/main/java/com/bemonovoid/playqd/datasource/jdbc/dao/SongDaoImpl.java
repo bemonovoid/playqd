@@ -1,6 +1,7 @@
 package com.bemonovoid.playqd.datasource.jdbc.dao;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import com.bemonovoid.playqd.core.dao.SongDao;
@@ -11,8 +12,10 @@ import com.bemonovoid.playqd.core.model.pageable.PageableResult;
 import com.bemonovoid.playqd.core.service.SecurityService;
 import com.bemonovoid.playqd.datasource.jdbc.entity.PlaybackInfoEntity;
 import com.bemonovoid.playqd.datasource.jdbc.entity.SongEntity;
+import com.bemonovoid.playqd.datasource.jdbc.entity.SongPreferencesEntity;
 import com.bemonovoid.playqd.datasource.jdbc.projection.FileLocationProjection;
 import com.bemonovoid.playqd.datasource.jdbc.repository.PlaybackInfoRepository;
+import com.bemonovoid.playqd.datasource.jdbc.repository.SongPreferencesRepository;
 import com.bemonovoid.playqd.datasource.jdbc.repository.SongRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -24,10 +27,14 @@ class SongDaoImpl implements SongDao {
 
     private final SongRepository songRepository;
     private final PlaybackInfoRepository playbackInfoRepository;
+    private final SongPreferencesRepository songPreferencesRepository;
 
-    SongDaoImpl(SongRepository songRepository, PlaybackInfoRepository playbackInfoRepository) {
+    SongDaoImpl(SongRepository songRepository,
+                PlaybackInfoRepository playbackInfoRepository,
+                SongPreferencesRepository songPreferencesRepository) {
         this.songRepository = songRepository;
         this.playbackInfoRepository = playbackInfoRepository;
+        this.songPreferencesRepository = songPreferencesRepository;
     }
 
     @Override
@@ -48,6 +55,13 @@ class SongDaoImpl implements SongDao {
         Sort sort = Sort.sort(SongEntity.class).by(SongEntity::getName).ascending();
         PageRequest pageRequest = PageRequest.of(pageableRequest.getPage(), pageableRequest.getSize(), sort);
         return new PageableResultWrapper<>(songRepository.findAll(pageRequest).map(SongHelper::fromEntity));
+    }
+
+    @Override
+    public List<Song> getAlbumSongs(long albumId) {
+        Map<Long, SongPreferencesEntity> songsPreferences =
+                songPreferencesRepository.findAlbumSongsPreferences(albumId, SecurityService.getCurrentUserName());
+        return SongHelper.fromAlbumSongEntities(songRepository.findByAlbumId(albumId), songsPreferences);
     }
 
     @Override
@@ -87,11 +101,6 @@ class SongDaoImpl implements SongDao {
         PageRequest pageRequest = PageRequest.of(pageableRequest.getPage(), pageableRequest.getSize(), sort);
         return new PageableResultWrapper<>(
                 songRepository.findWithNameContaining(name, pageRequest).map(SongHelper::fromEntity));
-    }
-
-    @Override
-    public List<Song> getAlbumSongs(long albumId) {
-        return SongHelper.fromAlbumSongEntities(songRepository.findByAlbumId(albumId));
     }
 
     @Override

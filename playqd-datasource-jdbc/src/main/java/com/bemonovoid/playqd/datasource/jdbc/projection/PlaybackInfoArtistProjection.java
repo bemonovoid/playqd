@@ -2,9 +2,9 @@ package com.bemonovoid.playqd.datasource.jdbc.projection;
 
 import java.time.LocalDateTime;
 
-public interface PlaybackHistorySongProjection {
+public interface PlaybackInfoArtistProjection {
 
-    long getSongId();
+    Long getArtistId();
 
     int getPlayCount();
 

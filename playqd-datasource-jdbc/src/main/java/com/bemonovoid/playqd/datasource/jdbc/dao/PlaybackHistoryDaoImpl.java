@@ -1,12 +1,14 @@
 package com.bemonovoid.playqd.datasource.jdbc.dao;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.bemonovoid.playqd.core.dao.PlaybackHistoryDao;
-import com.bemonovoid.playqd.core.model.PlaybackHistoryArtist;
+import com.bemonovoid.playqd.core.model.PlaybackInfoArtist;
+import com.bemonovoid.playqd.core.model.PlaybackInfoSong;
 import com.bemonovoid.playqd.core.service.SecurityService;
-import com.bemonovoid.playqd.datasource.jdbc.projection.PlaybackHistoryArtistProjection;
+import com.bemonovoid.playqd.datasource.jdbc.projection.PlaybackInfoArtistProjection;
 import com.bemonovoid.playqd.datasource.jdbc.repository.PlaybackInfoRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,15 +24,17 @@ class PlaybackHistoryDaoImpl implements PlaybackHistoryDao {
     }
 
     @Override
-    public Map<Long, PlaybackHistoryArtist> getArtistPlaybackHistory() {
-        return playbackInfoRepository.groupByArtistPlaybackHistory(SecurityService.getCurrentUserName()).stream()
+    public Map<Long, PlaybackInfoArtist> getArtistPlaybackInfo() {
+        return playbackInfoRepository.playbackInfoGroupedByArtist(SecurityService.getCurrentUserName()).stream()
                 .collect(Collectors.toMap(
-                        PlaybackHistoryArtistProjection::getArtistId,
-                        projection -> new PlaybackHistoryArtist(
+                        PlaybackInfoArtistProjection::getArtistId,
+                        projection -> new PlaybackInfoArtist(
                                 projection.getArtistId(),
                                 projection.getPlayCount(),
                                 projection.getMostRecentPlayDateTime().toString())));
     }
 
-
+    public Map<Long, PlaybackInfoSong> getSongsPlaybackInfo() {
+        return Collections.emptyMap();
+    }
 }

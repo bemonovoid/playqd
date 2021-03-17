@@ -5,6 +5,7 @@ import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.Index;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -21,7 +22,9 @@ import org.hibernate.annotations.Type;
 @Getter
 @Setter
 @Entity
-@Table(name = AlbumEntity.TABLE_NAME)
+@Table(name = AlbumEntity.TABLE_NAME, indexes = {
+        @Index(name = "ALBUM_IDX", columnList = AlbumEntity.COL_NAME + "," + AlbumEntity.COL_SIMPLE_NAME)
+})
 public class AlbumEntity extends PersistentAuditableEntity<Long> {
 
     public static final String TABLE_NAME = "ALBUM";
