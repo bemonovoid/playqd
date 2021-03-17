@@ -53,5 +53,21 @@ Default username and password are available in [application.yaml] as`playqd.secu
         clientId: "paste your spotify client id here"
         clientSecret: "paste your spotify client secret here"
     ```
+### Application properties
+Playqd provided the following properties for customized the application:
+
+
+| Key | Type | Default | Description |
+| --- | --- | --- | --- |
+|`playqd.library.musicDir` | `String` | *Required* | Absolute path to the root directory with audio files collection  |
+|`playqd.library.scanOnStartup` | `boolean` | `false` | If set to `true` it will scan `musicDir` every time the application is started. If new audio files are detected the database index will be updated automatically |
+|`playqd.remote.spotify.enabled` | `boolean` | `false` |  Enables the Spotify service. The service is used to get audio file metadata (artist image, album image, etc.)  |
+|`playqd.remote.spotify.clientId` | `String` | *Required* |  Your account application client id  |
+|`playqd.remote.spotify.clientSecret` | `String` | *Required* |  Your account application client secret  |
+|`playqd.security.tokenSecret` | `String` | See `application.yaml` |  A token secret used as a signing key to sign the jwt  |
+|`playqd.security.user.login` | `String` | `admin` |  Application root user  |
+|`playqd.security.user.password` | `String` | `admin` |  Application root user password  |
+|`playqd.workDir` | `String` | `user_home_dir/.playqd` | Absolute path to application working directory where some library metadata (like artist image, etc.) will be stored. If not provided the default working dir is resolved to system's user dir under `.playqd` folder |
+
 
 [application.yaml]: <https://github.com/bemonovoid/playqd/blob/main/playqd-web-app/src/main/resources/application.yaml>
