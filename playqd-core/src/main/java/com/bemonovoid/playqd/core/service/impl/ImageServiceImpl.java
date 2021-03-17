@@ -14,6 +14,7 @@ import java.util.stream.Stream;
 
 import com.bemonovoid.playqd.core.dao.AlbumDao;
 import com.bemonovoid.playqd.core.dao.SongDao;
+import com.bemonovoid.playqd.core.exception.PlayqdImageServiceException;
 import com.bemonovoid.playqd.core.model.Album;
 import com.bemonovoid.playqd.core.model.Artist;
 import com.bemonovoid.playqd.core.model.Dimensions;
@@ -106,6 +107,9 @@ class ImageServiceImpl implements ImageService {
             } else {
                 return Optional.empty();
             }
+        } catch (PlayqdImageServiceException e) {
+            log.error("Failed to find image.", e);
+            return Optional.empty();
         } catch (IOException e) {
             log.error("Failed to read from file: " + e.getMessage());
             return Optional.empty();

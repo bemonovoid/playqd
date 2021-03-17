@@ -4,6 +4,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Map;
 
+import com.bemonovoid.playqd.core.exception.PlayqdImageServiceException;
 import com.bemonovoid.playqd.remote.service.spotify.config.SpotifyProperties;
 import com.bemonovoid.playqd.remote.service.spotify.model.api.SpotifyArtistAlbumsResponse;
 import com.bemonovoid.playqd.remote.service.spotify.model.api.SpotifyRefreshTokenResponse;
@@ -15,6 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -38,9 +40,13 @@ public class SpotifyApi {
                 .rootUri(properties.getApiBaseUrl() + "/" + properties.getApiVersion())
                 .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken())
                 .build();
-        ResponseEntity<SpotifySearchArtistResponse> response =
-                restTemplate.getForEntity(uriComponents.toUriString(), SpotifySearchArtistResponse.class);
-        return response.getBody();
+        try {
+            ResponseEntity<SpotifySearchArtistResponse> response =
+                    restTemplate.getForEntity(uriComponents.toUriString(), SpotifySearchArtistResponse.class);
+            return response.getBody();
+        } catch (RestClientException e) {
+            throw new PlayqdImageServiceException("Failed to perform spotify api query", e);
+        }
     }
 
     SpotifyArtistAlbumsResponse searchArtistAlbums(String artistId) {

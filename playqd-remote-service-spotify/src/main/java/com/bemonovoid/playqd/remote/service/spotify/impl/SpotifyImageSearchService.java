@@ -34,8 +34,11 @@ public class SpotifyImageSearchService implements ImageSearchService {
 
     @Override
     public List<Image> searchArtistImage(Artist artist) {
+        log.info("Searching image for the artist with id: {}", artist.getId());
         SpotifySearchArtistResponse response = spotifyApi.searchArtistByName(artist.getName());
         if (!response.getArtists().getItems().isEmpty()) {
+            log.info("Found {} artist images", response.getArtists().getItems().size());
+
             SpotifyLibraryItem spotifyArtist = response.getArtists().getItems().get(0);
 
             artistDao.setSpotifyArtistId(artist.getId(), spotifyArtist.getId());
@@ -47,6 +50,7 @@ public class SpotifyImageSearchService implements ImageSearchService {
                     return new Image(img.getUrl(), data, dimensions);
             }).collect(Collectors.toList());
         }
+        log.info("No images for artist (id={}, name={}) found.", artist.getId(), artist.getName());
         return Collections.emptyList();
     }
 
