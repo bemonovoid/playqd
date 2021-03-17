@@ -26,17 +26,10 @@ public interface ArtistRepository extends JpaRepository<ArtistEntity, Long> {
 
     Page<ArtistEntity> findBySimpleNameContaining(String name, Pageable pageable);
 
-    @Query("SELECT p.song.artist.id " +
-        "FROM PlaybackInfoEntity p " +
-        "WHERE p.createdBy = ?1 AND p.playCount > 0 " +
-        "GROUP BY p.song.artist.id " +
-        "ORDER BY MAX(p.createdDate) DESC")
-    Page<Long> findRecentlyPlayedArtists(String createdBy, Pageable pageable);
+    @Query("SELECT s.artist.id FROM SongEntity s " +
+            "WHERE s.playCount > 0 GROUP BY s.artist.id ORDER BY MAX(s.lastModifiedDate) DESC")
+    Page<Long> findRecentlyPlayedArtists(Pageable pageable);
 
-    @Query("SELECT p.song.artist.id " +
-            "FROM PlaybackInfoEntity p " +
-            "WHERE p.createdBy = ?1 " +
-            "GROUP BY p.song.artist.id " +
-            "ORDER BY MAX(p.playCount) DESC")
-    Page<Long> findMostPlayedArtists(String createdBy, Pageable pageable);
+    @Query("SELECT s.artist.id FROM SongEntity s GROUP BY s.artist.id ORDER BY MAX(s.playCount) DESC")
+    Page<Long> findMostPlayedArtists(Pageable pageable);
 }

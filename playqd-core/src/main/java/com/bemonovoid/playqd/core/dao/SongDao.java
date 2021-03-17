@@ -33,8 +33,11 @@ public interface SongDao {
 
     List<String> getArtistSongsFileLocations(long artistId);
 
+    Song moveSong(long songId, long albumId);
+
+    void updateSong(Song song);
+
     void updatePlayCount(long songId);
 
     void updateFavoriteFlag(long songId, boolean isFavorite);
-
 }

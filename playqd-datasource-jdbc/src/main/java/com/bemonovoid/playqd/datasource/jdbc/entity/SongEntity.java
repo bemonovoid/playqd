@@ -43,6 +43,8 @@ public class SongEntity extends PersistentAuditableEntity<Long> {
     public static final String COL_ARTIST_ID = "ARTIST_ID";
     public static final String COL_ALBUM_ID = "ALBUM_ID";
 
+    public static final String COL_PLAY_COUNT = "PLAY_COUNT";
+    public static final String COL_FAVORITE = "FAVORITE";
     public static final String COL_SHOW_FILE_NAME_AS_SONG_NAME = "SHOW_FILE_NAME_AS_SONG_NAME";
 
     private static final String ONE_TO_MANY_MAPPED_BY = "song";
@@ -51,7 +53,7 @@ public class SongEntity extends PersistentAuditableEntity<Long> {
     private String name;
 
     @Column(name = COL_TRACK_ID)
-    private String trackId;
+    private Integer trackId;
 
     @Column(name = COL_DURATION)
     private int duration;
@@ -84,15 +86,17 @@ public class SongEntity extends PersistentAuditableEntity<Long> {
     @Type(type="org.hibernate.type.TextType")
     private String lyrics;
 
+    @Column(name = COL_PLAY_COUNT)
+    private int playCount;
+
+    @Column(name = COL_FAVORITE)
+    private boolean favorite;
+
     @ManyToOne(fetch = FetchType.LAZY)
     private ArtistEntity artist;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private AlbumEntity album;
-
-    @OneToMany(mappedBy = ONE_TO_MANY_MAPPED_BY)
-    @LazyCollection(LazyCollectionOption.EXTRA)
-    private List<PlaybackInfoEntity> playbackInfo;
 
     @OneToMany(mappedBy = "song")
     @LazyCollection(LazyCollectionOption.EXTRA)

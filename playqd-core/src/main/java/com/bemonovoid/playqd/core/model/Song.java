@@ -1,5 +1,8 @@
 package com.bemonovoid.playqd.core.model;
 
+import java.time.LocalDateTime;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Getter;
@@ -15,7 +18,6 @@ public class Song {
     private int duration;
     private String comment;
     private String trackId;
-    private String originalTrackId;
     private String lyrics;
 
     private String audioBitRate;
@@ -29,9 +31,14 @@ public class Song {
     private String fileName;
     private String resourceId;
 
+    private int playCount;
+    private boolean favorite;
+
+    @JsonFormat(pattern = "dd-MM-YYYY hh:mm")
+    private LocalDateTime lastPlayedTime;
+
     private Artist artist;
     private Album album;
-    private PlaybackInfo playbackInfo;
     private SongPreferences preferences;
 
 }

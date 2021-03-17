@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 import com.bemonovoid.playqd.core.helpers.ResourceIdHelper;
 import com.bemonovoid.playqd.core.model.Album;
 import com.bemonovoid.playqd.core.model.LibraryResourceId;
-import com.bemonovoid.playqd.core.model.PlaybackInfo;
 import com.bemonovoid.playqd.core.model.ResourceTarget;
 import com.bemonovoid.playqd.core.model.Song;
 import com.bemonovoid.playqd.core.service.SecurityService;
@@ -46,9 +45,8 @@ abstract class SongHelper {
         song.setOriginalName(songEntity.getName());
         song.setComment(songEntity.getComment());
         song.setDuration(songEntity.getDuration());
-        song.setOriginalTrackId(songEntity.getTrackId());
         song.setLyrics(songEntity.getLyrics());
-        song.setTrackId(songEntity.getTrackId());
+        song.setTrackId(songEntity.getTrackId() != null ? songEntity.getTrackId().toString() : null);
 
         song.setAudioBitRate(songEntity.getAudioBitRate());
         song.setAudioChannelType(songEntity.getAudioChannelType());
@@ -59,7 +57,9 @@ abstract class SongHelper {
         song.setFileName(songEntity.getFileName());
         song.setFileExtension(songEntity.getFileExtension());
 
-        song.setPlaybackInfo(PlaybackInfo.builder().build());
+        song.setFavorite(songEntity.isFavorite());
+        song.setPlayCount(songEntity.getPlayCount());
+        song.setLastPlayedTime(songEntity.getLastModifiedDate());
 
         String username = SecurityService.getCurrentUserName();
 
@@ -67,14 +67,6 @@ abstract class SongHelper {
             Album songAlbum = AlbumHelper.fromEntity(songEntity.getAlbum());
             song.setArtist(songAlbum.getArtist());
             song.setAlbum(songAlbum);
-
-            if (songEntity.getPlaybackInfo() != null && songEntity.getPlaybackInfo().size() > 0) {
-                songEntity.getPlaybackInfo().stream()
-                        .filter(playback -> playback.getCreatedBy().equals(username))
-                        .findFirst()
-                        .map(PlaybackInfoHelper::fromEntity)
-                        .ifPresent(song::setPlaybackInfo);
-            }
 
             if (songEntity.getPreferences() != null && songEntity.getPreferences().size() > 0) {
                 songEntity.getPreferences().stream()

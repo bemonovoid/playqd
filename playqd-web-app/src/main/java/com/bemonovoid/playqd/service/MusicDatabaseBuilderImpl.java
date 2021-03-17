@@ -26,7 +26,6 @@ import com.bemonovoid.playqd.datasource.jdbc.batch.InsertBatch;
 import com.bemonovoid.playqd.datasource.jdbc.entity.AlbumEntity;
 import com.bemonovoid.playqd.datasource.jdbc.entity.AlbumPreferencesEntity;
 import com.bemonovoid.playqd.datasource.jdbc.entity.ArtistEntity;
-import com.bemonovoid.playqd.datasource.jdbc.entity.PlaybackInfoEntity;
 import com.bemonovoid.playqd.datasource.jdbc.entity.SongEntity;
 import com.bemonovoid.playqd.datasource.jdbc.entity.SongPreferencesEntity;
 import com.bemonovoid.playqd.datasource.jdbc.entity.system.AuditableEntity;
@@ -47,6 +46,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 @Component
 class MusicDatabaseBuilderImpl implements MusicDatabaseBuilder {
@@ -59,7 +59,6 @@ class MusicDatabaseBuilderImpl implements MusicDatabaseBuilder {
     private static final Set<String> AUDIO_EXTENSIONS = Set.of("flac", "m4a", "m4p", "mp3", "ogg", "wav", "wma");
 
     private static final List<String> TABLES = List.of(
-            PlaybackInfoEntity.TABLE_NAME,
             SongPreferencesEntity.TABLE_NAME,
             SongEntity.TABLE_NAME,
             AlbumPreferencesEntity.TABLE_NAME,
@@ -174,7 +173,9 @@ class MusicDatabaseBuilderImpl implements MusicDatabaseBuilder {
                 .addValue(SongEntity.COL_DURATION, audioHeader.getTrackLength())
                 .addValue(SongEntity.COL_FILE_NAME, fileName)
                 .addValue(SongEntity.COL_FILE_LOCATION, audiofile.getFile().getAbsolutePath())
-                .addValue(SongEntity.COL_FILE_EXTENSION, audiofile.getExt());
+                .addValue(SongEntity.COL_FILE_EXTENSION, audiofile.getExt())
+                .addValue(SongEntity.COL_PLAY_COUNT, 0)
+                .addValue(SongEntity.COL_FAVORITE, false);
 
         addAuditableParams(params);
 
@@ -264,11 +265,15 @@ class MusicDatabaseBuilderImpl implements MusicDatabaseBuilder {
         return Utils.getExtension(file);
     }
 
-    private static String resolveTrackId(String trackId) {
-        if (trackId != null && trackId.startsWith("0")) {
-            return trackId.replaceFirst("0", "");
+    private static int resolveTrackId(String trackId) {
+        if (StringUtils.hasText(trackId)) {
+            String resolvedTrackId = trackId;
+            if (resolvedTrackId.length() > 1 && resolvedTrackId.startsWith("0")) {
+                resolvedTrackId = resolvedTrackId.replaceFirst("0", "");
+            }
+            return Integer.parseInt(resolvedTrackId);
         }
-        return trackId;
+        return 0;
     }
 
     private void dropTables() {

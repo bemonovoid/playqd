@@ -13,7 +13,6 @@ import com.bemonovoid.playqd.core.model.MoveResult;
 import com.bemonovoid.playqd.core.model.SortDirection;
 import com.bemonovoid.playqd.core.model.pageable.PageableRequest;
 import com.bemonovoid.playqd.core.model.pageable.PageableResult;
-import com.bemonovoid.playqd.core.service.SecurityService;
 import com.bemonovoid.playqd.datasource.jdbc.entity.AlbumEntity;
 import com.bemonovoid.playqd.datasource.jdbc.entity.ArtistEntity;
 import com.bemonovoid.playqd.datasource.jdbc.entity.SongEntity;
@@ -86,18 +85,16 @@ class ArtistDaoImpl implements ArtistDao {
 
     @Override
     public PageableResult<Artist> getRecentlyPlayedArtists(PageableRequest pageableRequest) {
-        String username = SecurityService.getCurrentUserName();
         PageRequest pageRequest = PageRequest.of(pageableRequest.getPage(), pageableRequest.getSize());
-        return new PageableResultWrapper<>(artistRepository.findRecentlyPlayedArtists(username, pageRequest)
+        return new PageableResultWrapper<>(artistRepository.findRecentlyPlayedArtists(pageRequest)
                 .map(artistRepository::findOne)
                 .map(artistEntity -> ArtistHelper.fromEntity(artistEntity, getCounts().get(artistEntity.getId()))));
     }
 
     @Override
     public PageableResult<Artist> getMostPlayedArtists(PageableRequest pageableRequest) {
-        String username = SecurityService.getCurrentUserName();
         PageRequest pageRequest = PageRequest.of(pageableRequest.getPage(), pageableRequest.getSize());
-        return new PageableResultWrapper<>(artistRepository.findMostPlayedArtists(username, pageRequest)
+        return new PageableResultWrapper<>(artistRepository.findMostPlayedArtists(pageRequest)
                 .map(artistRepository::findOne)
                 .map(artistEntity -> ArtistHelper.fromEntity(artistEntity, getCounts().get(artistEntity.getId()))));
     }

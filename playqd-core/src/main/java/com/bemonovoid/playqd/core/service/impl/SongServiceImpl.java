@@ -3,8 +3,10 @@ package com.bemonovoid.playqd.core.service.impl;
 import java.util.List;
 
 import com.bemonovoid.playqd.core.dao.SongDao;
+import com.bemonovoid.playqd.core.handler.AudioFileTagUpdater;
 import com.bemonovoid.playqd.core.model.Song;
 import com.bemonovoid.playqd.core.model.SortDirection;
+import com.bemonovoid.playqd.core.model.UpdateOptions;
 import com.bemonovoid.playqd.core.model.pageable.FindSongsRequest;
 import com.bemonovoid.playqd.core.model.pageable.PageableRequest;
 import com.bemonovoid.playqd.core.model.pageable.PageableResult;
@@ -61,6 +63,14 @@ class SongServiceImpl implements SongService {
     }
 
     @Override
+    public void updateSong(Song song, UpdateOptions options) {
+        songDao.updateSong(song);
+        if (options.isUpdateAudioTags()) {
+            AudioFileTagUpdater.updateSongTags(song, songDao.getSongFileLocation(song.getId()));
+        }
+    }
+
+    @Override
     public List<Song> getAlbumSongs(long albumId) {
         return songDao.getAlbumSongs(albumId);
     }
@@ -68,6 +78,14 @@ class SongServiceImpl implements SongService {
     @Override
     public void updateFavoriteFlag(long songId, boolean isFavorite) {
         songDao.updateFavoriteFlag(songId, isFavorite);
+    }
+
+    @Override
+    public void moveSong(long songId, long albumIdTo, UpdateOptions updateOptions) {
+        Song song = songDao.moveSong(songId, albumIdTo);
+        if (updateOptions.isUpdateAudioTags()) {
+            AudioFileTagUpdater.updateAlbumTags(song.getAlbum(), List.of(songDao.getSongFileLocation(songId)));
+        }
     }
 
     @Override

@@ -12,6 +12,7 @@ import com.bemonovoid.playqd.datasource.jdbc.projection.FileLocationProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -31,7 +32,7 @@ public interface SongRepository extends JpaRepository<SongEntity, Long> {
 
     Optional<FileLocationProjection> findFirstByAlbumId(long albumId);
 
-    List<SongEntity> findByAlbumId(long albumId);
+    List<SongEntity> findByAlbumId(long albumId, Sort sort);
 
     Page<SongEntity> findByNameIgnoreCaseOrFileNameIgnoreCaseContaining(String name, String fileName, Pageable pageable);
 
@@ -50,16 +51,16 @@ public interface SongRepository extends JpaRepository<SongEntity, Long> {
             "ORDER BY songCount DESC")
     List<CountProjection> getAlbumSongCount();
 
-    @Query("SELECT p.song FROM PlaybackInfoEntity p WHERE p.createdBy = ?1 AND p.playCount > 0 " +
-            "ORDER BY p.playCount DESC")
-    Page<SongEntity> findMostPlayedSongs(String createdBy, PageRequest page);
+    //TODO implement methodname
+    @Query("SELECT s FROM SongEntity s WHERE s.playCount > 0 ORDER BY s.playCount DESC")
+    Page<SongEntity> findMostPlayedSongs(PageRequest page);
 
-    @Query("SELECT p.song FROM PlaybackInfoEntity p WHERE p.createdBy = ?1 AND p.playCount > 0 " +
-            "ORDER BY p.lastModifiedDate DESC")
-    Page<SongEntity> findRecentlyPlayedSongs(String createdBy, PageRequest page);
+    //TODO implement methodname
+    @Query("SELECT s FROM SongEntity s WHERE s.playCount > 0 ORDER BY s.lastModifiedDate DESC")
+    Page<SongEntity> findRecentlyPlayedSongs(PageRequest page);
 
-    @Query("SELECT p.song FROM PlaybackInfoEntity p WHERE p.createdBy = ?1 AND p.favorite = 1 " +
-            "ORDER BY p.song.name ASC")
-    Page<SongEntity> findFavoriteSongs(String createdBy, PageRequest page);
+    //TODO implement methodname
+    @Query("SELECT s FROM SongEntity s WHERE s.favorite = 1 ORDER BY s.name ASC")
+    Page<SongEntity> findFavoriteSongs(PageRequest page);
 
 }
