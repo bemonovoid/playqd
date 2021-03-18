@@ -22,8 +22,6 @@ public interface ArtistDao {
 
     PageableResult<Artist> getArtistsWithNameContaining(String name, PageableRequest pageableRequest);
 
-    void setSpotifyArtistId(String artistId, String spotifyId);
-
     void update(Artist artist);
 
     MoveResult move(String fromArtistId, String toArtistId);

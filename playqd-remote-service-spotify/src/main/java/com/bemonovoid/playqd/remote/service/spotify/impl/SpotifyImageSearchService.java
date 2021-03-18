@@ -12,8 +12,8 @@ import com.bemonovoid.playqd.core.model.Dimensions;
 import com.bemonovoid.playqd.core.model.Image;
 import com.bemonovoid.playqd.core.service.BinaryResourceReader;
 import com.bemonovoid.playqd.core.service.ImageSearchService;
-import com.bemonovoid.playqd.remote.service.spotify.model.api.SpotifyArtistAlbumsResponse;
 import com.bemonovoid.playqd.remote.service.spotify.model.api.SpotifyLibraryItem;
+import com.bemonovoid.playqd.remote.service.spotify.model.api.SpotifySearchAlbumResponse;
 import com.bemonovoid.playqd.remote.service.spotify.model.api.SpotifySearchArtistResponse;
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,34 +35,23 @@ public class SpotifyImageSearchService implements ImageSearchService {
     @Override
     public List<Image> searchArtistImage(Artist artist) {
         log.info("Searching image for the artist with id: {}", artist.getId());
-        SpotifySearchArtistResponse response = spotifyApi.searchArtistByName(artist.getName());
-        if (!response.getArtists().getItems().isEmpty()) {
-            log.info("Found {} artist images", response.getArtists().getItems().size());
 
-            SpotifyLibraryItem spotifyArtist = response.getArtists().getItems().get(0);
-
-            artistDao.setSpotifyArtistId(artist.getId(), spotifyArtist.getId());
-
-            return spotifyArtist.getImages().stream()
-                .map(img -> {
-                    Dimensions dimensions = new Dimensions(img.getHeight(), img.getWidth());
-                    byte[] data = binaryResourceReader.read(img.getUrl());
-                    return new Image(img.getUrl(), data, dimensions);
-            }).collect(Collectors.toList());
-        }
-        log.info("No images for artist (id={}, name={}) found.", artist.getId(), artist.getName());
-        return Collections.emptyList();
+        return findSpotifyArtist(artist)
+                .map(spotifyLibraryItem -> spotifyLibraryItem.getImages().stream()
+                        .map(img -> {
+                            Dimensions dimensions = new Dimensions(img.getHeight(), img.getWidth());
+                            byte[] data = binaryResourceReader.read(img.getUrl());
+                            return new Image(img.getUrl(), data, dimensions);
+                        }).collect(Collectors.toList()))
+                .orElseGet(Collections::emptyList);
     }
 
     @Override
     public List<Image> searchAlbumImage(Album album) {
-        if (album.getArtist().getSpotifyId() == null) {
-            return Collections.emptyList();
-        }
-        SpotifyArtistAlbumsResponse response = spotifyApi.searchArtistAlbums(album.getArtist().getSpotifyId());
+        String artistName = album.getArtist().getName();
+        SpotifySearchAlbumResponse response = spotifyApi.searchArtistAlbum(artistName, album.getName());
 
-        Optional<SpotifyLibraryItem> spotifyAlbum = response.getItems().stream()
-                .filter(item -> albumNamePredicate(item.getName(), album.getSimpleName()))
+        Optional<SpotifyLibraryItem> spotifyAlbum = response.getAlbums().getItems().stream()
                 .findFirst();
         if (spotifyAlbum.isEmpty()) {
             return Collections.emptyList();
@@ -73,11 +62,21 @@ public class SpotifyImageSearchService implements ImageSearchService {
                     byte[] data = binaryResourceReader.read(img.getUrl());
                     return new Image(img.getUrl(), data, dimensions);
                 }).collect(Collectors.toList());
+
     }
 
-    private boolean albumNamePredicate(String spotifyAlbumName, String libraryAlbumName) {
-        return spotifyAlbumName.equalsIgnoreCase(libraryAlbumName) ||
-                spotifyAlbumName.toLowerCase().contains(libraryAlbumName);
+    private Optional<SpotifyLibraryItem> findSpotifyArtist(Artist artist) {
+        SpotifySearchArtistResponse response = spotifyApi.searchArtistByName(artist.getName());
+        if (response.getArtists().getItems().isEmpty()) {
+            return Optional.empty();
+        }
+        SpotifyLibraryItem spotifyLibraryItem = response.getArtists().getItems().get(0);
+
+        if (artist.getSpotifyId() == null) {
+            artistDao.update(Artist.builder().id(artist.getId()).spotifyId(spotifyLibraryItem.getId()).build());
+        }
+
+        return Optional.of(spotifyLibraryItem);
     }
 
 }

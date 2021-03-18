@@ -26,6 +26,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 @Slf4j
 @Component
@@ -101,22 +102,18 @@ class ArtistDaoImpl implements ArtistDao {
     }
 
     @Override
-    public void setSpotifyArtistId(String artistId, String spotifyId) {
-        ArtistEntity entity = artistRepository.findOne(UUID.fromString(artistId));
-        entity.setSpotifyArtistId(spotifyId);
-        artistRepository.save(entity);
-    }
-
-    @Override
     public void update(Artist artist) {
         log.info("Updating artist with id='{}'.", artist.getId());
         ArtistEntity entity = artistRepository.findOne(UUID.fromString(artist.getId()));
-        if (shouldUpdate(entity.getName(), artist.getName())) {
+        if (propertyChanged(entity.getName(), artist.getName())) {
             entity.setName(artist.getName());
             entity.setSimpleName(EntityNameHelper.toLookUpName(artist.getName()));
         }
-        if (shouldUpdate(entity.getCountry(), artist.getCountry())) {
+        if (propertyChanged(entity.getCountry(), artist.getCountry())) {
             entity.setCountry(artist.getCountry());
+        }
+        if (propertyChanged(entity.getSpotifyArtistId(), artist.getSpotifyId())) {
+            entity.setSpotifyArtistId(artist.getSpotifyId());
         }
 
         artistRepository.save(entity);
@@ -153,8 +150,14 @@ class ArtistDaoImpl implements ArtistDao {
                 .build();
     }
 
-    private boolean shouldUpdate(String oldVal, String newVal) {
-        return newVal != null && !newVal.isBlank() && !newVal.equalsIgnoreCase(oldVal);
+    private boolean propertyChanged(String oldVal, String newVal) {
+        if (!StringUtils.hasText(newVal)) {
+            return false;
+        }
+        if (StringUtils.hasText(oldVal)) {
+            return !oldVal.equals(newVal);
+        }
+        return true;
     }
 
     private Map<UUID, CountProjection> getCounts() {
