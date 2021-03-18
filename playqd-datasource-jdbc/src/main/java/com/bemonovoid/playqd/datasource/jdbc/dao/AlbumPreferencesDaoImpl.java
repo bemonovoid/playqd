@@ -1,5 +1,7 @@
 package com.bemonovoid.playqd.datasource.jdbc.dao;
 
+import java.util.UUID;
+
 import com.bemonovoid.playqd.core.dao.AlbumPreferencesDao;
 import com.bemonovoid.playqd.core.model.AlbumPreferences;
 import com.bemonovoid.playqd.core.service.SecurityService;
@@ -21,12 +23,12 @@ class AlbumPreferencesDaoImpl implements AlbumPreferencesDao {
     }
 
     @Override
-    public void save(long albumId, AlbumPreferences albumPreferences) {
+    public void save(String albumId, AlbumPreferences albumPreferences) {
         String userName = SecurityService.getCurrentUserName();
         AlbumPreferencesEntity entity =
-                albumPreferencesRepository.findByAlbumIdAndCreatedBy(albumId, userName)
+                albumPreferencesRepository.findByAlbumIdAndCreatedBy(UUID.fromString(albumId), userName)
                         .orElseGet(() -> {
-                            AlbumEntity albumEntity = albumRepository.findOne(albumId);
+                            AlbumEntity albumEntity = albumRepository.findOne(UUID.fromString(albumId));
                             AlbumPreferencesEntity e = new AlbumPreferencesEntity();
                             e.setAlbum(albumEntity);
                             return e;

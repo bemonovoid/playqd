@@ -41,7 +41,7 @@ class AlbumController {
     }
 
     @GetMapping(path = "/{albumId}", produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<Album> getAlbum(@PathVariable long albumId) {
+    ResponseEntity<Album> getAlbum(@PathVariable String albumId) {
         Optional<Album> albumOpt = albumService.getAlbum(albumId);
         if (albumOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -50,7 +50,7 @@ class AlbumController {
     }
 
     @GetMapping("/{albumId}/image/src")
-    ResponseEntity<String> getAlbumImageSrc(@PathVariable long albumId) {
+    ResponseEntity<String> getAlbumImageSrc(@PathVariable String albumId) {
         Optional<Image> artistImageOpt = albumService.getImage(albumId, ImageSize.SMALL, true);
         return artistImageOpt
                 .map(artistImage -> ResponseEntity.ok(artistImage.getUrl()))
@@ -58,7 +58,7 @@ class AlbumController {
     }
 
     @PutMapping(path = "/{albumId}", consumes =  MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    void updateAlbum(@PathVariable long albumId, @RequestBody UpdateAlbum model) {
+    void updateAlbum(@PathVariable String albumId, @RequestBody UpdateAlbum model) {
         Album album = Album.builder()
                 .id(albumId)
                 .name(model.getName())
@@ -70,7 +70,7 @@ class AlbumController {
     }
 
     @PutMapping(path = "/{albumId}/preferences", consumes =  MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    void updateAlbumPreferences(@PathVariable long albumId, @RequestBody AlbumPreferences preferences) {
+    void updateAlbumPreferences(@PathVariable String albumId, @RequestBody AlbumPreferences preferences) {
         albumService.updateAlbumPreferences(albumId, preferences);
     }
 

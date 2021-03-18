@@ -8,7 +8,7 @@ import lombok.Setter;
 @Setter(AccessLevel.PACKAGE)
 public class MoveArtist {
 
-    private long artistIdFrom;
-    private long artistIdTo;
+    private String artistIdFrom;
+    private String artistIdTo;
     private boolean updateAudioTags;
 }

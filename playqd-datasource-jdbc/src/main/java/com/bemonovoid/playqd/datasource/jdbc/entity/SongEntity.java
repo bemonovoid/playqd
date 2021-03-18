@@ -23,7 +23,7 @@ import org.hibernate.annotations.Type;
 @Entity
 @Getter
 @Setter
-public class SongEntity extends PersistentAuditableEntity<Long> {
+public class SongEntity extends PersistentAuditableEntity {
 
     public static final String TABLE_NAME = "SONG";
 

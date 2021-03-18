@@ -16,10 +16,10 @@ abstract class ArtistHelper {
 
     static Artist fromEntity(ArtistEntity artistEntity, CountProjection countProjection) {
         LibraryResourceId resourceId = new LibraryResourceId(
-                artistEntity.getId(), ResourceTarget.ARTIST, SecurityService.getCurrentUserToken());
+                artistEntity.getUUID(), ResourceTarget.ARTIST, SecurityService.getCurrentUserToken());
 
         Artist.ArtistBuilder artistBuilder = Artist.builder()
-                .id(artistEntity.getId())
+                .id(artistEntity.getUUID())
                 .spotifyId(artistEntity.getSpotifyArtistId())
                 .name(artistEntity.getName())
                 .simpleName(artistEntity.getSimpleName())
@@ -35,7 +35,7 @@ abstract class ArtistHelper {
 
     static ArtistEntity toEntity(Artist artist) {
         ArtistEntity artistEntity = new ArtistEntity();
-        artistEntity.setId(artist.getId());
+        artistEntity.setUUID(artist.getId());
         artistEntity.setName(artist.getName());
         artistEntity.setSimpleName(artist.getSimpleName());
         artistEntity.setCountry(artist.getCountry());

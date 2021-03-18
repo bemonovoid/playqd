@@ -3,6 +3,7 @@ package com.bemonovoid.playqd.datasource.jdbc.repository;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.bemonovoid.playqd.core.exception.PlayqdEntityNotFoundException;
@@ -16,13 +17,13 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-public interface SongRepository extends JpaRepository<SongEntity, Long> {
+public interface SongRepository extends JpaRepository<SongEntity, UUID> {
 
-    default SongEntity findOne(long id) {
-        return findById(id).orElseThrow(() -> new PlayqdEntityNotFoundException(id, "song"));
+    default SongEntity findOne(UUID id) {
+        return findById(id).orElseThrow(() -> new PlayqdEntityNotFoundException(id.toString(), "song"));
     }
 
-    default Map<Long, CountProjection> getArtistAlbumSongCount() {
+    default Map<UUID, CountProjection> getArtistAlbumSongCount() {
         return getAlbumSongCount().stream().collect(Collectors.toMap(CountProjection::getArtistId, p -> p));
     }
 
@@ -30,20 +31,20 @@ public interface SongRepository extends JpaRepository<SongEntity, Long> {
         return findByNameIgnoreCaseOrFileNameIgnoreCaseContaining(name, name, pageable);
     }
 
-    Optional<FileLocationProjection> findFirstByAlbumId(long albumId);
+    Optional<FileLocationProjection> findFirstByAlbumId(UUID albumId);
 
-    List<SongEntity> findByAlbumId(long albumId, Sort sort);
+    List<SongEntity> findByAlbumId(UUID albumId, Sort sort);
 
     Page<SongEntity> findByNameIgnoreCaseOrFileNameIgnoreCaseContaining(String name, String fileName, Pageable pageable);
 
     @Query("SELECT s.fileLocation FROM SongEntity s WHERE s.id = ?1")
-    Optional<String> findSongFileLocation(long songId);
+    Optional<String> findSongFileLocation(UUID songId);
 
     @Query("SELECT s.fileLocation from SongEntity s WHERE s.album.id = ?1")
-    List<String> findAlbumSongsFileLocations(long albumId);
+    List<String> findAlbumSongsFileLocations(UUID albumId);
 
     @Query("SELECT s.fileLocation from SongEntity s WHERE s.artist.id = ?1")
-    List<String> findArtistSongsFileLocations(long artistId);
+    List<String> findArtistSongsFileLocations(UUID artistId);
     
     @Query("SELECT s.artist.id as artistId, COUNT(DISTINCT s.album.id) as albumCount, COUNT(s.id) as songCount " +
             "FROM SongEntity s " +

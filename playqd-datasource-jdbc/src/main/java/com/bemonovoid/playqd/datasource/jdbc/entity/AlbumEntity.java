@@ -25,7 +25,7 @@ import org.hibernate.annotations.Type;
 @Table(name = AlbumEntity.TABLE_NAME, indexes = {
         @Index(name = "ALBUM_IDX", columnList = AlbumEntity.COL_NAME + "," + AlbumEntity.COL_SIMPLE_NAME)
 })
-public class AlbumEntity extends PersistentAuditableEntity<Long> {
+public class AlbumEntity extends PersistentAuditableEntity {
 
     public static final String TABLE_NAME = "ALBUM";
 

@@ -7,7 +7,7 @@ abstract class SongPreferencesHelper {
 
     static SongPreferences fromEntity(SongPreferencesEntity entity) {
         return SongPreferences.builder()
-                .songId(entity.getSong().getId())
+                .songId(entity.getSong().getUUID())
                 .songNameAsFileName(entity.isSongNameAsFileName())
                 .build();
     }

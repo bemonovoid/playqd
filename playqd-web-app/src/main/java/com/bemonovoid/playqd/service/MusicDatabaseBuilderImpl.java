@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -138,11 +139,13 @@ class MusicDatabaseBuilderImpl implements MusicDatabaseBuilder {
 
         LibraryArtistItem libraryArtistItem = getArtistId(audiofile);
 
-        long artistId = libraryArtistItem.getId();
-        long albumId = getAlbumId(libraryArtistItem, audiofile);
+        String artistId = libraryArtistItem.getId();
+        String albumId = getAlbumId(libraryArtistItem, audiofile);
 
         MapSqlParameterSource params = new MapSqlParameterSource();
         String fileName = getFileNameWithoutExtension(audiofile.getFile());
+
+        params.addValue(SongEntity.COL_PK_ID, UUID.randomUUID());
 
         if (audiofile.getTag() != null) {
             Tag tag = audiofile.getTag();
@@ -186,9 +189,11 @@ class MusicDatabaseBuilderImpl implements MusicDatabaseBuilder {
         String name = getArtistName(audioFile);
         String nameAsKey = EntityNameHelper.toLookUpName(name);
         return libraryData.artists.computeIfAbsent(nameAsKey, value -> {
-            SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate);
-            simpleJdbcInsert.withTableName(ArtistEntity.TABLE_NAME).usingGeneratedKeyColumns(ArtistEntity.COL_PK_ID);
+            SimpleJdbcInsert artistsJdbcInsert = new SimpleJdbcInsert(jdbcTemplate);
+            artistsJdbcInsert.withTableName(ArtistEntity.TABLE_NAME);
+            UUID artistUUID = UUID.randomUUID();
             MapSqlParameterSource params = new MapSqlParameterSource()
+                    .addValue(ArtistEntity.COL_PK_ID, artistUUID)
                     .addValue(ArtistEntity.COL_NAME, name)
                     .addValue(ArtistEntity.COL_SIMPLE_NAME, nameAsKey);
             Tag tag = audioFile.getTag();
@@ -196,19 +201,21 @@ class MusicDatabaseBuilderImpl implements MusicDatabaseBuilder {
                 params.addValue(ArtistEntity.COL_COUNTRY, tag.getFirst(FieldKey.COUNTRY));
             }
             addAuditableParams(params);
-            long artistId = simpleJdbcInsert.executeAndReturnKey(params).longValue();
-            return new LibraryArtistItem(artistId, nameAsKey);
+            artistsJdbcInsert.execute(params);
+            return new LibraryArtistItem(artistUUID.toString(), nameAsKey);
         });
     }
 
-    private long getAlbumId(LibraryArtistItem libraryArtistItem, AudioFile audioFile) {
+    private String getAlbumId(LibraryArtistItem libraryArtistItem, AudioFile audioFile) {
         String name = getAlbumName(audioFile);
         String nameAsKey = EntityNameHelper.toLookUpName(name);
 
         return libraryArtistItem.albums.computeIfAbsent(nameAsKey, value -> {
             SimpleJdbcInsert albumJdbcInsert = new SimpleJdbcInsert(jdbcTemplate);
-            albumJdbcInsert.withTableName(AlbumEntity.TABLE_NAME).usingGeneratedKeyColumns(AlbumEntity.COL_PK_ID);
+            albumJdbcInsert.withTableName(AlbumEntity.TABLE_NAME);
+            UUID albumUUID = UUID.randomUUID();
             MapSqlParameterSource params = new MapSqlParameterSource()
+                    .addValue(AlbumEntity.COL_PK_ID, albumUUID)
                     .addValue(AlbumEntity.COL_NAME, name)
                     .addValue(AlbumEntity.COL_SIMPLE_NAME, nameAsKey)
                     .addValue(AlbumEntity.COL_ARTIST_ID, libraryArtistItem.getId());
@@ -219,8 +226,8 @@ class MusicDatabaseBuilderImpl implements MusicDatabaseBuilder {
                         .addValue(AlbumEntity.COL_DATE, tag.getFirst(FieldKey.YEAR));
             }
             addAuditableParams(params);
-            long albumId = albumJdbcInsert.executeAndReturnKey(params).longValue();
-            return new LibraryAlbumItem(albumId, nameAsKey);
+            albumJdbcInsert.execute(params);
+            return new LibraryAlbumItem(albumUUID.toString(), nameAsKey);
         }).getId();
     }
 
@@ -293,8 +300,8 @@ class MusicDatabaseBuilderImpl implements MusicDatabaseBuilder {
                 "JOIN ALBUM album on album.ID = s.ALBUM_ID " +
                 "JOIN ARTIST artist on artist.ID = s.ARTIST_ID");
         rows.forEach(row -> {
-            LibraryArtistItem artist = new LibraryArtistItem((Long) row.get("artistId"), row.get("artistName").toString());
-            LibraryAlbumItem album = new LibraryAlbumItem((Long) row.get("albumId"), row.get("albumName").toString());
+            LibraryArtistItem artist = new LibraryArtistItem((String) row.get("artistId"), row.get("artistName").toString());
+            LibraryAlbumItem album = new LibraryAlbumItem((String) row.get("albumId"), row.get("albumName").toString());
             LibraryArtistItem libraryArtist = libraryData.artists.computeIfAbsent(artist.getName(), value -> artist);
             libraryArtist.albums.computeIfAbsent(album.getName(), value -> album);
             libraryData.fileLocations.add(row.get("fileLocation").toString());
@@ -312,7 +319,7 @@ class MusicDatabaseBuilderImpl implements MusicDatabaseBuilder {
     @AllArgsConstructor
     @EqualsAndHashCode(exclude = "albums")
     private static class LibraryArtistItem {
-           private final long id;
+           private final String id;
            private final String name;
            private final Map<String, LibraryAlbumItem> albums = new HashMap<>();
     }
@@ -321,7 +328,7 @@ class MusicDatabaseBuilderImpl implements MusicDatabaseBuilder {
     @AllArgsConstructor
     @EqualsAndHashCode
     private static class LibraryAlbumItem {
-        private final long id;
+        private final String id;
         private final String name;
     }
 }

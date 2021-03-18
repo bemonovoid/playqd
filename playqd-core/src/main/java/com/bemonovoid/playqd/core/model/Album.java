@@ -10,7 +10,7 @@ import lombok.Getter;
 @Builder
 public class Album {
 
-    private Long id;
+    private String id;
     private String name;
     private String genre;
     private String date;

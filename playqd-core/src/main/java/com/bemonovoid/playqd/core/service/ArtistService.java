@@ -13,16 +13,16 @@ import com.bemonovoid.playqd.core.model.pageable.PageableResult;
 
 public interface ArtistService {
 
-    Artist getArtist(long artistId);
+    Artist getArtist(String artistId);
 
     List<BasicArtist> getAllBasicArtists();
 
     PageableResult<Artist> getArtists(FindArtistsRequest pageableRequest);
 
-    Optional<Image> getImage(long artistId, ImageSize size, boolean findRemotely);
+    Optional<Image> getImage(String artistId, ImageSize size, boolean findRemotely);
 
     Artist updateArtist(Artist artist, UpdateOptions updateOptions);
 
-    Artist move( long fromArtistId, long toArtistId, UpdateOptions updateOptions);
+    Artist move(String fromArtistId, String toArtistId, UpdateOptions updateOptions);
 
 }

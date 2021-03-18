@@ -8,6 +8,6 @@ import lombok.Setter;
 @Setter(AccessLevel.PACKAGE)
 public class MoveSong {
 
-    private long albumIdTo;
+    private String albumIdTo;
     private boolean updateAudioTags;
 }

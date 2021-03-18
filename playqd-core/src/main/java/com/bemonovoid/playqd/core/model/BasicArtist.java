@@ -7,6 +7,6 @@ import lombok.Getter;
 @AllArgsConstructor
 public class BasicArtist {
 
-    private final long id;
+    private final String id;
     private final String name;
 }

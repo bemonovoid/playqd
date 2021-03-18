@@ -1,8 +1,10 @@
 package com.bemonovoid.playqd.datasource.jdbc.projection;
 
+import java.util.UUID;
+
 public interface CountProjection {
 
-    long getArtistId();
+    UUID getArtistId();
 
     long getAlbumCount();
 

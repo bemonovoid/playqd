@@ -2,6 +2,7 @@ package com.bemonovoid.playqd.datasource.jdbc.dao;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.bemonovoid.playqd.core.dao.ArtistDao;
@@ -47,8 +48,8 @@ class ArtistDaoImpl implements ArtistDao {
     }
 
     @Override
-    public Artist getOne(long id) {
-        return artistRepository.findById(id)
+    public Artist getOne(String id) {
+        return artistRepository.findById(UUID.fromString(id))
                 .map(ArtistHelper::fromEntity)
                 .orElseThrow(() -> new PlayqdEntityNotFoundException(id, "artist"));
     }
@@ -100,8 +101,8 @@ class ArtistDaoImpl implements ArtistDao {
     }
 
     @Override
-    public void setSpotifyArtistId(long artistId, String spotifyId) {
-        ArtistEntity entity = artistRepository.findOne(artistId);
+    public void setSpotifyArtistId(String artistId, String spotifyId) {
+        ArtistEntity entity = artistRepository.findOne(UUID.fromString(artistId));
         entity.setSpotifyArtistId(spotifyId);
         artistRepository.save(entity);
     }
@@ -109,7 +110,7 @@ class ArtistDaoImpl implements ArtistDao {
     @Override
     public void update(Artist artist) {
         log.info("Updating artist with id='{}'.", artist.getId());
-        ArtistEntity entity = artistRepository.findOne(artist.getId());
+        ArtistEntity entity = artistRepository.findOne(UUID.fromString(artist.getId()));
         if (shouldUpdate(entity.getName(), artist.getName())) {
             entity.setName(artist.getName());
             entity.setSimpleName(EntityNameHelper.toLookUpName(artist.getName()));
@@ -123,11 +124,12 @@ class ArtistDaoImpl implements ArtistDao {
         log.info("Artist with id='{} updated.'", artist.getId());
     }
 
-    public MoveResult move(long fromArtistId, long toArtistId) {
+    @Override
+    public MoveResult move(String fromArtistId, String toArtistId) {
         log.info("Moving artist id={} to artist id={}", fromArtistId, toArtistId);
 
-        ArtistEntity artistFrom = artistRepository.findOne(fromArtistId);
-        ArtistEntity artistTo = artistRepository.findOne(toArtistId);
+        ArtistEntity artistFrom = artistRepository.findOne(UUID.fromString(fromArtistId));
+        ArtistEntity artistTo = artistRepository.findOne(UUID.fromString(toArtistId));
 
         List<AlbumEntity> albumsFrom = artistFrom.getAlbums();
         List<SongEntity> songsFrom = artistFrom.getAlbums().stream()
@@ -155,7 +157,7 @@ class ArtistDaoImpl implements ArtistDao {
         return newVal != null && !newVal.isBlank() && !newVal.equalsIgnoreCase(oldVal);
     }
 
-    private Map<Long, CountProjection> getCounts() {
+    private Map<UUID, CountProjection> getCounts() {
         return songRepository.getArtistAlbumSongCount();
     }
 

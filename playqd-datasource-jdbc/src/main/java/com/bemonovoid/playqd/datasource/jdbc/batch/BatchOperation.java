@@ -27,8 +27,7 @@ public class BatchOperation {
         while (!batches.isEmpty()) {
             InsertBatch insertBatch = batches.poll();
             SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
-                    .withTableName(insertBatch.getBatchTable().getTableName())
-                    .usingGeneratedKeyColumns(insertBatch.getBatchTable().getKeyColumnName());
+                    .withTableName(insertBatch.getBatchTable().getTableName());
             while (!insertBatch.getInserts().isEmpty()) {
                 List<SqlParameterSource> insertSql = insertBatch.getInserts().pop();
                 int[] rows = simpleJdbcInsert.executeBatch(insertSql.toArray(SqlParameterSource[]::new));

@@ -12,15 +12,15 @@ import com.bemonovoid.playqd.core.model.pageable.PageableResult;
 
 public interface AlbumService {
 
-    Optional<Album> getAlbum(long albumId);
+    Optional<Album> getAlbum(String albumId);
 
     PageableResult<Album> getAlbums(FindAlbumRequest request);
 
-    Optional<Image> getImage(long albumId, ImageSize size, boolean findRemotely);
+    Optional<Image> getImage(String albumId, ImageSize size, boolean findRemotely);
 
     void updateAlbum(Album album, UpdateOptions updateOptions);
 
-    void updateAlbumPreferences(long albumId, AlbumPreferences preferences);
+    void updateAlbumPreferences(String albumId, AlbumPreferences preferences);
 
-    void moveAlbum(long albumIdFrom, long albumIdTo, UpdateOptions updateOptions);
+    void moveAlbum(String albumIdFrom, String albumIdTo, UpdateOptions updateOptions);
 }

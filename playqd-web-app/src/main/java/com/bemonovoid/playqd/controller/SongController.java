@@ -38,17 +38,17 @@ class SongController {
     }
 
     @GetMapping("/album/{albumId}")
-    List<Song> getAlbumSongs(@PathVariable long albumId) {
+    List<Song> getAlbumSongs(@PathVariable String albumId) {
         return songService.getAlbumSongs(albumId);
     }
 
     @GetMapping("/{songId}")
-    ResponseEntity<Song> getSong(@PathVariable long songId) {
+    ResponseEntity<Song> getSong(@PathVariable String songId) {
         return ResponseEntity.ok(songService.getSong(songId));
     }
 
     @PutMapping(path = "/{songId}", consumes =  MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    void updateAlbum(@PathVariable long songId, @RequestBody UpdateSong model) {
+    void updateAlbum(@PathVariable String songId, @RequestBody UpdateSong model) {
         Song song = new Song();
         song.setId(songId);
         song.setName(model.getName());
@@ -60,22 +60,22 @@ class SongController {
     }
 
     @PutMapping("/{songId}/favorite")
-    void setFavorite(@PathVariable long songId) {
+    void setFavorite(@PathVariable String songId) {
         songService.updateFavoriteFlag(songId, true);
     }
 
     @DeleteMapping("/{songId}/favorite")
-    void unsetFavorite(@PathVariable long songId) {
+    void unsetFavorite(@PathVariable String songId) {
         songService.updateFavoriteFlag(songId, false);
     }
 
     @PutMapping("/{songId}/played")
-    void played(@PathVariable long songId) {
+    void played(@PathVariable String songId) {
         songService.updatePlayCount(songId);
     }
 
     @PutMapping(path = "/{songId}/moved", consumes =  MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    void moveSong(@PathVariable long songId, @RequestBody MoveSong model) {
+    void moveSong(@PathVariable String songId, @RequestBody MoveSong model) {
         UpdateOptions updateOptions = UpdateOptions.builder().updateAudioTags(model.isUpdateAudioTags()).build();
         songService.moveSong(songId, model.getAlbumIdTo(), updateOptions);
     }

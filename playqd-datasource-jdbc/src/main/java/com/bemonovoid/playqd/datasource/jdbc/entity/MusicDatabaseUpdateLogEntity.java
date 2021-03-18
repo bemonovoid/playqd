@@ -15,7 +15,7 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-public class MusicDatabaseUpdateLogEntity extends PersistentAuditableEntity<Long> {
+public class MusicDatabaseUpdateLogEntity extends PersistentAuditableEntity {
 
     public static final String TABLE_NAME = "MUSIC_DATABASE_UPDATE_LOG";
 

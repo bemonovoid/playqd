@@ -1,29 +1,27 @@
 package com.bemonovoid.playqd.core.dao;
 
-import java.util.List;
 import java.util.Optional;
 
 import com.bemonovoid.playqd.core.model.Album;
 import com.bemonovoid.playqd.core.model.AlbumPreferences;
 import com.bemonovoid.playqd.core.model.MoveResult;
-import com.bemonovoid.playqd.core.model.pageable.FindGenresRequest;
 import com.bemonovoid.playqd.core.model.pageable.PageableRequest;
 import com.bemonovoid.playqd.core.model.pageable.PageableResult;
 
 public interface AlbumDao {
 
-    Optional<Album> findOne(long id);
+    Optional<Album> findOne(String id);
 
-    Album getOne(long id);
+    Album getOne(String id);
 
     PageableResult<Album> getAlbums(PageableRequest pageableRequest);
 
     PageableResult<Album> getGenreAlbums(String genre, PageableRequest pageableRequest);
 
-    PageableResult<Album> getArtistAlbums(long artistId, PageableRequest pageableRequest);
+    PageableResult<Album> getArtistAlbums(String artistId, PageableRequest pageableRequest);
 
     PageableResult<Album> getArtistAlbumsWithNameContaining(
-            long artistId, String albumName, PageableRequest pageableRequest);
+            String artistId, String albumName, PageableRequest pageableRequest);
 
     PageableResult<String> getGenres(PageableRequest pageableRequest);
 
@@ -33,9 +31,9 @@ public interface AlbumDao {
 
     void updateAlbum(Album album);
 
-    void updateAlbumPreferences(long albumId, AlbumPreferences preferences);
+    void updateAlbumPreferences(String albumId, AlbumPreferences preferences);
 
-    void saveAlbumImage(long albumId, byte[] binaryData);
+    void saveAlbumImage(String albumId, byte[] binaryData);
 
-    MoveResult move(long albumIdFrom, Long albumIdTo);
+    MoveResult move(String albumIdFrom, String albumIdTo);
 }

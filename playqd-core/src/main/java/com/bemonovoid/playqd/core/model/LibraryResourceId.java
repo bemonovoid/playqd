@@ -7,7 +7,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public class LibraryResourceId {
 
-    private final long id;
+    private final String id;
     private ResourceTarget target;
     private final String authToken;
 

@@ -1,5 +1,7 @@
 package com.bemonovoid.playqd.datasource.jdbc.repository;
 
+import java.util.UUID;
+
 import com.bemonovoid.playqd.core.exception.PlayqdEntityNotFoundException;
 import com.bemonovoid.playqd.core.helpers.EntityNameHelper;
 import com.bemonovoid.playqd.datasource.jdbc.entity.AlbumEntity;
@@ -9,19 +11,19 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-public interface AlbumRepository extends JpaRepository<AlbumEntity, Long> {
+public interface AlbumRepository extends JpaRepository<AlbumEntity, UUID> {
 
-    default AlbumEntity findOne(long id) {
-        return findById(id).orElseThrow(() -> new PlayqdEntityNotFoundException(id, "album"));
+    default AlbumEntity findOne(UUID id) {
+        return findById(id).orElseThrow(() -> new PlayqdEntityNotFoundException(id.toString(), "album"));
     }
 
-    default Page<AlbumEntity> findByArtistIdAndNameContaining(long artistId, String name, Pageable pageable) {
+    default Page<AlbumEntity> findByArtistIdAndNameContaining(UUID artistId, String name, Pageable pageable) {
         return findByArtistIdAndSimpleNameContaining(artistId, EntityNameHelper.toLookUpName(name), pageable);
     }
 
-    Page<AlbumEntity> findByArtistId(long artistId, Pageable pageable);
+    Page<AlbumEntity> findByArtistId(UUID artistId, Pageable pageable);
 
-    Page<AlbumEntity> findByArtistIdAndSimpleNameContaining(long artistId, String name, Pageable pageable);
+    Page<AlbumEntity> findByArtistIdAndSimpleNameContaining(UUID artistId, String name, Pageable pageable);
 
     Page<AlbumEntity> findByGenreEquals(String genre, Pageable pageable);
 

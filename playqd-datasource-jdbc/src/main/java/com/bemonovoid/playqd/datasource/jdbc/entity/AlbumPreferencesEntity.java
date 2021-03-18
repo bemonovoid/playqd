@@ -14,7 +14,7 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = AlbumPreferencesEntity.TABLE_NAME)
-public class AlbumPreferencesEntity extends PersistentAuditableEntity<Long> {
+public class AlbumPreferencesEntity extends PersistentAuditableEntity {
 
     public static final String TABLE_NAME = "ALBUM_PREFERENCES";
 

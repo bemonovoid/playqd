@@ -17,7 +17,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,7 +40,7 @@ class ArtistController {
     }
 
     @GetMapping("/{artistId}")
-    Artist getArtist(@PathVariable long artistId) {
+    Artist getArtist(@PathVariable String artistId) {
         return artistService.getArtist(artistId);
     }
 
@@ -51,7 +50,7 @@ class ArtistController {
     }
 
     @GetMapping("/{artistId}/image/src")
-    ResponseEntity<String> getArtistImageSrc(@PathVariable long artistId) {
+    ResponseEntity<String> getArtistImageSrc(@PathVariable String artistId) {
         Optional<Image> artistImageOpt = artistService.getImage(artistId, ImageSize.SMALL, true);
         return artistImageOpt
                 .map(artistImage -> ResponseEntity.ok(artistImage.getUrl()))
@@ -59,7 +58,7 @@ class ArtistController {
     }
 
     @PutMapping("/{artistId}")
-    Artist updateArtist(@PathVariable long artistId, @RequestBody UpdateArtist updateArtist) {
+    Artist updateArtist(@PathVariable String artistId, @RequestBody UpdateArtist updateArtist) {
         Artist artist = Artist.builder()
                 .id(artistId)
                 .name(updateArtist.getName())

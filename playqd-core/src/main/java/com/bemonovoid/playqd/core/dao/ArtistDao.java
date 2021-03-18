@@ -10,7 +10,7 @@ import com.bemonovoid.playqd.core.model.pageable.PageableResult;
 
 public interface ArtistDao {
 
-    Artist getOne(long id);
+    Artist getOne(String id);
 
     List<BasicArtist> getAllBasicArtists();
 
@@ -22,10 +22,10 @@ public interface ArtistDao {
 
     PageableResult<Artist> getArtistsWithNameContaining(String name, PageableRequest pageableRequest);
 
-    void setSpotifyArtistId(long artistId, String spotifyId);
+    void setSpotifyArtistId(String artistId, String spotifyId);
 
     void update(Artist artist);
 
-    MoveResult move(long fromArtistId, long toArtistId);
+    MoveResult move(String fromArtistId, String toArtistId);
 
 }

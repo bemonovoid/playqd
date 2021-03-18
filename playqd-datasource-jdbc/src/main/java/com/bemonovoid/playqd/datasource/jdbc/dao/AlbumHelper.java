@@ -15,9 +15,9 @@ abstract class AlbumHelper {
 
     static Album fromEntity(AlbumEntity entity) {
         var resourceId =
-                new LibraryResourceId(entity.getId(), ResourceTarget.ALBUM, SecurityService.getCurrentUserToken());
+                new LibraryResourceId(entity.getUUID(), ResourceTarget.ALBUM, SecurityService.getCurrentUserToken());
         return Album.builder()
-                .id(entity.getId())
+                .id(entity.getUUID())
                 .name(entity.getName())
                 .simpleName(entity.getSimpleName())
                 .genre(entity.getGenre())
@@ -35,7 +35,7 @@ abstract class AlbumHelper {
 
         AlbumEntity albumEntity = new AlbumEntity();
 
-        albumEntity.setId(album.getId());
+        albumEntity.setUUID(album.getId());
         albumEntity.setName(album.getName());
         albumEntity.setSimpleName(album.getSimpleName());
         albumEntity.setDate(album.getDate());

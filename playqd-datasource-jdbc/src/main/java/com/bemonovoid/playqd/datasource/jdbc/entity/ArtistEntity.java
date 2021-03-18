@@ -20,7 +20,7 @@ import org.hibernate.annotations.LazyCollectionOption;
 @Entity
 @Getter
 @Setter
-public class ArtistEntity extends PersistentAuditableEntity<Long> {
+public class ArtistEntity extends PersistentAuditableEntity {
 
     public static final String TABLE_NAME = "ARTIST";
 

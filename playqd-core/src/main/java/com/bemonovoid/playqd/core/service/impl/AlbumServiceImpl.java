@@ -40,7 +40,7 @@ class AlbumServiceImpl implements AlbumService {
     }
 
     @Override
-    public Optional<Album> getAlbum(long albumId) {
+    public Optional<Album> getAlbum(String albumId) {
         return albumDao.findOne(albumId);
     }
 
@@ -66,7 +66,7 @@ class AlbumServiceImpl implements AlbumService {
     }
 
     @Override
-    public Optional<Image> getImage(long albumId, ImageSize size, boolean findRemotely) {
+    public Optional<Image> getImage(String albumId, ImageSize size, boolean findRemotely) {
         Album album = albumDao.getOne(albumId);
         if (album.getImage() != null) {
             return Optional.of(album.getImage());
@@ -83,7 +83,7 @@ class AlbumServiceImpl implements AlbumService {
     }
 
     @Override
-    public void moveAlbum(long albumIdFrom, long albumIdTo, UpdateOptions updateOptions) {
+    public void moveAlbum(String albumIdFrom, String albumIdTo, UpdateOptions updateOptions) {
         MoveResult moveResult = albumDao.move(albumIdFrom, albumIdTo);
         if (updateOptions.isUpdateAudioTags()) {
             AudioFileTagUpdater.updateAlbumTags(moveResult.getNewAlbum(), moveResult.getMovedSongFiles());
@@ -91,7 +91,7 @@ class AlbumServiceImpl implements AlbumService {
     }
 
     @Override
-    public void updateAlbumPreferences(long albumId, AlbumPreferences preferences) {
+    public void updateAlbumPreferences(String albumId, AlbumPreferences preferences) {
         albumDao.updateAlbumPreferences(albumId, preferences);
     }
 

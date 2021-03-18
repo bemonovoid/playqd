@@ -1,6 +1,7 @@
 package com.bemonovoid.playqd.datasource.jdbc.repository;
 
 import java.util.List;
+import java.util.UUID;
 
 import com.bemonovoid.playqd.core.exception.PlayqdEntityNotFoundException;
 import com.bemonovoid.playqd.core.helpers.EntityNameHelper;
@@ -11,10 +12,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-public interface ArtistRepository extends JpaRepository<ArtistEntity, Long> {
+public interface ArtistRepository extends JpaRepository<ArtistEntity, UUID> {
 
-    default ArtistEntity findOne(long id) {
-        return findById(id).orElseThrow(() -> new PlayqdEntityNotFoundException(id, "artist"));
+    default ArtistEntity findOne(UUID id) {
+        return findById(id).orElseThrow(() -> new PlayqdEntityNotFoundException(id.toString(), "artist"));
     }
 
     default Page<ArtistEntity> findByArtistNameContaining(String name, Pageable pageable) {
@@ -28,8 +29,8 @@ public interface ArtistRepository extends JpaRepository<ArtistEntity, Long> {
 
     @Query("SELECT s.artist.id FROM SongEntity s " +
             "WHERE s.playCount > 0 GROUP BY s.artist.id ORDER BY MAX(s.lastModifiedDate) DESC")
-    Page<Long> findRecentlyPlayedArtists(Pageable pageable);
+    Page<UUID> findRecentlyPlayedArtists(Pageable pageable);
 
     @Query("SELECT s.artist.id FROM SongEntity s GROUP BY s.artist.id ORDER BY MAX(s.playCount) DESC")
-    Page<Long> findMostPlayedArtists(Pageable pageable);
+    Page<UUID> findMostPlayedArtists(Pageable pageable);
 }

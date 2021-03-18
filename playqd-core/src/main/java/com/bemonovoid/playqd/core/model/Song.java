@@ -12,7 +12,7 @@ import lombok.Setter;
 @Setter
 public class Song {
 
-    private Long id;
+    private String id;
     private String name;
     private String originalName;
     private int duration;

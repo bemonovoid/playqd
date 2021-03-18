@@ -21,7 +21,7 @@ public class FindAlbumRequest {
 
     private SortDirection direction = SortDirection.ASC;
 
-    private Long artistId;
+    private String artistId;
     private String name;
     private String genre;
 

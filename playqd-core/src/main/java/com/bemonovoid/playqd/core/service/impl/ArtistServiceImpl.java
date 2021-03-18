@@ -38,7 +38,7 @@ class ArtistServiceImpl implements ArtistService {
     }
 
     @Override
-    public Artist getArtist(long artistId) {
+    public Artist getArtist(String artistId) {
         return artistDao.getOne(artistId);
     }
 
@@ -71,12 +71,12 @@ class ArtistServiceImpl implements ArtistService {
     }
 
     @Override
-    public Optional<Image> getImage(long artistId, ImageSize size, boolean findRemotely) {
+    public Optional<Image> getImage(String artistId, ImageSize size, boolean findRemotely) {
         return imageService.getArtistImage(artistDao.getOne(artistId), size, findRemotely);
     }
 
     @Override
-    public Artist move(long fromArtistId, long toArtistId, UpdateOptions updateOptions) {
+    public Artist move(String fromArtistId, String toArtistId, UpdateOptions updateOptions) {
         MoveResult moveResult = artistDao.move(fromArtistId, toArtistId);
         if (updateOptions.isUpdateAudioTags()) {
             AudioFileTagUpdater.updateArtistTags(moveResult.getNewArtist(), moveResult.getMovedSongFiles());

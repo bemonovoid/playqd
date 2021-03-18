@@ -3,6 +3,7 @@ package com.bemonovoid.playqd.datasource.jdbc.dao;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 import com.bemonovoid.playqd.core.dao.SongDao;
 import com.bemonovoid.playqd.core.exception.PlayqdEntityNotFoundException;
@@ -40,15 +41,15 @@ class SongDaoImpl implements SongDao {
     }
 
     @Override
-    public Song getOne(long id) {
-        return songRepository.findById(id)
+    public Song getOne(String songId) {
+        return songRepository.findById(UUID.fromString(songId))
                 .map(SongHelper::fromEntity)
-                .orElseThrow(() -> new PlayqdEntityNotFoundException(id, "song"));
+                .orElseThrow(() -> new PlayqdEntityNotFoundException(songId, "song"));
     }
 
     @Override
-    public String getSongFileLocation(long songId) {
-        return songRepository.findSongFileLocation(songId)
+    public String getSongFileLocation(String songId) {
+        return songRepository.findSongFileLocation(UUID.fromString(songId))
                 .orElseThrow(() -> new PlayqdEntityNotFoundException(songId, "song"));
     }
 
@@ -60,11 +61,14 @@ class SongDaoImpl implements SongDao {
     }
 
     @Override
-    public List<Song> getAlbumSongs(long albumId) {
-        Map<Long, SongPreferencesEntity> songsPreferences =
-                songPreferencesRepository.findAlbumSongsPreferences(albumId, SecurityService.getCurrentUserName());
+    public List<Song> getAlbumSongs(String albumId) {
+        Map<String, SongPreferencesEntity> songsPreferences = songPreferencesRepository.findAlbumSongsPreferences(
+                UUID.fromString(albumId), SecurityService.getCurrentUserName());
+
         Sort sort = Sort.sort(SongEntity.class).by(SongEntity::getTrackId).ascending();
-        return SongHelper.fromAlbumSongEntities(songRepository.findByAlbumId(albumId, sort), songsPreferences);
+
+        return SongHelper.fromAlbumSongEntities(songRepository.findByAlbumId(
+                UUID.fromString(albumId), sort), songsPreferences);
     }
 
     @Override
@@ -102,15 +106,15 @@ class SongDaoImpl implements SongDao {
     }
 
     @Override
-    public List<String> getArtistSongsFileLocations(long artistId) {
-        return songRepository.findArtistSongsFileLocations(artistId);
+    public List<String> getArtistSongsFileLocations(String artistId) {
+        return songRepository.findArtistSongsFileLocations(UUID.fromString(artistId));
     }
 
     @Override
     public void updateSong(Song song) {
         log.info("Updating album with id='{}'.", song.getId());
 
-        SongEntity entity = songRepository.findOne(song.getId());
+        SongEntity entity = songRepository.findOne(UUID.fromString(song.getId()));
 
         if (shouldUpdate(entity.getName(), song.getName())) {
             entity.setName(song.getName());
@@ -131,19 +135,19 @@ class SongDaoImpl implements SongDao {
     }
 
     @Override
-    public List<String> getAlbumSongsFileLocations(long albumId) {
-        return songRepository.findAlbumSongsFileLocations(albumId);
+    public List<String> getAlbumSongsFileLocations(String albumId) {
+        return songRepository.findAlbumSongsFileLocations(UUID.fromString(albumId));
     }
 
     @Override
-    public Optional<String> getAnyAlbumSongFileLocation(long albumId) {
-        return songRepository.findFirstByAlbumId(albumId).map(FileLocationProjection::getFileLocation);
+    public Optional<String> getAnyAlbumSongFileLocation(String albumId) {
+        return songRepository.findFirstByAlbumId(UUID.fromString(albumId)).map(FileLocationProjection::getFileLocation);
     }
 
     @Override
     @Transactional
-    public void updateFavoriteFlag(long songId, boolean isFavorite) {
-        SongEntity songEntity = songRepository.findOne(songId);
+    public void updateFavoriteFlag(String songId, boolean isFavorite) {
+        SongEntity songEntity = songRepository.findOne(UUID.fromString(songId));
         if (songEntity.isFavorite() == isFavorite) {
             return;
         }
@@ -153,16 +157,16 @@ class SongDaoImpl implements SongDao {
 
     @Override
     @Transactional
-    public void updatePlayCount(long songId) {
-        SongEntity songEntity = songRepository.findOne(songId);
+    public void updatePlayCount(String songId) {
+        SongEntity songEntity = songRepository.findOne(UUID.fromString(songId));
         songEntity.setPlayCount(songEntity.getPlayCount() + 1);
         songRepository.save(songEntity);
     }
 
     @Override
-    public Song moveSong(long songId, long albumId) {
-        SongEntity songEntity = songRepository.findOne(songId);
-        AlbumEntity albumEntity = albumRepository.findOne(albumId);
+    public Song moveSong(String songId, String albumId) {
+        SongEntity songEntity = songRepository.findOne(UUID.fromString(songId));
+        AlbumEntity albumEntity = albumRepository.findOne(UUID.fromString(albumId));
         songEntity.setAlbum(albumEntity);
         SongEntity movedSong = songRepository.save(songEntity);
         return SongHelper.fromEntity(movedSong);

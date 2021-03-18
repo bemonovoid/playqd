@@ -9,7 +9,7 @@ import lombok.Getter;
 @Builder
 public class Artist {
 
-    private Long id;
+    private String id;
     private String name;
     private String country;
     private long albumCount;

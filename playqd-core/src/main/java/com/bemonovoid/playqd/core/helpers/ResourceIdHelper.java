@@ -18,7 +18,7 @@ public abstract class ResourceIdHelper {
     public static LibraryResourceId decode(String resourceIdEncoded) {
         String resourceIdDecoded = new String(Base64.getDecoder().decode(resourceIdEncoded), StandardCharsets.UTF_8);
         String[] parts = resourceIdDecoded.split(RESOURCE_ID_DELIMITER);
-        return new LibraryResourceId(Long.parseLong(parts[0]), ResourceTarget.valueOf(parts[1]), parts[2]);
+        return new LibraryResourceId(parts[0], ResourceTarget.valueOf(parts[1]), parts[2]);
     }
 
 

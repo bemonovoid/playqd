@@ -17,7 +17,7 @@ import com.bemonovoid.playqd.datasource.jdbc.entity.SongPreferencesEntity;
 abstract class SongHelper {
 
     static List<Song> fromAlbumSongEntities(List<SongEntity> entities,
-                                            Map<Long, SongPreferencesEntity> songPreferences) {
+                                            Map<String, SongPreferencesEntity> songPreferences) {
         if (entities.isEmpty()) {
             return Collections.emptyList();
         }
@@ -40,7 +40,7 @@ abstract class SongHelper {
     private static Song fromEntity(SongEntity songEntity, boolean deepCopy) {
         Song song = new Song();
 
-        song.setId(songEntity.getId());
+        song.setId(songEntity.getUUID());
         song.setName(songEntity.getName());
         song.setOriginalName(songEntity.getName());
         song.setComment(songEntity.getComment());

@@ -26,12 +26,12 @@ class SongServiceImpl implements SongService {
     }
 
     @Override
-    public Song getSong(long songId) {
+    public Song getSong(String songId) {
         return songDao.getOne(songId);
     }
 
     @Override
-    public String getSongFileLocation(long songId) {
+    public String getSongFileLocation(String songId) {
         return songDao.getSongFileLocation(songId);
     }
 
@@ -71,17 +71,17 @@ class SongServiceImpl implements SongService {
     }
 
     @Override
-    public List<Song> getAlbumSongs(long albumId) {
+    public List<Song> getAlbumSongs(String albumId) {
         return songDao.getAlbumSongs(albumId);
     }
 
     @Override
-    public void updateFavoriteFlag(long songId, boolean isFavorite) {
+    public void updateFavoriteFlag(String songId, boolean isFavorite) {
         songDao.updateFavoriteFlag(songId, isFavorite);
     }
 
     @Override
-    public void moveSong(long songId, long albumIdTo, UpdateOptions updateOptions) {
+    public void moveSong(String songId, String albumIdTo, UpdateOptions updateOptions) {
         Song song = songDao.moveSong(songId, albumIdTo);
         if (updateOptions.isUpdateAudioTags()) {
             AudioFileTagUpdater.updateAlbumTags(song.getAlbum(), List.of(songDao.getSongFileLocation(songId)));
@@ -89,7 +89,7 @@ class SongServiceImpl implements SongService {
     }
 
     @Override
-    public void updatePlayCount(long songId) {
+    public void updatePlayCount(String songId) {
         songDao.updatePlayCount(songId);
     }
 

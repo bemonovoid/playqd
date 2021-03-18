@@ -2,6 +2,7 @@ package com.bemonovoid.playqd.datasource.jdbc.dao;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.bemonovoid.playqd.core.dao.AlbumDao;
@@ -9,7 +10,6 @@ import com.bemonovoid.playqd.core.model.Album;
 import com.bemonovoid.playqd.core.model.AlbumPreferences;
 import com.bemonovoid.playqd.core.model.MoveResult;
 import com.bemonovoid.playqd.core.model.SortDirection;
-import com.bemonovoid.playqd.core.model.pageable.FindGenresRequest;
 import com.bemonovoid.playqd.core.model.pageable.PageableRequest;
 import com.bemonovoid.playqd.core.model.pageable.PageableResult;
 import com.bemonovoid.playqd.core.model.pageable.SortBy;
@@ -27,7 +27,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
 @Slf4j
 @Component
@@ -49,13 +48,13 @@ class AlbumDaoImpl implements AlbumDao {
     }
 
     @Override
-    public Optional<Album> findOne(long id) {
-        return albumRepository.findById(id).map(AlbumHelper::fromEntity);
+    public Optional<Album> findOne(String id) {
+        return albumRepository.findById(UUID.fromString(id)).map(AlbumHelper::fromEntity);
     }
 
     @Override
-    public Album getOne(long id) {
-        return AlbumHelper.fromEntity(albumRepository.findOne(id));
+    public Album getOne(String id) {
+        return AlbumHelper.fromEntity(albumRepository.findOne(UUID.fromString(id)));
     }
 
     @Override
@@ -74,15 +73,15 @@ class AlbumDaoImpl implements AlbumDao {
     }
 
     @Override
-    public PageableResult<Album> getArtistAlbums(long artistId, PageableRequest pageableRequest) {
+    public PageableResult<Album> getArtistAlbums(String artistId, PageableRequest pageableRequest) {
         Sort sort = getAlbumSort(pageableRequest.getSort());
         PageRequest pageRequest = PageRequest.of(pageableRequest.getPage(), pageableRequest.getSize(), sort);
         return new PageableResultWrapper<>(
-                albumRepository.findByArtistId(artistId, pageRequest).map(AlbumHelper::fromEntity));
+                albumRepository.findByArtistId(UUID.fromString(artistId), pageRequest).map(AlbumHelper::fromEntity));
     }
 
     @Override
-    public PageableResult<Album> getArtistAlbumsWithNameContaining(long artistId,
+    public PageableResult<Album> getArtistAlbumsWithNameContaining(String artistId,
                                                                    String albumName,
                                                                    PageableRequest pageableRequest) {
         Sort sort = Sort.unsorted();
@@ -94,7 +93,7 @@ class AlbumDaoImpl implements AlbumDao {
         }
         PageRequest pageRequest = PageRequest.of(pageableRequest.getPage(), pageableRequest.getSize(), sort);
         return new PageableResultWrapper<>(albumRepository.findByArtistIdAndNameContaining(
-                artistId, albumName, pageRequest).map(AlbumHelper::fromEntity));
+                UUID.fromString(artistId), albumName, pageRequest).map(AlbumHelper::fromEntity));
     }
 
     @Override
@@ -130,7 +129,7 @@ class AlbumDaoImpl implements AlbumDao {
 
         log.info("Updating album with id='{}'.", album.getId());
 
-        AlbumEntity entity = albumRepository.findOne(album.getId());
+        AlbumEntity entity = albumRepository.findOne(UUID.fromString(album.getId()));
 
         if (shouldUpdate(entity.getName(), album.getName())) {
             entity.setName(album.getName());
@@ -148,14 +147,14 @@ class AlbumDaoImpl implements AlbumDao {
     }
 
     @Override
-    public void updateAlbumPreferences(long albumId, AlbumPreferences preferences) {
+    public void updateAlbumPreferences(String albumId, AlbumPreferences preferences) {
 
         log.info("Updating preferences for album with id='{}'.", albumId);
 
-        AlbumPreferencesEntity preferencesEntity = albumPreferencesRepository.findByAlbumId(albumId)
+        AlbumPreferencesEntity preferencesEntity = albumPreferencesRepository.findByAlbumId(UUID.fromString(albumId))
                 .orElseGet(() -> {
                     AlbumPreferencesEntity entity = new AlbumPreferencesEntity();
-                    entity.setAlbum(albumRepository.findOne(albumId));
+                    entity.setAlbum(albumRepository.findOne(UUID.fromString(albumId)));
                     return entity;
                 });
         preferencesEntity.setSongNameAsFileName(preferences.isSongNameAsFileName());
@@ -164,19 +163,19 @@ class AlbumDaoImpl implements AlbumDao {
     }
 
     @Override
-    public void saveAlbumImage(long albumId, byte[] binaryData) {
-        albumRepository.findById(albumId).ifPresent(entity -> {
+    public void saveAlbumImage(String albumId, byte[] binaryData) {
+        albumRepository.findById(UUID.fromString(albumId)).ifPresent(entity -> {
             entity.setImage(binaryData);
             albumRepository.save(entity);
         });
     }
 
     @Override
-    public MoveResult move(long albumIdFrom, Long albumIdTo) {
+    public MoveResult move(String albumIdFrom, String albumIdTo) {
         log.info("Moving album id={} to album id={}", albumIdFrom, albumIdTo);
 
-        AlbumEntity albumFrom = albumRepository.findOne(albumIdFrom);
-        AlbumEntity albumTo = albumRepository.findOne(albumIdTo);
+        AlbumEntity albumFrom = albumRepository.findOne(UUID.fromString(albumIdFrom));
+        AlbumEntity albumTo = albumRepository.findOne(UUID.fromString(albumIdTo));
 
         albumFrom.getSongs().forEach(albumSongFromEntity -> albumSongFromEntity.setAlbum(albumTo));
 

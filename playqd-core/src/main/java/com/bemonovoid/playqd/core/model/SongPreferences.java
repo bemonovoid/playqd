@@ -7,7 +7,7 @@ import lombok.Getter;
 @Builder
 public class SongPreferences {
 
-    private long songId;
+    private String songId;
     private boolean songNameAsFileName;
 
 }

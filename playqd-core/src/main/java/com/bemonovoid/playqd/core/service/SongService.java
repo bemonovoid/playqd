@@ -9,19 +9,19 @@ import com.bemonovoid.playqd.core.model.pageable.PageableResult;
 
 public interface SongService {
 
-    Song getSong(long songId);
+    Song getSong(String songId);
 
-    String getSongFileLocation(long songId);
+    String getSongFileLocation(String songId);
 
-    List<Song> getAlbumSongs(long albumId);
+    List<Song> getAlbumSongs(String albumId);
 
     PageableResult<Song> getSongs(FindSongsRequest request);
 
     void updateSong(Song song, UpdateOptions options);
 
-    void updatePlayCount(long songId);
+    void updatePlayCount(String songId);
 
-    void updateFavoriteFlag(long songId, boolean isFavorite);
+    void updateFavoriteFlag(String songId, boolean isFavorite);
 
-    void moveSong(long songId, long albumIdTo, UpdateOptions updateOptions);
+    void moveSong(String songId, String albumIdTo, UpdateOptions updateOptions);
 }
