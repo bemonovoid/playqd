@@ -48,7 +48,11 @@ public class SpotifyImageSearchService implements ImageSearchService {
 
     @Override
     public List<Image> searchAlbumImage(Album album) {
-        String artistName = album.getArtist().getName();
+        String artistName = album.getArtist().getSpotifyName();
+        if (artistName == null) {
+            artistName = album.getArtist().getName();
+        }
+
         SpotifySearchAlbumResponse response = spotifyApi.searchArtistAlbum(artistName, album.getName());
 
         Optional<SpotifyLibraryItem> spotifyAlbum = response.getAlbums().getItems().stream()
@@ -72,9 +76,11 @@ public class SpotifyImageSearchService implements ImageSearchService {
         }
         SpotifyLibraryItem spotifyLibraryItem = response.getArtists().getItems().get(0);
 
-        if (artist.getSpotifyId() == null) {
-            artistDao.update(Artist.builder().id(artist.getId()).spotifyId(spotifyLibraryItem.getId()).build());
-        }
+        artistDao.update(Artist.builder()
+                .id(artist.getId())
+                .spotifyId(spotifyLibraryItem.getId())
+                .spotifyName(spotifyLibraryItem.getName())
+                .build());
 
         return Optional.of(spotifyLibraryItem);
     }

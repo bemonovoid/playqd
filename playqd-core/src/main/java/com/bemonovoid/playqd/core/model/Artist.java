@@ -21,4 +21,7 @@ public class Artist {
     @JsonIgnore
     private String spotifyId;
 
+    @JsonIgnore
+    private String spotifyName;
+
 }

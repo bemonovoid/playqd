@@ -105,6 +105,7 @@ class ArtistDaoImpl implements ArtistDao {
     public void update(Artist artist) {
         log.info("Updating artist with id='{}'.", artist.getId());
         ArtistEntity entity = artistRepository.findOne(UUID.fromString(artist.getId()));
+
         if (propertyChanged(entity.getName(), artist.getName())) {
             entity.setName(artist.getName());
             entity.setSimpleName(EntityNameHelper.toLookUpName(artist.getName()));
@@ -114,6 +115,9 @@ class ArtistDaoImpl implements ArtistDao {
         }
         if (propertyChanged(entity.getSpotifyArtistId(), artist.getSpotifyId())) {
             entity.setSpotifyArtistId(artist.getSpotifyId());
+        }
+        if (propertyChanged(entity.getSpotifyArtistName(), artist.getSpotifyName())) {
+            entity.setSpotifyArtistName(artist.getSpotifyName());
         }
 
         artistRepository.save(entity);

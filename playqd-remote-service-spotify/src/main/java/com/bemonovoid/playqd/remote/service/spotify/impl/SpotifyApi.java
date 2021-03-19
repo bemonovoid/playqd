@@ -39,23 +39,20 @@ public class SpotifyApi {
 
     SpotifySearchArtistResponse searchArtistByName(String artistName) {
         String artistNameEncoded = URLEncoder.encode(artistName, StandardCharsets.UTF_8);
-        UriComponents uriComponents = UriComponentsBuilder.fromPath("/search")
-                .queryParam("q", artistNameEncoded)
-                .queryParam("type", "artist")
-                .build();
+
+        String httpUrl = String.format("%s?q=%s&type=artist", searchApiBaseUrl, artistName);
+
         RestTemplate restTemplate = new RestTemplateBuilder()
-                .rootUri(properties.getApiBaseUrl() + "/" + properties.getApiVersion())
-                .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken())
-                .build();
+                .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken()).build();
         try {
             ResponseEntity<SpotifySearchArtistResponse> response =
-                    restTemplate.getForEntity(uriComponents.toUriString(), SpotifySearchArtistResponse.class);
+                    restTemplate.getForEntity(httpUrl, SpotifySearchArtistResponse.class);
 
             SpotifySearchArtistResponse responseBody = response.getBody();
 
             if (responseBody == null) {
                 throw new PlayqdImageServiceException(
-                        String.format("Spotify search api query response is null. %s", uriComponents.toUriString()));
+                        String.format("Spotify search api query response is null. %s", httpUrl));
             }
 
             return responseBody;
