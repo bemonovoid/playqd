@@ -28,13 +28,16 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 class SongDaoImpl implements SongDao {
 
+    private final SongHelper songHelper;
     private final SongRepository songRepository;
     private final AlbumRepository albumRepository;
     private final SongPreferencesRepository songPreferencesRepository;
 
-    SongDaoImpl(SongRepository songRepository,
+    SongDaoImpl(SongHelper songHelper,
+                SongRepository songRepository,
                 AlbumRepository albumRepository,
                 SongPreferencesRepository songPreferencesRepository) {
+        this.songHelper = songHelper;
         this.songRepository = songRepository;
         this.albumRepository = albumRepository;
         this.songPreferencesRepository = songPreferencesRepository;
@@ -43,7 +46,7 @@ class SongDaoImpl implements SongDao {
     @Override
     public Song getOne(String songId) {
         return songRepository.findById(UUID.fromString(songId))
-                .map(SongHelper::fromEntity)
+                .map(songHelper::fromEntity)
                 .orElseThrow(() -> new PlayqdEntityNotFoundException(songId, "song"));
     }
 
@@ -57,7 +60,7 @@ class SongDaoImpl implements SongDao {
     public PageableResult<Song> getSongs(PageableRequest pageableRequest) {
         Sort sort = Sort.sort(SongEntity.class).by(SongEntity::getName).ascending();
         PageRequest pageRequest = PageRequest.of(pageableRequest.getPage(), pageableRequest.getSize(), sort);
-        return new PageableResultWrapper<>(songRepository.findAll(pageRequest).map(SongHelper::fromEntity));
+        return new PageableResultWrapper<>(songRepository.findAll(pageRequest).map(songHelper::fromEntity));
     }
 
     @Override
@@ -67,34 +70,34 @@ class SongDaoImpl implements SongDao {
 
         Sort sort = Sort.sort(SongEntity.class).by(SongEntity::getTrackId).ascending();
 
-        return SongHelper.fromAlbumSongEntities(songRepository.findByAlbumId(
+        return songHelper.fromAlbumSongEntities(songRepository.findByAlbumId(
                 UUID.fromString(albumId), sort), songsPreferences);
     }
 
     @Override
     public PageableResult<Song> getFavoriteSongs(PageableRequest pageableRequest) {
         PageRequest pageRequest = PageRequest.of(pageableRequest.getPage(), pageableRequest.getSize());
-        return new PageableResultWrapper<>(songRepository.findFavoriteSongs(pageRequest).map(SongHelper::fromEntity));
+        return new PageableResultWrapper<>(songRepository.findFavoriteSongs(pageRequest).map(songHelper::fromEntity));
     }
 
     @Override
     public PageableResult<Song> getMostPlayedSongs(PageableRequest pageableRequest) {
         PageRequest pageRequest = PageRequest.of(pageableRequest.getPage(), pageableRequest.getSize());
-        return new PageableResultWrapper<>(songRepository.findMostPlayedSongs(pageRequest).map(SongHelper::fromEntity));
+        return new PageableResultWrapper<>(songRepository.findMostPlayedSongs(pageRequest).map(songHelper::fromEntity));
     }
 
     @Override
     public PageableResult<Song> getRecentlyPlayedSongs(PageableRequest pageableRequest) {
         PageRequest pageRequest = PageRequest.of(pageableRequest.getPage(), pageableRequest.getSize());
         return new PageableResultWrapper<>(
-                songRepository.findRecentlyPlayedSongs(pageRequest).map(SongHelper::fromEntity));
+                songRepository.findRecentlyPlayedSongs(pageRequest).map(songHelper::fromEntity));
     }
 
     @Override
     public PageableResult<Song> getRecentlyAddedSongs(PageableRequest pageableRequest) {
         Sort sort = Sort.sort(SongEntity.class).by(SongEntity::getCreatedDate).descending();
         PageRequest pageRequest = PageRequest.of(pageableRequest.getPage(), pageableRequest.getSize(), sort);
-        return new PageableResultWrapper<>(songRepository.findAll(pageRequest).map(SongHelper::fromEntity));
+        return new PageableResultWrapper<>(songRepository.findAll(pageRequest).map(songHelper::fromEntity));
     }
 
     @Override
@@ -102,7 +105,7 @@ class SongDaoImpl implements SongDao {
         Sort sort = Sort.sort(SongEntity.class).by(SongEntity::getName).ascending();
         PageRequest pageRequest = PageRequest.of(pageableRequest.getPage(), pageableRequest.getSize(), sort);
         return new PageableResultWrapper<>(
-                songRepository.findWithNameContaining(name, pageRequest).map(SongHelper::fromEntity));
+                songRepository.findWithNameContaining(name, pageRequest).map(songHelper::fromEntity));
     }
 
     @Override
@@ -169,7 +172,7 @@ class SongDaoImpl implements SongDao {
         AlbumEntity albumEntity = albumRepository.findOne(UUID.fromString(albumId));
         songEntity.setAlbum(albumEntity);
         SongEntity movedSong = songRepository.save(songEntity);
-        return SongHelper.fromEntity(movedSong);
+        return songHelper.fromEntity(movedSong);
     }
 
     private boolean shouldUpdate(Object oldVal, String newVal) {

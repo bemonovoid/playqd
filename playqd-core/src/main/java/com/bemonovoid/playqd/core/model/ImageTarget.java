@@ -1,11 +1,9 @@
 package com.bemonovoid.playqd.core.model;
 
-public enum ResourceTarget {
+public enum ImageTarget {
 
     ARTIST,
 
-    ALBUM,
-
-    SONG
+    ALBUM;
 
 }

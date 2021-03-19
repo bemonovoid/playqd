@@ -29,7 +29,6 @@ public class Song {
     private String fileLocation;
     private String fileExtension;
     private String fileName;
-    private String resourceId;
 
     private int playCount;
     private boolean favorite;

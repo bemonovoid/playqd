@@ -3,9 +3,9 @@ package com.bemonovoid.playqd.config.security;
 import javax.sql.DataSource;
 
 import com.bemonovoid.playqd.config.properties.AppProperties;
+import com.bemonovoid.playqd.controller.Endpoints;
 import com.bemonovoid.playqd.security.jwt.JwtAuthenticationFilter;
 import com.bemonovoid.playqd.security.jwt.JwtAuthenticationProvider;
-import com.bemonovoid.playqd.security.jwt.JwtEncodedAuthenticationFilter;
 import com.bemonovoid.playqd.security.jwt.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -66,8 +66,7 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .formLogin().disable()
                     .httpBasic().authenticationEntryPoint(new UnauthorizedBasicAuthEntryPoint())
                     .and()
-                    .addFilterBefore(new JwtAuthenticationFilter(authenticationManager()), BasicAuthenticationFilter.class)
-                    .addFilterBefore(new JwtEncodedAuthenticationFilter(), JwtAuthenticationFilter.class);
+                    .addFilterBefore(new JwtAuthenticationFilter(authenticationManager()), BasicAuthenticationFilter.class);
         }
     }
 

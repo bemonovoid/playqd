@@ -17,7 +17,6 @@ public class Album {
     private Integer totalTimeInSeconds;
     private String totalTimeHumanReadable;
     private Artist artist;
-    private String resourceId;
 
     @JsonIgnore
     private Image image;
