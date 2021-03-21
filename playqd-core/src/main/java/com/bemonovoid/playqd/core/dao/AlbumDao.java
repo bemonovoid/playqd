@@ -20,6 +20,8 @@ public interface AlbumDao {
 
     PageableResult<Album> getArtistAlbums(String artistId, PageableRequest pageableRequest);
 
+    PageableResult<Album> getAlbumsWithNameContaining(String albumName, PageableRequest pageableRequest);
+
     PageableResult<Album> getArtistAlbumsWithNameContaining(
             String artistId, String albumName, PageableRequest pageableRequest);
 

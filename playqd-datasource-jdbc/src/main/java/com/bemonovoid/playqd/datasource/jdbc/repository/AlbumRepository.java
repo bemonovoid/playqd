@@ -21,7 +21,13 @@ public interface AlbumRepository extends JpaRepository<AlbumEntity, UUID> {
         return findByArtistIdAndSimpleNameContaining(artistId, EntityNameHelper.toLookUpName(name), pageable);
     }
 
+    default Page<AlbumEntity> findByNameContaining(String name, Pageable pageable) {
+        return findBySimpleNameContaining(EntityNameHelper.toLookUpName(name), pageable);
+    }
+
     Page<AlbumEntity> findByArtistId(UUID artistId, Pageable pageable);
+
+    Page<AlbumEntity> findBySimpleNameContaining(String name, Pageable pageable);
 
     Page<AlbumEntity> findByArtistIdAndSimpleNameContaining(UUID artistId, String name, Pageable pageable);
 

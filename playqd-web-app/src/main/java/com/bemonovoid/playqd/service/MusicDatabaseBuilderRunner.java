@@ -1,7 +1,7 @@
 package com.bemonovoid.playqd.service;
 
-import com.bemonovoid.playqd.config.properties.AppProperties;
-import com.bemonovoid.playqd.core.service.MusicDatabaseBuilder;
+import com.bemonovoid.playqd.core.service.MusicLibraryScanner;
+import com.bemonovoid.playqd.core.service.SettingsService;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
@@ -9,18 +9,18 @@ import org.springframework.stereotype.Component;
 @Component
 class MusicDatabaseBuilderRunner implements ApplicationRunner {
 
-    private final boolean scanOnStartup;
-    private final MusicDatabaseBuilder musicDatabaseBuilder;
+    private final SettingsService settingsService;
+    private final MusicLibraryScanner musicLibraryScanner;
 
-    MusicDatabaseBuilderRunner(AppProperties appProperties, MusicDatabaseBuilder musicDatabaseBuilder) {
-        this.musicDatabaseBuilder = musicDatabaseBuilder;
-        this.scanOnStartup = appProperties.getLibrary().isScanOnStartup();
+    MusicDatabaseBuilderRunner(SettingsService settingsService, MusicLibraryScanner musicLibraryScanner) {
+        this.settingsService = settingsService;
+        this.musicLibraryScanner = musicLibraryScanner;
     }
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        if (scanOnStartup) {
-            musicDatabaseBuilder.build(false);
+        if (settingsService.getLibrarySettings().isRescanAtStartup()) {
+            musicLibraryScanner.scan(false);
         }
     }
 }

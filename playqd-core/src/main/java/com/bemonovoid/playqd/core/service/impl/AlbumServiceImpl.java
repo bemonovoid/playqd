@@ -10,7 +10,6 @@ import com.bemonovoid.playqd.core.model.AlbumPreferences;
 import com.bemonovoid.playqd.core.model.Image;
 import com.bemonovoid.playqd.core.model.ImageSize;
 import com.bemonovoid.playqd.core.model.MoveResult;
-import com.bemonovoid.playqd.core.model.SortDirection;
 import com.bemonovoid.playqd.core.model.UpdateOptions;
 import com.bemonovoid.playqd.core.model.pageable.FindAlbumRequest;
 import com.bemonovoid.playqd.core.model.pageable.PageableRequest;
@@ -58,6 +57,8 @@ class AlbumServiceImpl implements AlbumService {
             } else {
                 return albumDao.getArtistAlbums(request.getArtistId(), pageable);
             }
+        } else if (StringUtils.hasText(request.getName())) {
+            return albumDao.getAlbumsWithNameContaining(request.getName(), pageable);
         } else if (StringUtils.hasText(request.getGenre())) {
             return albumDao.getGenreAlbums(request.getGenre(), pageable);
         } else {

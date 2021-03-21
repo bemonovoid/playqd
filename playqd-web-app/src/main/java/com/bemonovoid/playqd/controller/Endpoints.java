@@ -8,4 +8,6 @@ public abstract class Endpoints {
 
     public static final String LIBRARY_API_BASE_PATH = API_BASE_PATH + "/library";
 
+    public static final String SETTINGS_API_BASE_PATH = API_BASE_PATH + "/settings";
+
 }

@@ -20,7 +20,7 @@ import com.bemonovoid.playqd.core.model.DirectoryScanLog;
 import com.bemonovoid.playqd.core.model.DirectoryScanStatus;
 import com.bemonovoid.playqd.core.model.event.DirectoryScanCompleted;
 import com.bemonovoid.playqd.core.service.LibraryDirectory;
-import com.bemonovoid.playqd.core.service.MusicDatabaseBuilder;
+import com.bemonovoid.playqd.core.service.MusicLibraryScanner;
 import com.bemonovoid.playqd.datasource.jdbc.batch.BatchOperation;
 import com.bemonovoid.playqd.datasource.jdbc.batch.BatchTable;
 import com.bemonovoid.playqd.datasource.jdbc.batch.InsertBatch;
@@ -50,9 +50,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 @Component
-class MusicDatabaseBuilderImpl implements MusicDatabaseBuilder {
+class MusicLibraryScannerImpl implements MusicLibraryScanner {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MusicDatabaseBuilderImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MusicLibraryScannerImpl.class);
 
     private static final String UNKNOWN_ARTIST = "Unknown artist";
     private static final String UNKNOWN_ALBUM = "Unknown album";
@@ -74,9 +74,9 @@ class MusicDatabaseBuilderImpl implements MusicDatabaseBuilder {
     private final LibraryDirectory libraryDirectory;
     private final ApplicationEventPublisher eventPublisher;
 
-    MusicDatabaseBuilderImpl(JdbcTemplate jdbcTemplate,
-                             LibraryDirectory libraryDirectory,
-                             ApplicationEventPublisher eventPublisher) {
+    MusicLibraryScannerImpl(JdbcTemplate jdbcTemplate,
+                            LibraryDirectory libraryDirectory,
+                            ApplicationEventPublisher eventPublisher) {
         this.jdbcTemplate = jdbcTemplate;
         this.libraryDirectory = libraryDirectory;
         this.eventPublisher = eventPublisher;
@@ -85,9 +85,9 @@ class MusicDatabaseBuilderImpl implements MusicDatabaseBuilder {
 
     @Override
     @Async
-    public void build(boolean dropTables) {
+    public void scan(boolean deleteTables) {
         libraryData = new LibraryData();
-        if (dropTables) {
+        if (deleteTables) {
             dropTables();
         } else {
             libraryData = getLibraryData();
@@ -97,7 +97,7 @@ class MusicDatabaseBuilderImpl implements MusicDatabaseBuilder {
         Set<String> libraryFiles = libraryData.getFileLocations();
 
         DirectoryScanLog.DirectoryScanLogBuilder dirScanLogBuilder = DirectoryScanLog.builder()
-                .cleanAllApplied(dropTables).directory(libraryDirectory.basePath().toString());
+                .cleanAllApplied(deleteTables).directory(libraryDirectory.basePath().toString());
 
         try (Stream<Path> allPaths = Files.walk(libraryDirectory.basePath(), 20)) {
             List<File> files = allPaths

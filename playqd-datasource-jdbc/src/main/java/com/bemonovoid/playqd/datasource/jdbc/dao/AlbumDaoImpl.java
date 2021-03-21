@@ -81,6 +81,20 @@ class AlbumDaoImpl implements AlbumDao {
     }
 
     @Override
+    public PageableResult<Album> getAlbumsWithNameContaining(String albumName, PageableRequest pageableRequest) {
+        Sort sort = Sort.unsorted();
+        if (pageableRequest.getSort() != null) {
+            sort = Sort.sort(AlbumEntity.class).by(AlbumEntity::getName).ascending();
+            if (SortDirection.DESC == pageableRequest.getSort().getDirection()) {
+                sort = sort.descending();
+            }
+        }
+        PageRequest pageRequest = PageRequest.of(pageableRequest.getPage(), pageableRequest.getSize(), sort);
+        return new PageableResultWrapper<>(albumRepository.findByNameContaining(
+                albumName, pageRequest).map(AlbumHelper::fromEntity));
+    }
+
+    @Override
     public PageableResult<Album> getArtistAlbumsWithNameContaining(String artistId,
                                                                    String albumName,
                                                                    PageableRequest pageableRequest) {
