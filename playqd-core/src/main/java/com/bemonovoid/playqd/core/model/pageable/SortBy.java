@@ -17,5 +17,4 @@ public enum SortBy {
     TOTAL_ALBUMS,
 
     TOTAL_SONGS;
-
 }

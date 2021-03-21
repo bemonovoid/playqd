@@ -15,7 +15,7 @@ public class PageableSongsResponse extends PageableResponse<Song> {
     }
 
     @JsonProperty("songs")
-    public List<Song> getArtists() {
+    public List<Song> getSongs() {
         return getContent();
     }
 }

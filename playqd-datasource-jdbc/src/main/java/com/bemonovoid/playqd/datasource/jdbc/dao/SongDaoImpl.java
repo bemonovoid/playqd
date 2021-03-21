@@ -3,10 +3,13 @@ package com.bemonovoid.playqd.datasource.jdbc.dao;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.function.Function;
 
 import com.bemonovoid.playqd.core.dao.SongDao;
 import com.bemonovoid.playqd.core.exception.PlayqdEntityNotFoundException;
+import com.bemonovoid.playqd.core.model.Album;
 import com.bemonovoid.playqd.core.model.Song;
 import com.bemonovoid.playqd.core.model.pageable.PageableRequest;
 import com.bemonovoid.playqd.core.model.pageable.PageableResult;
@@ -19,10 +22,13 @@ import com.bemonovoid.playqd.datasource.jdbc.repository.AlbumRepository;
 import com.bemonovoid.playqd.datasource.jdbc.repository.SongPreferencesRepository;
 import com.bemonovoid.playqd.datasource.jdbc.repository.SongRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 @Slf4j
 @Component
@@ -64,14 +70,26 @@ class SongDaoImpl implements SongDao {
     }
 
     @Override
-    public List<Song> getAlbumSongs(String albumId) {
+    public PageableResult<Song> getAlbumSongs(String albumId, String fileFormat, PageableRequest pageableRequest) {
+        UUID albumUUID = UUID.fromString(albumId);
+
         Map<String, SongPreferencesEntity> songsPreferences = songPreferencesRepository.findAlbumSongsPreferences(
-                UUID.fromString(albumId), SecurityService.getCurrentUserName());
+                albumUUID, SecurityService.getCurrentUserName());
+
+        Album songAlbum = AlbumHelper.fromEntity(albumRepository.findOne(albumUUID));
 
         Sort sort = Sort.sort(SongEntity.class).by(SongEntity::getTrackId).ascending();
+        Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE, sort);
 
-        return songHelper.fromAlbumSongEntities(songRepository.findByAlbumId(
-                UUID.fromString(albumId), sort), songsPreferences);
+        Page<Song> songPage;
+        if (StringUtils.hasText(fileFormat)) {
+            songPage = songRepository.findByAlbumIdAndFileExtension(albumUUID, fileFormat, pageable)
+                    .map(albumSongMapper(songAlbum, songsPreferences));
+        } else {
+            songPage = songRepository.findByAlbumId(albumUUID, pageable)
+                    .map(albumSongMapper(songAlbum, songsPreferences));
+        }
+        return new PageableResultWrapper<>(songPage);
     }
 
     @Override
@@ -111,6 +129,11 @@ class SongDaoImpl implements SongDao {
     @Override
     public List<String> getArtistSongsFileLocations(String artistId) {
         return songRepository.findArtistSongsFileLocations(UUID.fromString(artistId));
+    }
+
+    @Override
+    public List<String> getAvailableFormats(String albumId) {
+        return songRepository.findAlbumSongsDistinctFileExtensions(UUID.fromString(albumId));
     }
 
     @Override
@@ -185,4 +208,16 @@ class SongDaoImpl implements SongDao {
         return false;
     }
 
+    private Function<SongEntity, Song> albumSongMapper(
+            Album songAlbum, Map<String, SongPreferencesEntity> songsPreferences) {
+        return (songEntity) -> {
+            Song song = songHelper.fromEntity(songEntity, false);
+            song.setAlbum(songAlbum);
+            song.setArtist(songAlbum.getArtist());
+            if (songsPreferences.containsKey(song.getId())) {
+                song.setPreferences(SongPreferencesHelper.fromEntity(songsPreferences.get(song.getId())));
+            }
+            return song;
+        };
+    }
 }

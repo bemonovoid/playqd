@@ -2,6 +2,7 @@ package com.bemonovoid.playqd.core.dao;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import com.bemonovoid.playqd.core.model.Song;
 import com.bemonovoid.playqd.core.model.pageable.PageableRequest;
@@ -27,11 +28,13 @@ public interface SongDao {
 
     PageableResult<Song> getSongsWithNameContaining(String name, PageableRequest pageableRequest);
 
-    List<Song> getAlbumSongs(String albumId);
+    PageableResult<Song> getAlbumSongs(String albumId, String fileExtension, PageableRequest pageableRequest);
 
     List<String> getAlbumSongsFileLocations(String albumId);
 
     List<String> getArtistSongsFileLocations(String artistId);
+
+    List<String> getAvailableFormats(String albumId);
 
     Song moveSong(String songId, String albumId);
 

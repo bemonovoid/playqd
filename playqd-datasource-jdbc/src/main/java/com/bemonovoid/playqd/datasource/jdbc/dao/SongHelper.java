@@ -1,42 +1,19 @@
 package com.bemonovoid.playqd.datasource.jdbc.dao;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
 import com.bemonovoid.playqd.core.model.Album;
 import com.bemonovoid.playqd.core.model.Song;
 import com.bemonovoid.playqd.core.service.SecurityService;
 import com.bemonovoid.playqd.datasource.jdbc.entity.SongEntity;
-import com.bemonovoid.playqd.datasource.jdbc.entity.SongPreferencesEntity;
 import org.springframework.stereotype.Component;
 
 @Component
 class SongHelper {
 
-    List<Song> fromAlbumSongEntities(List<SongEntity> entities,
-                                            Map<String, SongPreferencesEntity> songPreferences) {
-        if (entities.isEmpty()) {
-            return Collections.emptyList();
-        }
-        Album songAlbum = AlbumHelper.fromEntity(entities.get(0).getAlbum());
-        return entities.stream().map(songEntity -> {
-            Song song = fromEntity(songEntity, false);
-            song.setAlbum(songAlbum);
-            song.setArtist(songAlbum.getArtist());
-            if (songPreferences.containsKey(song.getId())) {
-                song.setPreferences(SongPreferencesHelper.fromEntity(songPreferences.get(song.getId())));
-            }
-            return song;
-        }).collect(Collectors.toList());
-    }
-
     Song fromEntity(SongEntity songEntity) {
         return fromEntity(songEntity, true);
     }
 
-    private Song fromEntity(SongEntity songEntity, boolean deepCopy) {
+    Song fromEntity(SongEntity songEntity, boolean deepCopy) {
         Song song = new Song();
 
         song.setId(songEntity.getUUID());

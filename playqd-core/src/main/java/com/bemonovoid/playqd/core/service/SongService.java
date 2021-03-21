@@ -13,7 +13,7 @@ public interface SongService {
 
     String getSongFileLocation(String songId);
 
-    List<Song> getAlbumSongs(String albumId);
+    List<String> getAlbumSongsFormats(String albumId);
 
     PageableResult<Song> getSongs(FindSongsRequest request);
 

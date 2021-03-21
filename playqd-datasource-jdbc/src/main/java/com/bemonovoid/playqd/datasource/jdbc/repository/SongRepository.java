@@ -33,18 +33,23 @@ public interface SongRepository extends JpaRepository<SongEntity, UUID> {
 
     Optional<FileLocationProjection> findFirstByAlbumId(UUID albumId);
 
-    List<SongEntity> findByAlbumId(UUID albumId, Sort sort);
+    Page<SongEntity> findByAlbumId(UUID albumId, Pageable pageable);
+
+    Page<SongEntity> findByAlbumIdAndFileExtension(UUID albumId, String fileExtension, Pageable pageable);
 
     Page<SongEntity> findByNameIgnoreCaseOrFileNameIgnoreCaseContaining(String name, String fileName, Pageable pageable);
 
     @Query("SELECT s.fileLocation FROM SongEntity s WHERE s.id = ?1")
     Optional<String> findSongFileLocation(UUID songId);
 
-    @Query("SELECT s.fileLocation from SongEntity s WHERE s.album.id = ?1")
+    @Query("SELECT s.fileLocation FROM SongEntity s WHERE s.album.id = ?1")
     List<String> findAlbumSongsFileLocations(UUID albumId);
 
-    @Query("SELECT s.fileLocation from SongEntity s WHERE s.artist.id = ?1")
+    @Query("SELECT s.fileLocation FROM SongEntity s WHERE s.artist.id = ?1")
     List<String> findArtistSongsFileLocations(UUID artistId);
+
+    @Query("SELECT DISTINCT s.fileExtension FROM SongEntity s WHERE s.album.id = ?1")
+    List<String> findAlbumSongsDistinctFileExtensions(UUID albumId);
     
     @Query("SELECT s.artist.id as artistId, COUNT(DISTINCT s.album.id) as albumCount, COUNT(s.id) as songCount " +
             "FROM SongEntity s " +

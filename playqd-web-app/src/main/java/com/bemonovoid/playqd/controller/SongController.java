@@ -7,7 +7,6 @@ import com.bemonovoid.playqd.core.model.UpdateOptions;
 import com.bemonovoid.playqd.core.model.UpdateSong;
 import com.bemonovoid.playqd.core.model.pageable.FindSongsRequest;
 import com.bemonovoid.playqd.core.model.pageable.PageableSongsResponse;
-import com.bemonovoid.playqd.core.model.request.MoveAlbum;
 import com.bemonovoid.playqd.core.model.request.MoveSong;
 import com.bemonovoid.playqd.core.service.SongService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -37,14 +36,14 @@ class SongController {
         return new PageableSongsResponse(songService.getSongs(request));
     }
 
-    @GetMapping("/album/{albumId}")
-    List<Song> getAlbumSongs(@PathVariable String albumId) {
-        return songService.getAlbumSongs(albumId);
-    }
-
     @GetMapping("/{songId}")
     ResponseEntity<Song> getSong(@PathVariable String songId) {
         return ResponseEntity.ok(songService.getSong(songId));
+    }
+
+    @GetMapping("/album/{albumId}/formats")
+    List<String> getAlbumSongsFormats(@PathVariable String albumId) {
+        return songService.getAlbumSongsFormats(albumId);
     }
 
     @PutMapping(path = "/{songId}", consumes =  MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

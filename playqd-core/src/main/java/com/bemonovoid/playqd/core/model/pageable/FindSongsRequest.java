@@ -20,7 +20,9 @@ public class FindSongsRequest {
     private SortDirection direction = SortDirection.ASC;
     private SongSortBy sortBy = SongSortBy.NAME;
 
+    private String albumId;
     private String name;
+    private String format;
 
     public enum SongSortBy {
 

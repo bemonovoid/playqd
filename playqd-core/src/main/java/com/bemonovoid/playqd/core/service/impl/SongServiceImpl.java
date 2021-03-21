@@ -36,6 +36,11 @@ class SongServiceImpl implements SongService {
     }
 
     @Override
+    public List<String> getAlbumSongsFormats(String albumId) {
+        return songDao.getAvailableFormats(albumId);
+    }
+
+    @Override
     public PageableResult<Song> getSongs(FindSongsRequest request) {
         SortBy sortBy = SortBy.NAME;
         SortDirection direction = SortDirection.ASC;
@@ -45,6 +50,10 @@ class SongServiceImpl implements SongService {
         }
         SortRequest sort = SortRequest.builder().sortBy(sortBy).direction(direction).build();
         PageableRequest pageableRequest = new PageableRequest(request.getPage(), request.getSize(), sort);
+
+        if (StringUtils.hasText(request.getAlbumId())) {
+            return songDao.getAlbumSongs(request.getAlbumId(), request.getFormat(), pageableRequest);
+        }
 
         if (StringUtils.hasText(request.getName())) {
             return songDao.getSongsWithNameContaining(request.getName(), pageableRequest);
@@ -68,11 +77,6 @@ class SongServiceImpl implements SongService {
         if (options.isUpdateAudioTags()) {
             AudioFileTagUpdater.updateSongTags(song, songDao.getSongFileLocation(song.getId()));
         }
-    }
-
-    @Override
-    public List<Song> getAlbumSongs(String albumId) {
-        return songDao.getAlbumSongs(albumId);
     }
 
     @Override
