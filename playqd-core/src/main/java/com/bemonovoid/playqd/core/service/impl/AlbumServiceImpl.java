@@ -6,7 +6,6 @@ import com.bemonovoid.playqd.core.dao.AlbumDao;
 import com.bemonovoid.playqd.core.dao.SongDao;
 import com.bemonovoid.playqd.core.handler.AudioFileTagUpdater;
 import com.bemonovoid.playqd.core.model.Album;
-import com.bemonovoid.playqd.core.model.AlbumPreferences;
 import com.bemonovoid.playqd.core.model.Image;
 import com.bemonovoid.playqd.core.model.ImageSize;
 import com.bemonovoid.playqd.core.model.MoveResult;
@@ -89,11 +88,6 @@ class AlbumServiceImpl implements AlbumService {
         if (updateOptions.isUpdateAudioTags()) {
             AudioFileTagUpdater.updateAlbumTags(moveResult.getNewAlbum(), moveResult.getMovedSongFiles());
         }
-    }
-
-    @Override
-    public void updateAlbumPreferences(String albumId, AlbumPreferences preferences) {
-        albumDao.updateAlbumPreferences(albumId, preferences);
     }
 
 }

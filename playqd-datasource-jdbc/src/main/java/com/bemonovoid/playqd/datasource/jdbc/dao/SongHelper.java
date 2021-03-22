@@ -41,14 +41,6 @@ class SongHelper {
             Album songAlbum = AlbumHelper.fromEntity(songEntity.getAlbum());
             song.setArtist(songAlbum.getArtist());
             song.setAlbum(songAlbum);
-
-            if (songEntity.getPreferences() != null && songEntity.getPreferences().size() > 0) {
-                songEntity.getPreferences().stream()
-                        .filter(preferences -> preferences.getCreatedBy().equals(SecurityService.getCurrentUserName()))
-                        .findFirst()
-                        .map(SongPreferencesHelper::fromEntity)
-                        .ifPresent(song::setPreferences);
-            }
         }
 
         return song;

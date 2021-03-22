@@ -15,8 +15,6 @@ import com.bemonovoid.playqd.datasource.jdbc.entity.system.PersistentAuditableEn
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Formula;
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.annotations.Type;
 
 @Getter
@@ -65,8 +63,4 @@ public class AlbumEntity extends PersistentAuditableEntity {
 
     @OneToMany(mappedBy = "album")
     private List<SongEntity> songs;
-
-    @OneToMany(mappedBy = "album")
-    @LazyCollection(LazyCollectionOption.EXTRA)
-    private List<AlbumPreferencesEntity> preferences;
 }

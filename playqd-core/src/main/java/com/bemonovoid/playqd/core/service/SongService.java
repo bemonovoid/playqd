@@ -17,6 +17,10 @@ public interface SongService {
 
     PageableResult<Song> getSongs(FindSongsRequest request);
 
+    PageableResult<Song> getAlbumSongs(String albumId, FindSongsRequest request);
+
+    PageableResult<Song> getArtistSongs(String artistId, FindSongsRequest request);
+
     void updateSong(Song song, UpdateOptions options);
 
     void updatePlayCount(String songId);

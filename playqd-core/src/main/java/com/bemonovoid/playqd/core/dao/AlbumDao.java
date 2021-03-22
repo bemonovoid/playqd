@@ -3,7 +3,6 @@ package com.bemonovoid.playqd.core.dao;
 import java.util.Optional;
 
 import com.bemonovoid.playqd.core.model.Album;
-import com.bemonovoid.playqd.core.model.AlbumPreferences;
 import com.bemonovoid.playqd.core.model.MoveResult;
 import com.bemonovoid.playqd.core.model.pageable.PageableRequest;
 import com.bemonovoid.playqd.core.model.pageable.PageableResult;
@@ -32,8 +31,6 @@ public interface AlbumDao {
     Album save(Album albumEntity);
 
     void updateAlbum(Album album);
-
-    void updateAlbumPreferences(String albumId, AlbumPreferences preferences);
 
     void saveAlbumImage(String albumId, byte[] binaryData);
 

@@ -38,6 +38,5 @@ public class Song {
 
     private Artist artist;
     private Album album;
-    private SongPreferences preferences;
 
 }

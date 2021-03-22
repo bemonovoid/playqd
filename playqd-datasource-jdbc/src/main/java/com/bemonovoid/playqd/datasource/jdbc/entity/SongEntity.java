@@ -1,20 +1,15 @@
 package com.bemonovoid.playqd.datasource.jdbc.entity;
 
-import java.util.List;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Index;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import com.bemonovoid.playqd.datasource.jdbc.entity.system.PersistentAuditableEntity;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.annotations.Type;
 
 @Table(name = SongEntity.TABLE_NAME, indexes = {
@@ -45,9 +40,6 @@ public class SongEntity extends PersistentAuditableEntity {
 
     public static final String COL_PLAY_COUNT = "PLAY_COUNT";
     public static final String COL_FAVORITE = "FAVORITE";
-    public static final String COL_SHOW_FILE_NAME_AS_SONG_NAME = "SHOW_FILE_NAME_AS_SONG_NAME";
-
-    private static final String ONE_TO_MANY_MAPPED_BY = "song";
 
     @Column(name = COL_NAME, length = 1000)
     private String name;
@@ -97,9 +89,5 @@ public class SongEntity extends PersistentAuditableEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private AlbumEntity album;
-
-    @OneToMany(mappedBy = "song")
-    @LazyCollection(LazyCollectionOption.EXTRA)
-    private List<SongPreferencesEntity> preferences;
 
 }

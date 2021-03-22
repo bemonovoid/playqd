@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 
 import com.bemonovoid.playqd.core.dao.AlbumDao;
 import com.bemonovoid.playqd.core.model.Album;
-import com.bemonovoid.playqd.core.model.AlbumPreferences;
 import com.bemonovoid.playqd.core.model.MoveResult;
 import com.bemonovoid.playqd.core.model.SortDirection;
 import com.bemonovoid.playqd.core.model.pageable.PageableRequest;
@@ -15,10 +14,8 @@ import com.bemonovoid.playqd.core.model.pageable.PageableResult;
 import com.bemonovoid.playqd.core.model.pageable.SortBy;
 import com.bemonovoid.playqd.core.model.pageable.SortRequest;
 import com.bemonovoid.playqd.datasource.jdbc.entity.AlbumEntity;
-import com.bemonovoid.playqd.datasource.jdbc.entity.AlbumPreferencesEntity;
 import com.bemonovoid.playqd.datasource.jdbc.entity.SongEntity;
 import com.bemonovoid.playqd.datasource.jdbc.projection.GenreProjection;
-import com.bemonovoid.playqd.datasource.jdbc.repository.AlbumPreferencesRepository;
 import com.bemonovoid.playqd.datasource.jdbc.repository.AlbumRepository;
 import com.bemonovoid.playqd.datasource.jdbc.repository.SongRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -33,17 +30,11 @@ import org.springframework.stereotype.Component;
 class AlbumDaoImpl implements AlbumDao {
 
     private final AlbumRepository albumRepository;
-    private final AlbumPreferencesRepository albumPreferencesRepository;
     private final SongRepository songRepository;
     private final JdbcTemplate jdbcTemplate;
-
-    AlbumDaoImpl(JdbcTemplate jdbcTemplate,
-                 AlbumRepository albumRepository,
-                 AlbumPreferencesRepository albumPreferencesRepository,
-                 SongRepository songRepository) {
+    AlbumDaoImpl(JdbcTemplate jdbcTemplate, AlbumRepository albumRepository, SongRepository songRepository) {
         this.jdbcTemplate = jdbcTemplate;
         this.albumRepository = albumRepository;
-        this.albumPreferencesRepository = albumPreferencesRepository;
         this.songRepository = songRepository;
     }
 
@@ -158,22 +149,6 @@ class AlbumDaoImpl implements AlbumDao {
         albumRepository.save(entity);
 
         log.info("Updating album with id='{} completed.'", album.getId());
-    }
-
-    @Override
-    public void updateAlbumPreferences(String albumId, AlbumPreferences preferences) {
-
-        log.info("Updating preferences for album with id='{}'.", albumId);
-
-        AlbumPreferencesEntity preferencesEntity = albumPreferencesRepository.findByAlbumId(UUID.fromString(albumId))
-                .orElseGet(() -> {
-                    AlbumPreferencesEntity entity = new AlbumPreferencesEntity();
-                    entity.setAlbum(albumRepository.findOne(UUID.fromString(albumId)));
-                    return entity;
-                });
-        preferencesEntity.setSongNameAsFileName(preferences.isSongNameAsFileName());
-
-        albumPreferencesRepository.save(preferencesEntity);
     }
 
     @Override

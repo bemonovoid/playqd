@@ -25,10 +25,8 @@ import com.bemonovoid.playqd.datasource.jdbc.batch.BatchOperation;
 import com.bemonovoid.playqd.datasource.jdbc.batch.BatchTable;
 import com.bemonovoid.playqd.datasource.jdbc.batch.InsertBatch;
 import com.bemonovoid.playqd.datasource.jdbc.entity.AlbumEntity;
-import com.bemonovoid.playqd.datasource.jdbc.entity.AlbumPreferencesEntity;
 import com.bemonovoid.playqd.datasource.jdbc.entity.ArtistEntity;
 import com.bemonovoid.playqd.datasource.jdbc.entity.SongEntity;
-import com.bemonovoid.playqd.datasource.jdbc.entity.SongPreferencesEntity;
 import com.bemonovoid.playqd.datasource.jdbc.entity.system.AuditableEntity;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -60,9 +58,7 @@ class MusicLibraryScannerImpl implements MusicLibraryScanner {
     private static final Set<String> AUDIO_EXTENSIONS = Set.of("flac", "m4a", "m4p", "mp3", "ogg", "wav", "wma");
 
     private static final List<String> TABLES = List.of(
-            SongPreferencesEntity.TABLE_NAME,
             SongEntity.TABLE_NAME,
-            AlbumPreferencesEntity.TABLE_NAME,
             AlbumEntity.TABLE_NAME,
             ArtistEntity.TABLE_NAME);
 

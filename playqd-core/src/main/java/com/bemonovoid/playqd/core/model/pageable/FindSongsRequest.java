@@ -1,6 +1,5 @@
 package com.bemonovoid.playqd.core.model.pageable;
 
-import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 
 import com.bemonovoid.playqd.core.model.SortDirection;
@@ -14,13 +13,12 @@ public class FindSongsRequest {
     @PositiveOrZero
     private int page;
 
-    @Positive
+    @PositiveOrZero
     private int size;
 
     private SortDirection direction = SortDirection.ASC;
     private SongSortBy sortBy = SongSortBy.NAME;
 
-    private String albumId;
     private String name;
     private String format;
 
@@ -34,6 +32,8 @@ public class FindSongsRequest {
 
         RECENTLY_ADDED,
 
-        RECENTLY_PLAYED;
+        RECENTLY_PLAYED,
+
+        TRACK_ID;
     }
 }

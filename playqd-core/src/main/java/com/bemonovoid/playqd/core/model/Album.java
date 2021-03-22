@@ -27,6 +27,4 @@ public class Album {
     @JsonIgnore
     private String mbReleaseId;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private AlbumPreferences preferences;
 }

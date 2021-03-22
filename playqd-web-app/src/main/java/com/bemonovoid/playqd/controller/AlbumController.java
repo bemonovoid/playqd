@@ -3,7 +3,6 @@ package com.bemonovoid.playqd.controller;
 import java.util.Optional;
 
 import com.bemonovoid.playqd.core.model.Album;
-import com.bemonovoid.playqd.core.model.AlbumPreferences;
 import com.bemonovoid.playqd.core.model.Image;
 import com.bemonovoid.playqd.core.model.ImageSize;
 import com.bemonovoid.playqd.core.model.UpdateOptions;
@@ -67,11 +66,6 @@ class AlbumController {
                 .build();
         UpdateOptions options = UpdateOptions.builder().updateAudioTags(model.isUpdateAudioTags()).build();
         albumService.updateAlbum(album, options);
-    }
-
-    @PutMapping(path = "/{albumId}/preferences", consumes =  MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    void updateAlbumPreferences(@PathVariable String albumId, @RequestBody AlbumPreferences preferences) {
-        albumService.updateAlbumPreferences(albumId, preferences);
     }
 
     @PutMapping(path = "/moved", consumes =  MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

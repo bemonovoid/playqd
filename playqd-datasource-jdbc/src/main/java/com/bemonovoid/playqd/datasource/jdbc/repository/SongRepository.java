@@ -13,7 +13,6 @@ import com.bemonovoid.playqd.datasource.jdbc.projection.FileLocationProjection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -34,6 +33,8 @@ public interface SongRepository extends JpaRepository<SongEntity, UUID> {
     Optional<FileLocationProjection> findFirstByAlbumId(UUID albumId);
 
     Page<SongEntity> findByAlbumId(UUID albumId, Pageable pageable);
+
+    Page<SongEntity> findByArtistId(UUID artistId, Pageable pageable);
 
     Page<SongEntity> findByAlbumIdAndFileExtension(UUID albumId, String fileExtension, Pageable pageable);
 

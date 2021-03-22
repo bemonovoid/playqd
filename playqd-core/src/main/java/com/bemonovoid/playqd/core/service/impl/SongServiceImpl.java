@@ -51,10 +51,6 @@ class SongServiceImpl implements SongService {
         SortRequest sort = SortRequest.builder().sortBy(sortBy).direction(direction).build();
         PageableRequest pageableRequest = new PageableRequest(request.getPage(), request.getSize(), sort);
 
-        if (StringUtils.hasText(request.getAlbumId())) {
-            return songDao.getAlbumSongs(request.getAlbumId(), request.getFormat(), pageableRequest);
-        }
-
         if (StringUtils.hasText(request.getName())) {
             return songDao.getSongsWithNameContaining(request.getName(), pageableRequest);
         }
@@ -69,6 +65,32 @@ class SongServiceImpl implements SongService {
         } else {
             return songDao.getSongs(pageableRequest);
         }
+    }
+
+    @Override
+    public PageableResult<Song> getAlbumSongs(String albumId, FindSongsRequest request) {
+        String audioFormat = null;
+        SortRequest sort;
+        PageableRequest pageableRequest;
+        int pageSize = Integer.MAX_VALUE;
+        if (request != null) {
+            if (request.getSize() > 0) {
+                pageSize = request.getSize();
+            }
+            sort = SortRequest.builder()
+                    .sortBy(SortBy.valueOf(request.getSortBy().name())).direction(request.getDirection()).build();
+            pageableRequest = new PageableRequest(request.getPage(), pageSize, sort);
+            audioFormat = request.getFormat();
+        } else {
+            sort = SortRequest.builder().sortBy(SortBy.TRACK_ID).direction(SortDirection.ASC).build();
+            pageableRequest = new PageableRequest(0, Integer.MAX_VALUE, sort);
+        }
+        return songDao.getAlbumSongs(albumId, audioFormat, pageableRequest);
+    }
+
+    @Override
+    public PageableResult<Song> getArtistSongs(String artistId, FindSongsRequest request) {
+        return songDao.getArtistSongs(artistId, new PageableRequest(request.getPage(), request.getSize(), null));
     }
 
     @Override
