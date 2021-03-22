@@ -53,6 +53,10 @@ Default username and password are available in [application.yaml] as`playqd.secu
         clientId: "paste your spotify client id here"
         clientSecret: "paste your spotify client secret here"
     ```
+#### Built-in music player
+* Playqd comes with built-in music player available at ``http://localhost:9585/playqd/index.html``
+This the best example that demonstrates how the Playqd music server api is used
+
 ### Application properties
 Playqd provided the following properties for customized the application:
 
@@ -60,7 +64,6 @@ Playqd provided the following properties for customized the application:
 | Key | Type | Default | Description |
 | --- | --- | --- | --- |
 |`playqd.library.musicDir` | `String` | *Required* | Absolute path to the root directory with audio files collection  |
-|`playqd.library.scanOnStartup` | `boolean` | `false` | If set to `true` it will scan `musicDir` every time the application is started. If new audio files are detected the database index will be updated automatically |
 |`playqd.remote.spotify.enabled` | `boolean` | `false` |  Enables the Spotify service. The service is used to get audio file metadata (artist image, album image, etc.)  |
 |`playqd.remote.spotify.clientId` | `String` | *Required* |  Your account application client id  |
 |`playqd.remote.spotify.clientSecret` | `String` | *Required* |  Your account application client secret  |
