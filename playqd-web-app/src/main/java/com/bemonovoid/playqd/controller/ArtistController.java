@@ -3,7 +3,6 @@ package com.bemonovoid.playqd.controller;
 import java.util.Optional;
 
 import com.bemonovoid.playqd.core.model.Artist;
-import com.bemonovoid.playqd.core.model.BasicArtists;
 import com.bemonovoid.playqd.core.model.Image;
 import com.bemonovoid.playqd.core.model.ImageSize;
 import com.bemonovoid.playqd.core.model.UpdateArtist;
@@ -45,8 +44,8 @@ class ArtistController {
     }
 
     @GetMapping("/view/basic")
-    BasicArtists getAllArtistNames() {
-        return new BasicArtists(artistService.getAllBasicArtists());
+    PageableArtistsResponse getAllArtistNames() {
+        return new PageableArtistsResponse(artistService.getAllBasicArtists());
     }
 
     @GetMapping("/{artistId}/image/src")

@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Security Login", description = "Logs a user in and provided api access token")
 @RestController
 @RequestMapping("/login")
-@CrossOrigin(origins = "*", allowedHeaders = "*", methods = RequestMethod.POST)
 class LoginController {
 
     private final JwtService jwtService;

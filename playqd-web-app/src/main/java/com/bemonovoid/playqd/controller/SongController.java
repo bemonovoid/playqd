@@ -39,7 +39,7 @@ class SongController {
 
     @GetMapping("/album/{albumId}")
     PageableSongsResponse getAlbumSongs(@PathVariable String albumId,
-                                        @RequestParam(required = false) FindSongsRequest request) {
+                                        FindSongsRequest request) {
         return new PageableSongsResponse(songService.getAlbumSongs(albumId, request));
     }
 

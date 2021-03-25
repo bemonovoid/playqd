@@ -21,7 +21,7 @@ import com.bemonovoid.playqd.core.model.Dimensions;
 import com.bemonovoid.playqd.core.model.Image;
 import com.bemonovoid.playqd.core.model.ImageSize;
 import com.bemonovoid.playqd.core.model.WorkingDir;
-import com.bemonovoid.playqd.core.service.BinaryResourceReader;
+import com.bemonovoid.playqd.core.service.BinaryResourceClient;
 import com.bemonovoid.playqd.core.service.ImageSearchService;
 import com.bemonovoid.playqd.core.service.ImageService;
 import lombok.extern.slf4j.Slf4j;
@@ -40,18 +40,18 @@ class ImageServiceImpl implements ImageService {
     private final AlbumDao albumDao;
     private final WorkingDir workingDir;
     private final ImageSearchService imageSearchService;
-    private final BinaryResourceReader binaryResourceReader;
+    private final BinaryResourceClient binaryResourceClient;
 
     ImageServiceImpl(SongDao songDao,
                      AlbumDao albumDao,
                      WorkingDir workingDir,
                      ImageSearchService imageSearchService,
-                     BinaryResourceReader binaryResourceReader) {
+                     BinaryResourceClient binaryResourceClient) {
         this.songDao = songDao;
         this.albumDao = albumDao;
         this.workingDir = workingDir;
         this.imageSearchService = imageSearchService;
-        this.binaryResourceReader = binaryResourceReader;
+        this.binaryResourceClient = binaryResourceClient;
     }
 
     @Override
@@ -123,7 +123,7 @@ class ImageServiceImpl implements ImageService {
         try {
             Dimensions size = image.getDimensions();
             String fileName = String.format("%sx%s.jpg", size.getHeight(), size.getWidth());
-            byte[] data = binaryResourceReader.read(image.getUrl());
+            byte[] data = binaryResourceClient.get(image.getUrl());
             Path filePath = Paths.get(workingDir.getPath().toString(), "artists", artist.getName(), fileName);
             if (!Files.exists(filePath.getParent())) {
                 Files.createDirectories(filePath.getParent());

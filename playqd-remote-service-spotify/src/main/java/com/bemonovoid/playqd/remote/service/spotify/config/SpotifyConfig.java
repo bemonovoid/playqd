@@ -1,7 +1,7 @@
 package com.bemonovoid.playqd.remote.service.spotify.config;
 
 import com.bemonovoid.playqd.core.dao.ArtistDao;
-import com.bemonovoid.playqd.core.service.BinaryResourceReader;
+import com.bemonovoid.playqd.core.service.BinaryResourceClient;
 import com.bemonovoid.playqd.core.service.ImageSearchService;
 import com.bemonovoid.playqd.remote.service.spotify.impl.SpotifyApi;
 import com.bemonovoid.playqd.remote.service.spotify.impl.SpotifyImageSearchService;
@@ -27,8 +27,8 @@ class SpotifyConfig {
     @ConditionalOnProperty(prefix = "playqd.remote.spotify", name = "enabled", havingValue = "true")
     ImageSearchService imageSearchService(SpotifyProperties spotifyProperties,
                                           ArtistDao artistDao,
-                                          BinaryResourceReader binaryResourceReader) {
-        return new SpotifyImageSearchService(new SpotifyApi(spotifyProperties), artistDao, binaryResourceReader);
+                                          BinaryResourceClient binaryResourceClient) {
+        return new SpotifyImageSearchService(new SpotifyApi(spotifyProperties), artistDao, binaryResourceClient);
     }
 
 }

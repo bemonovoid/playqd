@@ -23,7 +23,7 @@ public interface ArtistRepository extends JpaRepository<ArtistEntity, UUID> {
     }
 
     @Query("SELECT a.id as id, a.name as name from ArtistEntity a")
-    List<ArtistIdAndNameProjection> findAllBasicArtists();
+    Page<ArtistIdAndNameProjection> findAllBasicArtists(Pageable pageable);
 
     Page<ArtistEntity> findBySimpleNameContaining(String name, Pageable pageable);
 

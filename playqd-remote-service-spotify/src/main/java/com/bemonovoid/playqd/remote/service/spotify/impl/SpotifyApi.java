@@ -38,8 +38,6 @@ public class SpotifyApi {
     }
 
     SpotifySearchArtistResponse searchArtistByName(String artistName) {
-        String artistNameEncoded = URLEncoder.encode(artistName, StandardCharsets.UTF_8);
-
         String httpUrl = String.format("%s?q=%s&type=artist", searchApiBaseUrl, artistName);
 
         RestTemplate restTemplate = new RestTemplateBuilder()

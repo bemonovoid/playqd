@@ -3,13 +3,13 @@ package com.bemonovoid.playqd.datasource.jdbc.dao;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.bemonovoid.playqd.core.dao.ArtistDao;
 import com.bemonovoid.playqd.core.exception.PlayqdEntityNotFoundException;
 import com.bemonovoid.playqd.core.helpers.EntityNameHelper;
 import com.bemonovoid.playqd.core.model.Artist;
-import com.bemonovoid.playqd.core.model.BasicArtist;
 import com.bemonovoid.playqd.core.model.MoveResult;
 import com.bemonovoid.playqd.core.model.SortDirection;
 import com.bemonovoid.playqd.core.model.pageable.PageableRequest;
@@ -22,6 +22,7 @@ import com.bemonovoid.playqd.datasource.jdbc.repository.AlbumRepository;
 import com.bemonovoid.playqd.datasource.jdbc.repository.ArtistRepository;
 import com.bemonovoid.playqd.datasource.jdbc.repository.SongRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -56,21 +57,17 @@ class ArtistDaoImpl implements ArtistDao {
     }
 
     @Override
-    public List<BasicArtist> getAllBasicArtists() {
-        return artistRepository.findAllBasicArtists().stream()
-                .map(projection -> new BasicArtist(projection.getId(), projection.getName()))
-                .collect(Collectors.toList());
+    public PageableResult<Artist> getBasicArtists(PageableRequest pageableRequest) {
+        return getArtists(
+                pageableRequest, artistRepository::findAllBasicArtists, ArtistHelper::fromProjection);
     }
 
     @Override
     public PageableResult<Artist> getArtists(PageableRequest pageableRequest) {
-        Sort sort = Sort.sort(ArtistEntity.class).by(ArtistEntity::getName).ascending();
-        if (pageableRequest.getSort() != null && SortDirection.DESC == pageableRequest.getSort().getDirection()) {
-            sort = sort.descending();
-        }
-        PageRequest pageRequest = PageRequest.of(pageableRequest.getPage(), pageableRequest.getSize(), sort);
-        return new PageableResultWrapper<>(artistRepository.findAll(pageRequest)
-                .map(artistEntity -> ArtistHelper.fromEntity(artistEntity, getCounts().get(artistEntity.getId()))));
+        return getArtists(
+                pageableRequest,
+                artistRepository::findAll,
+                artistEntity -> ArtistHelper.fromEntity(artistEntity, getCounts().get(artistEntity.getId())));
     }
 
     @Override
@@ -82,7 +79,6 @@ class ArtistDaoImpl implements ArtistDao {
         PageRequest pageRequest = PageRequest.of(pageableRequest.getPage(), pageableRequest.getSize(), sort);
         return new PageableResultWrapper<>(artistRepository.findByArtistNameContaining(name, pageRequest)
                 .map(artistEntity -> ArtistHelper.fromEntity(artistEntity, getCounts().get(artistEntity.getId()))));
-
     }
 
     @Override
@@ -152,6 +148,17 @@ class ArtistDaoImpl implements ArtistDao {
                 .newArtist(ArtistHelper.fromEntity(artistTo))
                 .movedSongFiles(movedSongs.stream().map(SongEntity::getFileLocation).collect(Collectors.toList()))
                 .build();
+    }
+
+    private <T> PageableResult<Artist> getArtists(PageableRequest pageableRequest,
+                                                  Function<PageRequest, Page<T>> query,
+                                                  Function<T, Artist> mapper) {
+        Sort sort = Sort.sort(ArtistEntity.class).by(ArtistEntity::getName).ascending();
+        if (pageableRequest.getSort() != null && SortDirection.DESC == pageableRequest.getSort().getDirection()) {
+            sort = sort.descending();
+        }
+        PageRequest pageRequest = PageRequest.of(pageableRequest.getPage(), pageableRequest.getSize(), sort);
+        return new PageableResultWrapper<>(query.apply(pageRequest).map(mapper));
     }
 
     private boolean propertyChanged(String oldVal, String newVal) {

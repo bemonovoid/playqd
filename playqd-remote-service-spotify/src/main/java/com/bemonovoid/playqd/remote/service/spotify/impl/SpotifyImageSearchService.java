@@ -10,7 +10,7 @@ import com.bemonovoid.playqd.core.model.Album;
 import com.bemonovoid.playqd.core.model.Artist;
 import com.bemonovoid.playqd.core.model.Dimensions;
 import com.bemonovoid.playqd.core.model.Image;
-import com.bemonovoid.playqd.core.service.BinaryResourceReader;
+import com.bemonovoid.playqd.core.service.BinaryResourceClient;
 import com.bemonovoid.playqd.core.service.ImageSearchService;
 import com.bemonovoid.playqd.remote.service.spotify.model.api.SpotifyLibraryItem;
 import com.bemonovoid.playqd.remote.service.spotify.model.api.SpotifySearchAlbumResponse;
@@ -22,14 +22,14 @@ public class SpotifyImageSearchService implements ImageSearchService {
 
     private final ArtistDao artistDao;
     private final SpotifyApi spotifyApi;
-    private final BinaryResourceReader binaryResourceReader;
+    private final BinaryResourceClient binaryResourceClient;
 
     public SpotifyImageSearchService(SpotifyApi spotifyApi,
                               ArtistDao artistDao,
-                              BinaryResourceReader binaryResourceReader) {
+                              BinaryResourceClient binaryResourceClient) {
         this.artistDao = artistDao;
         this.spotifyApi = spotifyApi;
-        this.binaryResourceReader = binaryResourceReader;
+        this.binaryResourceClient = binaryResourceClient;
     }
 
     @Override
@@ -40,7 +40,7 @@ public class SpotifyImageSearchService implements ImageSearchService {
                 .map(spotifyLibraryItem -> spotifyLibraryItem.getImages().stream()
                         .map(img -> {
                             Dimensions dimensions = new Dimensions(img.getHeight(), img.getWidth());
-                            byte[] data = binaryResourceReader.read(img.getUrl());
+                            byte[] data = binaryResourceClient.get(img.getUrl());
                             return new Image(img.getUrl(), data, dimensions);
                         }).collect(Collectors.toList()))
                 .orElseGet(Collections::emptyList);
@@ -63,7 +63,7 @@ public class SpotifyImageSearchService implements ImageSearchService {
         return spotifyAlbum.get().getImages().stream()
                 .map(img -> {
                     Dimensions dimensions = new Dimensions(img.getHeight(), img.getWidth());
-                    byte[] data = binaryResourceReader.read(img.getUrl());
+                    byte[] data = binaryResourceClient.get(img.getUrl());
                     return new Image(img.getUrl(), data, dimensions);
                 }).collect(Collectors.toList());
 

@@ -2,6 +2,7 @@ package com.bemonovoid.playqd.datasource.jdbc.dao;
 
 import com.bemonovoid.playqd.core.model.Artist;
 import com.bemonovoid.playqd.datasource.jdbc.entity.ArtistEntity;
+import com.bemonovoid.playqd.datasource.jdbc.projection.ArtistIdAndNameProjection;
 import com.bemonovoid.playqd.datasource.jdbc.projection.CountProjection;
 
 abstract class ArtistHelper {
@@ -24,6 +25,10 @@ abstract class ArtistHelper {
                     .songCount(countProjection.getSongCount());
         }
         return artistBuilder.build();
+    }
+
+    static Artist fromProjection(ArtistIdAndNameProjection projection) {
+        return Artist.builder().id(projection.getId()).name(projection.getName()).build();
     }
 
     static ArtistEntity toEntity(Artist artist) {

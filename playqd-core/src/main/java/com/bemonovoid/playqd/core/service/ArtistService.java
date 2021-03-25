@@ -1,10 +1,8 @@
 package com.bemonovoid.playqd.core.service;
 
-import java.util.List;
 import java.util.Optional;
 
 import com.bemonovoid.playqd.core.model.Artist;
-import com.bemonovoid.playqd.core.model.BasicArtist;
 import com.bemonovoid.playqd.core.model.Image;
 import com.bemonovoid.playqd.core.model.ImageSize;
 import com.bemonovoid.playqd.core.model.UpdateOptions;
@@ -15,7 +13,7 @@ public interface ArtistService {
 
     Artist getArtist(String artistId);
 
-    List<BasicArtist> getAllBasicArtists();
+    PageableResult<Artist> getAllBasicArtists();
 
     PageableResult<Artist> getArtists(FindArtistsRequest pageableRequest);
 

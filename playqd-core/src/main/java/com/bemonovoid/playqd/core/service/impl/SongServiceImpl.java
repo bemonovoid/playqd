@@ -69,22 +69,14 @@ class SongServiceImpl implements SongService {
 
     @Override
     public PageableResult<Song> getAlbumSongs(String albumId, FindSongsRequest request) {
-        String audioFormat = null;
-        SortRequest sort;
-        PageableRequest pageableRequest;
         int pageSize = Integer.MAX_VALUE;
-        if (request != null) {
-            if (request.getSize() > 0) {
-                pageSize = request.getSize();
-            }
-            sort = SortRequest.builder()
-                    .sortBy(SortBy.valueOf(request.getSortBy().name())).direction(request.getDirection()).build();
-            pageableRequest = new PageableRequest(request.getPage(), pageSize, sort);
-            audioFormat = request.getFormat();
-        } else {
-            sort = SortRequest.builder().sortBy(SortBy.TRACK_ID).direction(SortDirection.ASC).build();
-            pageableRequest = new PageableRequest(0, Integer.MAX_VALUE, sort);
+        if (request.getSize() > 0) {
+            pageSize = request.getSize();
         }
+        SortRequest sort = SortRequest.builder()
+                .sortBy(SortBy.valueOf(request.getSortBy().name())).direction(request.getDirection()).build();
+        PageableRequest pageableRequest = new PageableRequest(request.getPage(), pageSize, sort);
+        String audioFormat = request.getFormat();
         return songDao.getAlbumSongs(albumId, audioFormat, pageableRequest);
     }
 
