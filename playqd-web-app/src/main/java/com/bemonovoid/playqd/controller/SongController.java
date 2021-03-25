@@ -44,8 +44,7 @@ class SongController {
     }
 
     @GetMapping("/artist/{artistId}")
-    PageableSongsResponse getArtistSongs(@PathVariable String artistId,
-                                        @RequestParam(required = false) FindSongsRequest request) {
+    PageableSongsResponse getArtistSongs(@PathVariable String artistId, FindSongsRequest request) {
         return new PageableSongsResponse(songService.getArtistSongs(artistId, request));
     }
 
@@ -60,7 +59,7 @@ class SongController {
     }
 
     @PutMapping(path = "/{songId}", consumes =  MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    void updateAlbum(@PathVariable String songId, @RequestBody UpdateSong model) {
+    Song updateSong(@PathVariable String songId, @RequestBody UpdateSong model) {
         Song song = new Song();
         song.setId(songId);
         song.setName(model.getName());
@@ -68,7 +67,7 @@ class SongController {
         song.setLyrics(model.getLyrics());
         song.setTrackId(model.getTrackId());
         UpdateOptions options = UpdateOptions.builder().updateAudioTags(model.isUpdateAudioTags()).build();
-        songService.updateSong(song, options);
+        return songService.updateSong(song, options);
     }
 
     @PutMapping("/{songId}/favorite")

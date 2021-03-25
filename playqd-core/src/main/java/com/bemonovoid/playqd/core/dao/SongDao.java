@@ -39,7 +39,7 @@ public interface SongDao {
 
     Song moveSong(String songId, String albumId);
 
-    void updateSong(Song song);
+    Song updateSong(Song song);
 
     void updatePlayCount(String songId);
 

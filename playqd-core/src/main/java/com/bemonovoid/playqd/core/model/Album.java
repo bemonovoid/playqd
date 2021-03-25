@@ -15,7 +15,6 @@ public class Album {
     private String genre;
     private String date;
     private Integer totalTimeInSeconds;
-    private String totalTimeHumanReadable;
     private Artist artist;
 
     @JsonIgnore

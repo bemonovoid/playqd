@@ -1,7 +1,5 @@
 package com.bemonovoid.playqd.datasource.jdbc.dao;
 
-import java.time.LocalTime;
-
 import com.bemonovoid.playqd.core.model.Album;
 import com.bemonovoid.playqd.core.model.Image;
 import com.bemonovoid.playqd.datasource.jdbc.entity.AlbumEntity;
@@ -16,7 +14,6 @@ abstract class AlbumHelper {
                 .genre(entity.getGenre())
                 .date(entity.getDate())
                 .totalTimeInSeconds(entity.getTotalTimeInSeconds())
-                .totalTimeHumanReadable(secondsToHumanReadableString(entity.getTotalTimeInSeconds()))
                 .artist(ArtistHelper.fromEntity(entity.getArtist()))
                 .image(entity.getImage() == null ? null : new Image("", entity.getImage(), null))
                 .build();
@@ -35,28 +32,6 @@ abstract class AlbumHelper {
         albumEntity.setArtist(ArtistHelper.toEntity(album.getArtist()));
 
         return albumEntity;
-    }
-
-    private static String secondsToHumanReadableString(long secs) {
-        LocalTime time = LocalTime.of(0, 0, 0);
-        LocalTime newTime = time.plusSeconds(secs);
-        String result = "";
-        if (newTime.getHour() == 1) {
-            result = newTime.getHour() + " hour ";
-        }
-        if (newTime.getHour() > 1) {
-            result = newTime.getHour() + " hours ";
-        }
-        if (newTime.getMinute() == 1) {
-            result += newTime.getMinute() + " minute ";
-        }
-        if (newTime.getMinute() > 1) {
-            result += newTime.getMinute() + " minutes ";
-        }
-        if (result.isEmpty()) {
-            result = newTime.getSecond() + " seconds";
-        }
-        return result;
     }
 
 }

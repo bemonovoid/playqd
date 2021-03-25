@@ -26,10 +26,6 @@ public interface SongRepository extends JpaRepository<SongEntity, UUID> {
         return getAlbumSongCount().stream().collect(Collectors.toMap(CountProjection::getArtistId, p -> p));
     }
 
-    default Page<SongEntity> findWithNameContaining(String name, Pageable pageable) {
-        return findByNameIgnoreCaseOrFileNameIgnoreCaseContaining(name, name, pageable);
-    }
-
     Optional<FileLocationProjection> findFirstByAlbumId(UUID albumId);
 
     Page<SongEntity> findByAlbumId(UUID albumId, Pageable pageable);
@@ -38,7 +34,7 @@ public interface SongRepository extends JpaRepository<SongEntity, UUID> {
 
     Page<SongEntity> findByAlbumIdAndFileExtension(UUID albumId, String fileExtension, Pageable pageable);
 
-    Page<SongEntity> findByNameIgnoreCaseOrFileNameIgnoreCaseContaining(String name, String fileName, Pageable pageable);
+    Page<SongEntity> findByNameIgnoreCaseContaining(String name, Pageable pageable);
 
     @Query("SELECT s.fileLocation FROM SongEntity s WHERE s.id = ?1")
     Optional<String> findSongFileLocation(UUID songId);

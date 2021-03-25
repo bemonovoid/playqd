@@ -69,7 +69,11 @@ class SongDaoImpl implements SongDao {
     public PageableResult<Song> getArtistSongs(String artistId, PageableRequest pageableRequest) {
         Map<String, Album> albums = new HashMap<>();
         Sort sort = Sort.sort(SongEntity.class).by(SongEntity::getName).ascending();
-        Pageable pageable = PageRequest.of(pageableRequest.getPage(), pageableRequest.getSize(), sort);
+        int pageSize = Integer.MAX_VALUE;
+        if (pageableRequest.getSize() > 0) {
+            pageSize = pageableRequest.getSize();
+        }
+        Pageable pageable = PageRequest.of(pageableRequest.getPage(), pageSize, sort);
         Page<Song> songPage = songRepository.findByArtistId(UUID.fromString(artistId), pageable)
                 .map(artistAlbumSongMapper(albums));
         return new PageableResultWrapper<>(songPage);
@@ -134,7 +138,7 @@ class SongDaoImpl implements SongDao {
         Sort sort = Sort.sort(SongEntity.class).by(SongEntity::getName).ascending();
         PageRequest pageRequest = PageRequest.of(pageableRequest.getPage(), pageableRequest.getSize(), sort);
         return new PageableResultWrapper<>(
-                songRepository.findWithNameContaining(name, pageRequest).map(songHelper::fromEntity));
+                songRepository.findByNameIgnoreCaseContaining(name, pageRequest).map(songHelper::fromEntity));
     }
 
     @Override
@@ -148,7 +152,7 @@ class SongDaoImpl implements SongDao {
     }
 
     @Override
-    public void updateSong(Song song) {
+    public Song updateSong(Song song) {
         log.info("Updating album with id='{}'.", song.getId());
 
         SongEntity entity = songRepository.findOne(UUID.fromString(song.getId()));
@@ -166,9 +170,11 @@ class SongDaoImpl implements SongDao {
             entity.setTrackId(Integer.parseInt(song.getTrackId()));
         }
 
-        songRepository.save(entity);
+        SongEntity updatedEntity = songRepository.save(entity);
 
         log.info("Updating album with id='{} completed.'", song.getId());
+
+        return songHelper.fromEntity(updatedEntity);
     }
 
     @Override

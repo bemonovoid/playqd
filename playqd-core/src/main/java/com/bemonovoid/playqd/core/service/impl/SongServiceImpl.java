@@ -86,11 +86,12 @@ class SongServiceImpl implements SongService {
     }
 
     @Override
-    public void updateSong(Song song, UpdateOptions options) {
-        songDao.updateSong(song);
+    public Song updateSong(Song song, UpdateOptions options) {
+        Song updatedSong = songDao.updateSong(song);
         if (options.isUpdateAudioTags()) {
             AudioFileTagUpdater.updateSongTags(song, songDao.getSongFileLocation(song.getId()));
         }
+        return updatedSong;
     }
 
     @Override
