@@ -1,9 +1,9 @@
 package com.bemonovoid.playqd.core.service;
 
-import com.bemonovoid.playqd.core.model.DirectoryScanLog;
+import com.bemonovoid.playqd.core.model.ScannerLog;
 
 public interface DirectoryScanLogService {
 
-    void save(DirectoryScanLog directoryScanLog);
+    void save(ScannerLog scannerLog);
 
 }

@@ -1,8 +1,8 @@
 package com.bemonovoid.playqd.core.dao;
 
-import com.bemonovoid.playqd.core.model.DirectoryScanLog;
+import com.bemonovoid.playqd.core.model.ScannerLog;
 
 public interface DirectoryScanLogDao {
 
-    void save(DirectoryScanLog directoryScanLog);
+    void save(ScannerLog scannerLog);
 }

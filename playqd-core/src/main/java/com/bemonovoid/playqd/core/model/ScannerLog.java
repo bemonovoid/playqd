@@ -7,11 +7,11 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class DirectoryScanLog {
+public class ScannerLog {
 
-    private int numberOfSongsAdded;
+    private int filesIndexed;
     private String directory;
     private Duration duration;
-    private boolean cleanAllApplied;
+    private boolean deleteAllBeforeScan;
     private DirectoryScanStatus status;
 }

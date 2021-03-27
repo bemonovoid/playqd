@@ -1,5 +1,6 @@
 package com.bemonovoid.playqd.service;
 
+import com.bemonovoid.playqd.core.model.ScanOptions;
 import com.bemonovoid.playqd.core.service.MusicLibraryScanner;
 import com.bemonovoid.playqd.core.service.SettingsService;
 import org.springframework.boot.ApplicationArguments;
@@ -20,7 +21,7 @@ class MusicDatabaseBuilderRunner implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) throws Exception {
         if (settingsService.getLibrarySettings().isRescanAtStartup()) {
-            musicLibraryScanner.scan(false);
+            musicLibraryScanner.scan(ScanOptions.builder().build());
         }
     }
 }

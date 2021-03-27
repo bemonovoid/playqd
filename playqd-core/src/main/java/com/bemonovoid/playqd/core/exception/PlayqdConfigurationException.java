@@ -5,4 +5,8 @@ public class PlayqdConfigurationException extends PlayqdServiceException {
     public PlayqdConfigurationException(String message) {
         super(message);
     }
+
+    public PlayqdConfigurationException(Throwable cause) {
+        super(cause);
+    }
 }

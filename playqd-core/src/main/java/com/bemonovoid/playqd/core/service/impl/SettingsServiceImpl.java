@@ -1,6 +1,7 @@
 package com.bemonovoid.playqd.core.service.impl;
 
 import com.bemonovoid.playqd.core.dao.SettingsDao;
+import com.bemonovoid.playqd.core.model.ScanOptions;
 import com.bemonovoid.playqd.core.model.settings.LibrarySettings;
 import com.bemonovoid.playqd.core.service.MusicLibraryScanner;
 import com.bemonovoid.playqd.core.service.SettingsService;
@@ -35,6 +36,6 @@ class SettingsServiceImpl implements SettingsService {
         if (librarySettings != null) {
             deleteBeforeScan = librarySettings.isDeleteBeforeScan();
         }
-        musicLibraryScanner.scan(deleteBeforeScan);
+        musicLibraryScanner.scan(ScanOptions.builder().deleteAllBeforeScan(deleteBeforeScan).build());
     }
 }

@@ -1,7 +1,7 @@
 package com.bemonovoid.playqd.core.service.impl;
 
 import com.bemonovoid.playqd.core.dao.DirectoryScanLogDao;
-import com.bemonovoid.playqd.core.model.DirectoryScanLog;
+import com.bemonovoid.playqd.core.model.ScannerLog;
 import com.bemonovoid.playqd.core.service.DirectoryScanLogService;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +15,7 @@ class DirectoryScanLogServiceImpl implements DirectoryScanLogService {
     }
 
     @Override
-    public void save(DirectoryScanLog directoryScanLog) {
-        directoryScanLogDao.save(directoryScanLog);
+    public void save(ScannerLog scannerLog) {
+        directoryScanLogDao.save(scannerLog);
     }
 }
