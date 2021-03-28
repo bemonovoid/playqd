@@ -18,14 +18,10 @@ public interface ArtistRepository extends JpaRepository<ArtistEntity, UUID> {
         return findById(id).orElseThrow(() -> new PlayqdEntityNotFoundException(id.toString(), "artist"));
     }
 
-    default Page<ArtistEntity> findByArtistNameContaining(String name, Pageable pageable) {
-        return findBySimpleNameContaining(EntityNameHelper.toLookUpName(name), pageable);
-    }
-
     @Query("SELECT a.id as id, a.name as name from ArtistEntity a")
     Page<ArtistIdAndNameProjection> findAllBasicArtists(Pageable pageable);
 
-    Page<ArtistEntity> findBySimpleNameContaining(String name, Pageable pageable);
+    Page<ArtistEntity> findByNameContaining(String name, Pageable pageable);
 
     @Query("SELECT s.artist.id FROM SongEntity s " +
             "WHERE s.playCount > 0 GROUP BY s.artist.id ORDER BY MAX(s.lastModifiedDate) DESC")

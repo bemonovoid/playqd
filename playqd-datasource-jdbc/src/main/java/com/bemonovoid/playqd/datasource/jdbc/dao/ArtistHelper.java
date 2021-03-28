@@ -15,7 +15,6 @@ abstract class ArtistHelper {
         Artist.ArtistBuilder artistBuilder = Artist.builder()
                 .id(artistEntity.getUUID())
                 .name(artistEntity.getName())
-                .simpleName(artistEntity.getSimpleName())
                 .country(artistEntity.getCountry())
                 .spotifyId(artistEntity.getSpotifyArtistId())
                 .spotifyName(artistEntity.getSpotifyArtistName());
@@ -35,7 +34,6 @@ abstract class ArtistHelper {
         ArtistEntity artistEntity = new ArtistEntity();
         artistEntity.setUUID(artist.getId());
         artistEntity.setName(artist.getName());
-        artistEntity.setSimpleName(artist.getSimpleName());
         artistEntity.setCountry(artist.getCountry());
         artistEntity.setSpotifyArtistId(artist.getSpotifyId());
         artistEntity.setSpotifyArtistName(artist.getSpotifyName());

@@ -8,6 +8,7 @@ import lombok.Setter;
 public class LibrarySettings {
 
     private boolean rescanAtStartup;
+    private boolean deleteMissing;
     private boolean deleteBeforeScan;
 
 }

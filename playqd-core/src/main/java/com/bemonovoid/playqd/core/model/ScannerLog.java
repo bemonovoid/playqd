@@ -10,8 +10,9 @@ import lombok.Getter;
 public class ScannerLog {
 
     private int filesIndexed;
-    private String directory;
-    private Duration duration;
-    private boolean deleteAllBeforeScan;
+    private int indexedFilesMissing;
+    private String scanDirectory;
+    private Duration scanDuration;
     private DirectoryScanStatus status;
+    private boolean deleteAllBeforeScan;
 }

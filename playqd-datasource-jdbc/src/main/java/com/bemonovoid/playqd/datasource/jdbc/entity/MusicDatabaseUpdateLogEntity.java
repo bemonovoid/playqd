@@ -19,26 +19,30 @@ public class MusicDatabaseUpdateLogEntity extends PersistentAuditableEntity {
 
     public static final String TABLE_NAME = "MUSIC_DATABASE_UPDATE_LOG";
 
-    public static final String COL_STATUS = "STATUS";
-    public static final String COL_DURATION = "DURATION";
-    public static final String COL_DIRECTORY = "DIRECTORY";
-    public static final String COL_ADDED_SONGS = "ADDED_SONGS";
-    public static final String COL_CLEAN_ALL_APPLIED = "CLEAN_ALL_APPLIED";
+    public static final String COL_SCAN_STATUS = "SCAN_STATUS";
+    public static final String COL_SCAN_DURATION_IN_MILLIS = "SCAN_DURATION_IN_MILLIS";
+    public static final String COL_SCAN_DIRECTORY = "SCAN_DIRECTORY";
+    public static final String COL_FILES_INDEXED = "FILES_INDEXED";
+    public static final String COL_INDEXED_FILES_MISSING = "INDEXED_FILES_MISSING";
+    public static final String COL_DELETE_ALL_BEFORE_SCAN = "DELETE_ALL_BEFORE_SCAN";
 
-    @Column(name = COL_DIRECTORY)
-    private String directory;
+    @Column(name = COL_SCAN_DIRECTORY)
+    private String scanDirectory;
 
-    @Column(name = COL_CLEAN_ALL_APPLIED)
-    private boolean cleanAllApplied;
+    @Column(name = COL_DELETE_ALL_BEFORE_SCAN)
+    private boolean deleteAllBeforeScan;
 
-    @Column(name = COL_ADDED_SONGS)
-    private int numberOfSongsAdded;
+    @Column(name = COL_FILES_INDEXED)
+    private int filesIndexed;
 
-    @Column(name = COL_STATUS)
+    @Column(name = COL_INDEXED_FILES_MISSING)
+    private int indexedFilesMissing;
+
+    @Column(name = COL_SCAN_STATUS)
     @Enumerated(EnumType.STRING)
-    private DirectoryScanStatus status;
+    private DirectoryScanStatus scanStatus;
 
-    @Column(name = COL_DURATION)
-    private String duration;
+    @Column(name = COL_SCAN_DURATION_IN_MILLIS)
+    private long scanDurationInMillis;
 
 }

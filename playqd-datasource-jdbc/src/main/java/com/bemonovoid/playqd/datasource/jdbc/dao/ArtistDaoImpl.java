@@ -77,7 +77,7 @@ class ArtistDaoImpl implements ArtistDao {
             sort = sort.descending();
         }
         PageRequest pageRequest = PageRequest.of(pageableRequest.getPage(), pageableRequest.getSize(), sort);
-        return new PageableResultWrapper<>(artistRepository.findByArtistNameContaining(name, pageRequest)
+        return new PageableResultWrapper<>(artistRepository.findByNameContaining(name, pageRequest)
                 .map(artistEntity -> ArtistHelper.fromEntity(artistEntity, getCounts().get(artistEntity.getId()))));
     }
 
@@ -104,7 +104,6 @@ class ArtistDaoImpl implements ArtistDao {
 
         if (propertyChanged(entity.getName(), artist.getName())) {
             entity.setName(artist.getName());
-            entity.setSimpleName(EntityNameHelper.toLookUpName(artist.getName()));
         }
         if (propertyChanged(entity.getCountry(), artist.getCountry())) {
             entity.setCountry(artist.getCountry());

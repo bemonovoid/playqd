@@ -18,9 +18,6 @@ public class Artist {
     private long songCount;
 
     @JsonIgnore
-    private String simpleName;
-
-    @JsonIgnore
     private String spotifyId;
 
     @JsonIgnore

@@ -15,7 +15,7 @@ import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
 @Table(name = ArtistEntity.TABLE_NAME, indexes = {
-        @Index(name = "ARTIST_IDX", columnList = ArtistEntity.COL_NAME + "," + ArtistEntity.COL_SIMPLE_NAME)
+        @Index(name = "ARTIST_IDX", columnList = ArtistEntity.COL_NAME)
 })
 @Entity
 @Getter
@@ -26,7 +26,6 @@ public class ArtistEntity extends PersistentAuditableEntity {
 
     public static final String COL_PK_ID = "ID";
     public static final String COL_NAME = "NAME";
-    public static final String COL_SIMPLE_NAME = "SIMPLE_NAME";
     public static final String COL_COUNTRY = "COUNTRY";
     public static final String COL_SPOTIFY_ARTIST_ID = "SPOTIFY_ARTIST_ID";
     public static final String COL_SPOTIFY_ARTIST_NAME = "SPOTIFY_ARTIST_NAME";
@@ -35,9 +34,6 @@ public class ArtistEntity extends PersistentAuditableEntity {
 
     @Column(name = COL_NAME)
     private String name;
-
-    @Column(name = COL_SIMPLE_NAME)
-    private String simpleName;
 
     @Column(name = COL_COUNTRY)
     private String country;

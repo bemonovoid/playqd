@@ -7,5 +7,6 @@ import lombok.Getter;
 @Builder
 public class ScanOptions {
 
+    private boolean deleteMissing;
     private boolean deleteAllBeforeScan;
 }

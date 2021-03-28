@@ -21,14 +21,13 @@ import org.hibernate.annotations.Type;
 @Setter
 @Entity
 @Table(name = AlbumEntity.TABLE_NAME, indexes = {
-        @Index(name = "ALBUM_IDX", columnList = AlbumEntity.COL_NAME + "," + AlbumEntity.COL_SIMPLE_NAME)
+        @Index(name = "ALBUM_IDX", columnList = AlbumEntity.COL_NAME)
 })
 public class AlbumEntity extends PersistentAuditableEntity {
 
     public static final String TABLE_NAME = "ALBUM";
 
     public static final String COL_NAME = "NAME";
-    public static final String COL_SIMPLE_NAME = "SIMPLE_NAME";
     public static final String COL_DATE = "DATE";
     public static final String COL_GENRE = "GENRE";
     public static final String COL_TOTAL_TIME_IN_SECONDS = "TOTAL_TIME_IN_SECONDS";
@@ -40,9 +39,6 @@ public class AlbumEntity extends PersistentAuditableEntity {
 
     @Column(name = COL_NAME)
     private String name;
-
-    @Column(name = COL_SIMPLE_NAME)
-    private String simpleName;
 
     @Column(name = COL_DATE)
     private String date;

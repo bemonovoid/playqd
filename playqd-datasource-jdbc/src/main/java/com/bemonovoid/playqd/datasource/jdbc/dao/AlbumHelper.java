@@ -10,7 +10,6 @@ abstract class AlbumHelper {
         return Album.builder()
                 .id(entity.getUUID())
                 .name(entity.getName())
-                .simpleName(entity.getSimpleName())
                 .genre(entity.getGenre())
                 .date(entity.getDate())
                 .totalTimeInSeconds(entity.getTotalTimeInSeconds())
@@ -25,7 +24,6 @@ abstract class AlbumHelper {
 
         albumEntity.setUUID(album.getId());
         albumEntity.setName(album.getName());
-        albumEntity.setSimpleName(album.getSimpleName());
         albumEntity.setDate(album.getDate());
         albumEntity.setGenre(album.getGenre());
         albumEntity.setImage(album.getImage().getData());

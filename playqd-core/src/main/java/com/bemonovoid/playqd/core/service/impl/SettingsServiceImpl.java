@@ -32,10 +32,15 @@ class SettingsServiceImpl implements SettingsService {
     @Override
     @Async
     public void rescanLibrary(LibrarySettings librarySettings) {
-        boolean deleteBeforeScan = false;
+        ScanOptions options;
         if (librarySettings != null) {
-            deleteBeforeScan = librarySettings.isDeleteBeforeScan();
+            options = ScanOptions.builder()
+                    .deleteMissing(librarySettings.isDeleteMissing())
+                    .deleteAllBeforeScan(librarySettings.isDeleteBeforeScan())
+                    .build();
+        } else {
+            options = ScanOptions.builder().build();
         }
-        musicLibraryScanner.scan(ScanOptions.builder().deleteAllBeforeScan(deleteBeforeScan).build());
+        musicLibraryScanner.scan(options);
     }
 }

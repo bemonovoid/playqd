@@ -17,19 +17,11 @@ public interface AlbumRepository extends JpaRepository<AlbumEntity, UUID> {
         return findById(id).orElseThrow(() -> new PlayqdEntityNotFoundException(id.toString(), "album"));
     }
 
-    default Page<AlbumEntity> findByArtistIdAndNameContaining(UUID artistId, String name, Pageable pageable) {
-        return findByArtistIdAndSimpleNameContaining(artistId, EntityNameHelper.toLookUpName(name), pageable);
-    }
-
-    default Page<AlbumEntity> findByNameContaining(String name, Pageable pageable) {
-        return findBySimpleNameContaining(EntityNameHelper.toLookUpName(name), pageable);
-    }
-
     Page<AlbumEntity> findByArtistId(UUID artistId, Pageable pageable);
 
-    Page<AlbumEntity> findBySimpleNameContaining(String name, Pageable pageable);
+    Page<AlbumEntity> findByNameContaining(String name, Pageable pageable);
 
-    Page<AlbumEntity> findByArtistIdAndSimpleNameContaining(UUID artistId, String name, Pageable pageable);
+    Page<AlbumEntity> findByArtistIdAndNameContaining(UUID artistId, String name, Pageable pageable);
 
     Page<AlbumEntity> findByGenreEquals(String genre, Pageable pageable);
 

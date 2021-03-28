@@ -17,6 +17,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.bemonovoid.playqd.core.exception.PlayqdConfigurationException;
@@ -79,11 +81,19 @@ class MusicLibraryScannerImpl implements MusicLibraryScanner {
         LocalTime scanStartedAt = LocalTime.now();
         ScannerLog.ScannerLogBuilder scannerLogBuilder = ScannerLog.builder()
                 .deleteAllBeforeScan(options.isDeleteAllBeforeScan())
-                .directory(libraryDirectory.basePath().toString());
+                .scanDirectory(libraryDirectory.basePath().toString());
 
         try {
             int numberOfFilesIndexed = Files.list(libraryDirectory.basePath()).mapToInt(this::scanDirectory).sum();
             log.info("Scan completed. Total audio files indexed: {}", numberOfFilesIndexed);
+
+            Set<String> indexedSongsMissing = new HashSet<>(indexedFiles);
+            if (!indexedSongsMissing.isEmpty()) {
+                log.warn("{} indexed songs found missing in music directory. Songs will be removed from index",
+                        indexedSongsMissing.size());
+                deleteMissing(indexedSongsMissing);
+                scannerLogBuilder.indexedFilesMissing(indexedSongsMissing.size());
+            }
 
             scannerLogBuilder.filesIndexed(numberOfFilesIndexed).status(DirectoryScanStatus.COMPLETED);
 
@@ -92,8 +102,50 @@ class MusicLibraryScannerImpl implements MusicLibraryScanner {
             throw new PlayqdConfigurationException(e);
         } finally {
             clean();
-            ScannerLog scannerLog = scannerLogBuilder.duration(Duration.between(scanStartedAt, LocalTime.now())).build();
-            eventPublisher.publishEvent(new ScanCompletedEvent(this, scannerLog));
+            scannerLogBuilder.scanDuration(Duration.between(scanStartedAt, LocalTime.now()));
+            eventPublisher.publishEvent(new ScanCompletedEvent(this, scannerLogBuilder.build()));
+        }
+    }
+
+    private void deleteMissing(Set<String> indexedSongsMissing) {
+        List<Map<String, Object>> rows = jdbcTemplate.queryForList(
+                "SELECT s.ID as songId, s.ALBUM_ID as albumId, s.ARTIST_ID as artistId " +
+                        "FROM SONG s " +
+                        "WHERE s.FILE_LOCATION IN (?)", indexedSongsMissing.toArray());
+
+        Object[] songs = rows.stream().map(row -> row.get("songId").toString()).distinct().toArray();
+        jdbcTemplate.update("DELETE FROM SONG s WHERE s.ID IN (?)", songs);
+
+        AtomicInteger albumsRemoved = new AtomicInteger();
+        Set<String> albums = rows.stream().map(row -> row.get("albumId").toString()).collect(Collectors.toSet());
+
+        albums.forEach(albumId -> {
+            int rowsAffected = jdbcTemplate.update("DELETE FROM ALBUM a " +
+                    "WHERE a.ID = (SELECT '" + albumId + "' " +
+                    "FROM SONG s WHERE s.ALBUM_ID = ? HAVING COUNT(s.ID) = 0)", albumId);
+            if (rowsAffected == 1) {
+                albumsRemoved.incrementAndGet();
+            }
+        });
+
+        if (albumsRemoved.get() > 0) {
+            log.warn("{} album(s) without indexed songs were removed.", albumsRemoved.get());
+        }
+
+        AtomicInteger artistsRemoved = new AtomicInteger();
+        Set<String> artists = rows.stream().map(row -> row.get("artistId").toString()).collect(Collectors.toSet());
+
+        artists.forEach(artistId -> {
+            int rowsAffected = jdbcTemplate.update("DELETE FROM ARTIST a " +
+                    "WHERE a.ID = (SELECT '" + artistId + "' " +
+                    "FROM SONG s WHERE s.ARTIST_ID = ? HAVING COUNT(s.ID) = 0)", artistId);
+            if (rowsAffected == 1) {
+                artistsRemoved.incrementAndGet();
+            }
+        });
+
+        if (artistsRemoved.get() > 0) {
+            log.warn("{} artist(s) without indexed songs were removed.", artistsRemoved.get());
         }
     }
 
@@ -104,7 +156,7 @@ class MusicLibraryScannerImpl implements MusicLibraryScanner {
                     .map(Path::toFile)
                     .filter(File::isFile)
                     .filter(f -> SUPPORTED_EXTENSIONS.contains(Utils.getExtension(f)))
-                    .filter(f -> !indexedFiles.contains(f.getAbsolutePath()))
+                    .filter(f -> !indexedFiles.remove(f.getAbsolutePath()))
                     .map(AudioFileUtils::readAudioFile)
                     .filter(Objects::nonNull)
                     .map(this::tagsToInsertQuery)

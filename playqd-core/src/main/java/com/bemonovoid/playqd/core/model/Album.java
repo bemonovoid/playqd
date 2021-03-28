@@ -1,7 +1,6 @@
 package com.bemonovoid.playqd.core.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -19,9 +18,6 @@ public class Album {
 
     @JsonIgnore
     private Image image;
-
-    @JsonIgnore
-    private String simpleName;
 
     @JsonIgnore
     private String mbReleaseId;

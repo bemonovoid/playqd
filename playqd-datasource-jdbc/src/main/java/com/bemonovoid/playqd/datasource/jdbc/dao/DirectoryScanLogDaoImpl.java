@@ -1,8 +1,5 @@
 package com.bemonovoid.playqd.datasource.jdbc.dao;
 
-import java.time.Duration;
-import java.util.concurrent.TimeUnit;
-
 import com.bemonovoid.playqd.core.dao.DirectoryScanLogDao;
 import com.bemonovoid.playqd.core.model.ScannerLog;
 import com.bemonovoid.playqd.datasource.jdbc.entity.MusicDatabaseUpdateLogEntity;
@@ -21,19 +18,12 @@ class DirectoryScanLogDaoImpl implements DirectoryScanLogDao {
     @Override
     public void save(ScannerLog scannerLog) {
         MusicDatabaseUpdateLogEntity entity = new MusicDatabaseUpdateLogEntity();
-        entity.setStatus(scannerLog.getStatus());
-        entity.setDirectory(scannerLog.getDirectory());
-        entity.setCleanAllApplied(scannerLog.isDeleteAllBeforeScan());
-        entity.setNumberOfSongsAdded(scannerLog.getFilesIndexed());
-
-        Duration duration = scannerLog.getDuration();
-        String durationString = "0";
-        if (duration.getSeconds() > 0) {
-            durationString = duration.getSeconds() + " second(s)";
-        } else if (entity.getNumberOfSongsAdded() > 0) {
-            durationString = TimeUnit.MILLISECONDS.convert(duration) + " milliseconds";
-        }
-        entity.setDuration(durationString);
+        entity.setScanStatus(scannerLog.getStatus());
+        entity.setScanDirectory(scannerLog.getScanDirectory());
+        entity.setDeleteAllBeforeScan(scannerLog.isDeleteAllBeforeScan());
+        entity.setFilesIndexed(scannerLog.getFilesIndexed());
+        entity.setScanDurationInMillis(scannerLog.getScanDuration().toMillis());
+        entity.setIndexedFilesMissing(scannerLog.getIndexedFilesMissing());
         musicDatabaseUpdateLogRepository.save(entity);
     }
 
