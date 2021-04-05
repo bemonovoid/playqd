@@ -82,6 +82,7 @@ class MusicLibraryScannerImpl implements MusicLibraryScanner {
         ScannerLog.ScannerLogBuilder scannerLogBuilder = ScannerLog.builder()
                 .deleteAllBeforeScan(options.isDeleteAllBeforeScan())
                 .status(DirectoryScanStatus.IN_PROGRESS)
+                .scanDuration(Duration.ZERO)
                 .scanDirectory(libraryDirectory.basePath().toString());
 
         scannerLogBuilder.id(scannerLogService.save(scannerLogBuilder.build()));

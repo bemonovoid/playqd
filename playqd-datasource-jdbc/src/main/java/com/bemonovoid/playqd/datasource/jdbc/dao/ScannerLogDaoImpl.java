@@ -13,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 class ScannerLogDaoImpl implements ScannerLogDao {
@@ -24,9 +25,13 @@ class ScannerLogDaoImpl implements ScannerLogDao {
     }
 
     @Override
+    @Transactional
     public String save(ScannerLog scannerLog) {
         MusicDatabaseUpdateLogEntity entity = new MusicDatabaseUpdateLogEntity();
         entity.setUUID(scannerLog.getId());
+        if (scannerLog.getId() != null) {
+            entity = musicDatabaseUpdateLogRepository.findOne(entity.getId());
+        }
         entity.setScanStatus(scannerLog.getStatus());
         entity.setScanDirectory(scannerLog.getScanDirectory());
         entity.setDeleteAllBeforeScan(scannerLog.isDeleteAllBeforeScan());
@@ -47,4 +52,5 @@ class ScannerLogDaoImpl implements ScannerLogDao {
                 musicDatabaseUpdateLogRepository.findAll(pageable).map(ScannerLogHelper::fromEntity);
         return new PageableResultWrapper<>(page);
     }
+
 }
