@@ -16,8 +16,7 @@ abstract class ArtistHelper {
                 .id(artistEntity.getUUID())
                 .name(artistEntity.getName())
                 .country(artistEntity.getCountry())
-                .spotifyId(artistEntity.getSpotifyArtistId())
-                .spotifyName(artistEntity.getSpotifyArtistName());
+                .spotifyId(artistEntity.getSpotifyArtistId());
         if (countProjection != null) {
             artistBuilder
                     .albumCount(countProjection.getAlbumCount())
@@ -36,7 +35,6 @@ abstract class ArtistHelper {
         artistEntity.setName(artist.getName());
         artistEntity.setCountry(artist.getCountry());
         artistEntity.setSpotifyArtistId(artist.getSpotifyId());
-        artistEntity.setSpotifyArtistName(artist.getSpotifyName());
         return artistEntity;
     }
 }

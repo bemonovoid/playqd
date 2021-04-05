@@ -25,6 +25,7 @@ public class MusicDatabaseUpdateLogEntity extends PersistentAuditableEntity {
     public static final String COL_FILES_INDEXED = "FILES_INDEXED";
     public static final String COL_INDEXED_FILES_MISSING = "INDEXED_FILES_MISSING";
     public static final String COL_DELETE_ALL_BEFORE_SCAN = "DELETE_ALL_BEFORE_SCAN";
+    public static final String COL_SCAN_STATUS_DETAILS = "SCAN_STATUS_DETAILS";
 
     @Column(name = COL_SCAN_DIRECTORY)
     private String scanDirectory;
@@ -41,6 +42,9 @@ public class MusicDatabaseUpdateLogEntity extends PersistentAuditableEntity {
     @Column(name = COL_SCAN_STATUS)
     @Enumerated(EnumType.STRING)
     private DirectoryScanStatus scanStatus;
+
+    @Column(name = COL_SCAN_STATUS_DETAILS)
+    private String statusDetails;
 
     @Column(name = COL_SCAN_DURATION_IN_MILLIS)
     private long scanDurationInMillis;

@@ -9,5 +9,4 @@ public interface SettingsService {
     void saveLibrarySettings(LibrarySettings librarySettings);
 
     void rescanLibrary(LibrarySettings librarySettings);
-
 }

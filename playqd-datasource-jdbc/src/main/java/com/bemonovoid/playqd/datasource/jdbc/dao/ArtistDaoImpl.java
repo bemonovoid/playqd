@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 
 import com.bemonovoid.playqd.core.dao.ArtistDao;
 import com.bemonovoid.playqd.core.exception.PlayqdEntityNotFoundException;
-import com.bemonovoid.playqd.core.helpers.EntityNameHelper;
 import com.bemonovoid.playqd.core.model.Artist;
 import com.bemonovoid.playqd.core.model.MoveResult;
 import com.bemonovoid.playqd.core.model.SortDirection;
@@ -77,7 +76,7 @@ class ArtistDaoImpl implements ArtistDao {
             sort = sort.descending();
         }
         PageRequest pageRequest = PageRequest.of(pageableRequest.getPage(), pageableRequest.getSize(), sort);
-        return new PageableResultWrapper<>(artistRepository.findByNameContaining(name, pageRequest)
+        return new PageableResultWrapper<>(artistRepository.findByNameIgnoreCaseContaining(name, pageRequest)
                 .map(artistEntity -> ArtistHelper.fromEntity(artistEntity, getCounts().get(artistEntity.getId()))));
     }
 
@@ -105,14 +104,16 @@ class ArtistDaoImpl implements ArtistDao {
         if (propertyChanged(entity.getName(), artist.getName())) {
             entity.setName(artist.getName());
         }
+
+        if (StringUtils.hasText(artist.getSpotifyId())) {
+            entity.setSpotifyArtistId(artist.getSpotifyId());
+        }
+
         if (propertyChanged(entity.getCountry(), artist.getCountry())) {
             entity.setCountry(artist.getCountry());
         }
         if (propertyChanged(entity.getSpotifyArtistId(), artist.getSpotifyId())) {
             entity.setSpotifyArtistId(artist.getSpotifyId());
-        }
-        if (propertyChanged(entity.getSpotifyArtistName(), artist.getSpotifyName())) {
-            entity.setSpotifyArtistName(artist.getSpotifyName());
         }
 
         artistRepository.save(entity);

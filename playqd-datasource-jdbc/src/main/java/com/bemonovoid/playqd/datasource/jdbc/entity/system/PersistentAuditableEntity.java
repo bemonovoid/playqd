@@ -12,6 +12,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.Type;
 import org.springframework.data.domain.Persistable;
+import org.springframework.util.StringUtils;
 
 @Getter
 @Setter
@@ -36,7 +37,9 @@ public abstract class PersistentAuditableEntity extends AuditableEntity implemen
     }
 
     public final void setUUID(String uuid) {
-        setId(UUID.fromString(uuid));
+        if (StringUtils.hasText(uuid)) {
+            setId(UUID.fromString(uuid));
+        }
     }
 
 }

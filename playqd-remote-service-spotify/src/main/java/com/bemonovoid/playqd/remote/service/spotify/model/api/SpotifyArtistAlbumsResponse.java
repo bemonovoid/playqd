@@ -10,6 +10,6 @@ import lombok.Setter;
 @Setter(AccessLevel.PACKAGE)
 public class SpotifyArtistAlbumsResponse {
 
-    private List<SpotifyLibraryItem> items;
+    private List<SpotifyAlbumItem> items;
 
 }

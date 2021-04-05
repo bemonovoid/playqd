@@ -5,11 +5,11 @@ import lombok.Getter;
 import org.springframework.context.ApplicationEvent;
 
 @Getter
-public class ScanCompletedEvent extends ApplicationEvent {
+public class ScanUpdateEvent extends ApplicationEvent {
 
     private final ScannerLog scannerLog;
 
-    public ScanCompletedEvent(Object source, ScannerLog scannerLog) {
+    public ScanUpdateEvent(Object source, ScannerLog scannerLog) {
         super(source);
         this.scannerLog = scannerLog;
     }

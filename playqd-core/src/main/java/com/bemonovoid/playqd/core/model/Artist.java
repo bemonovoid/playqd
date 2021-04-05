@@ -1,6 +1,5 @@
 package com.bemonovoid.playqd.core.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import lombok.Builder;
@@ -12,15 +11,10 @@ import lombok.Getter;
 public class Artist {
 
     private String id;
+    private String spotifyId;
     private String name;
     private String country;
     private long albumCount;
     private long songCount;
-
-    @JsonIgnore
-    private String spotifyId;
-
-    @JsonIgnore
-    private String spotifyName;
 
 }

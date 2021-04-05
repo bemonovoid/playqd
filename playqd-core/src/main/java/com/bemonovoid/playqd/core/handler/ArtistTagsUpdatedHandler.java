@@ -43,10 +43,6 @@ class ArtistTagsUpdatedHandler implements ApplicationListener<ArtistTagsUpdated>
                 tag.setField(FieldKey.COUNTRY, artist.getCountry());
             }
 
-            if (StringUtils.hasText(artist.getSpotifyId())) {
-                tag.setField(FieldKey.MUSICBRAINZ_ARTISTID, artist.getSpotifyId());
-            }
-
             audioFile.commit();
         } catch (Exception e) {
             log.error(String.format("Failed to update tags for audio file: %s", fileLocation), e);

@@ -21,7 +21,7 @@ import org.hibernate.annotations.Type;
 @Setter
 @Entity
 @Table(name = AlbumEntity.TABLE_NAME, indexes = {
-        @Index(name = "ALBUM_IDX", columnList = AlbumEntity.COL_NAME)
+        @Index(name = "ALBUM_IDX", columnList = AlbumEntity.COL_NAME + "," + AlbumEntity.COL_GENRE)
 })
 public class AlbumEntity extends PersistentAuditableEntity {
 

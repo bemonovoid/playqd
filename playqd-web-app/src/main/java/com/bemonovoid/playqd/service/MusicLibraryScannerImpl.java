@@ -27,9 +27,10 @@ import com.bemonovoid.playqd.core.helpers.EntityNameHelper;
 import com.bemonovoid.playqd.core.model.DirectoryScanStatus;
 import com.bemonovoid.playqd.core.model.ScanOptions;
 import com.bemonovoid.playqd.core.model.ScannerLog;
-import com.bemonovoid.playqd.core.model.event.ScanCompletedEvent;
+import com.bemonovoid.playqd.core.model.event.ScanUpdateEvent;
 import com.bemonovoid.playqd.core.service.LibraryDirectory;
 import com.bemonovoid.playqd.core.service.MusicLibraryScanner;
+import com.bemonovoid.playqd.core.service.ScannerLogService;
 import com.bemonovoid.playqd.core.service.SecurityService;
 import com.bemonovoid.playqd.datasource.jdbc.entity.AlbumEntity;
 import com.bemonovoid.playqd.datasource.jdbc.entity.ArtistEntity;
@@ -42,7 +43,6 @@ import org.jaudiotagger.audio.AudioHeader;
 import org.jaudiotagger.audio.generic.Utils;
 import org.jaudiotagger.tag.FieldKey;
 import org.jaudiotagger.tag.Tag;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -60,17 +60,17 @@ class MusicLibraryScannerImpl implements MusicLibraryScanner {
 
     private final JdbcTemplate jdbcTemplate;
     private final LibraryDirectory libraryDirectory;
-    private final ApplicationEventPublisher eventPublisher;
+    private final ScannerLogService scannerLogService;
 
     private Map<String, ArtistAlbums> artists;
     private Set<String> indexedFiles;
 
     MusicLibraryScannerImpl(JdbcTemplate jdbcTemplate,
                             LibraryDirectory libraryDirectory,
-                            ApplicationEventPublisher eventPublisher) {
+                            ScannerLogService scannerLogService) {
         this.jdbcTemplate = jdbcTemplate;
         this.libraryDirectory = libraryDirectory;
-        this.eventPublisher = eventPublisher;
+        this.scannerLogService = scannerLogService;
     }
 
     @Override
@@ -81,7 +81,10 @@ class MusicLibraryScannerImpl implements MusicLibraryScanner {
         LocalTime scanStartedAt = LocalTime.now();
         ScannerLog.ScannerLogBuilder scannerLogBuilder = ScannerLog.builder()
                 .deleteAllBeforeScan(options.isDeleteAllBeforeScan())
+                .status(DirectoryScanStatus.IN_PROGRESS)
                 .scanDirectory(libraryDirectory.basePath().toString());
+
+        scannerLogBuilder.id(scannerLogService.save(scannerLogBuilder.build()));
 
         try {
             int numberOfFilesIndexed = Files.list(libraryDirectory.basePath()).mapToInt(this::scanDirectory).sum();
@@ -99,11 +102,12 @@ class MusicLibraryScannerImpl implements MusicLibraryScanner {
 
         } catch (IOException e) {
             scannerLogBuilder.status(DirectoryScanStatus.FAILED);
+            scannerLogBuilder.statusDetails(e.getMessage());
             throw new PlayqdConfigurationException(e);
         } finally {
             clean();
             scannerLogBuilder.scanDuration(Duration.between(scanStartedAt, LocalTime.now()));
-            eventPublisher.publishEvent(new ScanCompletedEvent(this, scannerLogBuilder.build()));
+            scannerLogService.save(scannerLogBuilder.build());
         }
     }
 

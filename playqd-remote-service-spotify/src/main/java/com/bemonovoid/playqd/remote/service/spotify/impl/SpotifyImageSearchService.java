@@ -12,6 +12,8 @@ import com.bemonovoid.playqd.core.model.Dimensions;
 import com.bemonovoid.playqd.core.model.Image;
 import com.bemonovoid.playqd.core.service.BinaryResourceClient;
 import com.bemonovoid.playqd.core.service.ImageSearchService;
+import com.bemonovoid.playqd.remote.service.spotify.model.api.SpotifyAlbumItem;
+import com.bemonovoid.playqd.remote.service.spotify.model.api.SpotifyArtistAlbumsResponse;
 import com.bemonovoid.playqd.remote.service.spotify.model.api.SpotifyLibraryItem;
 import com.bemonovoid.playqd.remote.service.spotify.model.api.SpotifySearchAlbumResponse;
 import com.bemonovoid.playqd.remote.service.spotify.model.api.SpotifySearchArtistResponse;
@@ -48,19 +50,32 @@ public class SpotifyImageSearchService implements ImageSearchService {
 
     @Override
     public List<Image> searchAlbumImage(Album album) {
-        String artistName = album.getArtist().getSpotifyName();
-        if (artistName == null) {
-            artistName = album.getArtist().getName();
-        }
+        SpotifyAlbumItem spotifyAlbum;
+        if (album.getArtist().getSpotifyId() != null) {
+            SpotifyArtistAlbumsResponse response = spotifyApi.searchArtistAlbums(album.getArtist().getSpotifyId());
+            String expectedAlbumName = album.getName().toLowerCase();
+            Optional<SpotifyAlbumItem> spotifyAlbumOpt = response.getItems().stream()
+                    .filter(item -> {
+                        String actualAlbumName = item.getName().toLowerCase();
+                        return actualAlbumName.equalsIgnoreCase(expectedAlbumName) ||
+                                actualAlbumName.contains(expectedAlbumName);
+                    })
+                    .findFirst();
+            if (spotifyAlbumOpt.isEmpty()) {
+                return Collections.emptyList();
+            }
+            spotifyAlbum = spotifyAlbumOpt.get();
+        } else {
+            SpotifySearchAlbumResponse response = spotifyApi.searchArtistAlbum(album.getArtist().getName(), album.getName());
 
-        SpotifySearchAlbumResponse response = spotifyApi.searchArtistAlbum(artistName, album.getName());
-
-        Optional<SpotifyLibraryItem> spotifyAlbum = response.getAlbums().getItems().stream()
-                .findFirst();
-        if (spotifyAlbum.isEmpty()) {
-            return Collections.emptyList();
+            Optional<SpotifyAlbumItem> spotifyAlbumOpt = response.getAlbums().getItems().stream()
+                    .findFirst();
+            if (spotifyAlbumOpt.isEmpty()) {
+                return Collections.emptyList();
+            }
+            spotifyAlbum = spotifyAlbumOpt.get();
         }
-        return spotifyAlbum.get().getImages().stream()
+        return spotifyAlbum.getImages().stream()
                 .map(img -> {
                     Dimensions dimensions = new Dimensions(img.getHeight(), img.getWidth());
                     byte[] data = binaryResourceClient.get(img.getUrl());
@@ -70,16 +85,21 @@ public class SpotifyImageSearchService implements ImageSearchService {
     }
 
     private Optional<SpotifyLibraryItem> findSpotifyArtist(Artist artist) {
-        SpotifySearchArtistResponse response = spotifyApi.searchArtistByName(artist.getName());
-        if (response.getArtists().getItems().isEmpty()) {
-            return Optional.empty();
+        SpotifyLibraryItem spotifyLibraryItem;
+        if (artist.getSpotifyId() != null) {
+            spotifyLibraryItem = spotifyApi.searchArtistById(artist.getSpotifyId());
+
+        } else {
+            SpotifySearchArtistResponse response = spotifyApi.searchArtistByName(artist.getName());
+            if (response.getArtists().getItems().isEmpty()) {
+                return Optional.empty();
+            }
+            spotifyLibraryItem = response.getArtists().getItems().get(0);
         }
-        SpotifyLibraryItem spotifyLibraryItem = response.getArtists().getItems().get(0);
 
         artistDao.update(Artist.builder()
                 .id(artist.getId())
                 .spotifyId(spotifyLibraryItem.getId())
-                .spotifyName(spotifyLibraryItem.getName())
                 .build());
 
         return Optional.of(spotifyLibraryItem);

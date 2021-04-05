@@ -60,6 +60,7 @@ class ArtistController {
     Artist updateArtist(@PathVariable String artistId, @RequestBody UpdateArtist updateArtist) {
         Artist artist = Artist.builder()
                 .id(artistId)
+                .spotifyId(updateArtist.getSpotifyArtistId())
                 .name(updateArtist.getName())
                 .country(updateArtist.getCountry())
                 .build();

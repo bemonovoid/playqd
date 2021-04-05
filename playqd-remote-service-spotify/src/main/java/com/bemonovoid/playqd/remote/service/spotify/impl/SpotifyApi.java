@@ -9,6 +9,8 @@ import java.util.Map;
 import com.bemonovoid.playqd.core.exception.PlayqdImageServiceException;
 import com.bemonovoid.playqd.remote.service.spotify.config.SpotifyProperties;
 import com.bemonovoid.playqd.remote.service.spotify.model.api.SpotifyArtistAlbumsResponse;
+import com.bemonovoid.playqd.remote.service.spotify.model.api.SpotifyArtists;
+import com.bemonovoid.playqd.remote.service.spotify.model.api.SpotifyLibraryItem;
 import com.bemonovoid.playqd.remote.service.spotify.model.api.SpotifyRefreshTokenResponse;
 import com.bemonovoid.playqd.remote.service.spotify.model.api.SpotifySearchAlbumResponse;
 import com.bemonovoid.playqd.remote.service.spotify.model.api.SpotifySearchArtistResponse;
@@ -27,24 +29,37 @@ import org.springframework.web.util.UriComponentsBuilder;
 public class SpotifyApi {
 
     private final SpotifyProperties properties;
-    private final String searchApiBaseUrl;
+    private final String apiBaseUrl;
 
     private LocalDateTime tokenExpirationDate;
     private char[] accessToken = new char[0];
 
     public SpotifyApi(SpotifyProperties properties) {
         this.properties = properties;
-        this.searchApiBaseUrl = properties.getApiBaseUrl() + "/" + properties.getApiVersion() + "/search/";
+        this.apiBaseUrl = properties.getApiBaseUrl() + "/" + properties.getApiVersion();
+    }
+
+    SpotifyLibraryItem searchArtistById(String artistId) {
+        String httpUrl = String.format("%s/artist/%s", apiBaseUrl, artistId);
+        try {
+            ResponseEntity<SpotifyLibraryItem> response =
+                    getRestTemplateWithAuth().getForEntity(httpUrl, SpotifyLibraryItem.class);
+            SpotifyLibraryItem responseBody = response.getBody();
+            if (responseBody == null) {
+                throw new PlayqdImageServiceException(
+                        String.format("Spotify search api query response is null. %s", httpUrl));
+            }
+            return responseBody;
+        } catch (RestClientException e) {
+            throw new PlayqdImageServiceException("Failed to perform spotify api query", e);
+        }
     }
 
     SpotifySearchArtistResponse searchArtistByName(String artistName) {
-        String httpUrl = String.format("%s?q=%s&type=artist", searchApiBaseUrl, artistName);
-
-        RestTemplate restTemplate = new RestTemplateBuilder()
-                .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken()).build();
+        String httpUrl = String.format("%s/search/?q=%s&type=artist", apiBaseUrl, artistName);
         try {
             ResponseEntity<SpotifySearchArtistResponse> response =
-                    restTemplate.getForEntity(httpUrl, SpotifySearchArtistResponse.class);
+                    getRestTemplateWithAuth().getForEntity(httpUrl, SpotifySearchArtistResponse.class);
 
             SpotifySearchArtistResponse responseBody = response.getBody();
 
@@ -60,30 +75,28 @@ public class SpotifyApi {
     }
 
     SpotifyArtistAlbumsResponse searchArtistAlbums(String artistId) {
-        UriComponents uriComponents = UriComponentsBuilder.fromPath("/artists/{artistId}/albums")
-                .queryParam("limit", 50)
-                .buildAndExpand(Map.of("artistId", artistId));
-        RestTemplate restTemplate = new RestTemplateBuilder()
-                .rootUri(properties.getApiBaseUrl() + "/" + properties.getApiVersion())
-                .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken())
-                .build();
-        ResponseEntity<SpotifyArtistAlbumsResponse> response =
-                restTemplate.getForEntity(uriComponents.toUriString(), SpotifyArtistAlbumsResponse.class);
-        return response.getBody();
+        try {
+            UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(apiBaseUrl + "/artists/{artistId}/albums")
+                    .queryParam("limit", 50)
+                    .buildAndExpand(Map.of("artistId", artistId));
+            RestTemplate restTemplate = getRestTemplateWithAuth();
+            ResponseEntity<SpotifyArtistAlbumsResponse> response =
+                    restTemplate.getForEntity(uriComponents.toUriString(), SpotifyArtistAlbumsResponse.class);
+            return response.getBody();
+        } catch (RestClientException e) {
+            throw new PlayqdImageServiceException("Failed to perform spotify api query", e);
+        }
     }
 
     SpotifySearchAlbumResponse searchArtistAlbum(String artistName, String albumName) {
         String artistNameEncoded = URLEncoder.encode(artistName, StandardCharsets.UTF_8);
         String albumNameEncoded = URLEncoder.encode(albumName, StandardCharsets.UTF_8);
-        RestTemplate restTemplate = new RestTemplateBuilder()
-                .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken())
-                .build();
         try {
-            String httpUrl = String.format("%s?q=album:%s+artist:%s&type=album",
-                    searchApiBaseUrl, albumNameEncoded, artistNameEncoded);
+            String httpUrl = String.format("%s/search/?q=album:%s+artist:%s&type=album",
+                    apiBaseUrl, albumNameEncoded, artistNameEncoded);
 
-            ResponseEntity<SpotifySearchAlbumResponse> response = restTemplate.getForEntity(
-                    URI.create(httpUrl), SpotifySearchAlbumResponse.class);
+            ResponseEntity<SpotifySearchAlbumResponse> response =
+                    getRestTemplateWithAuth().getForEntity(URI.create(httpUrl), SpotifySearchAlbumResponse.class);
 
             SpotifySearchAlbumResponse responseBody = response.getBody();
 
@@ -124,5 +137,11 @@ public class SpotifyApi {
             accessToken = token.toCharArray();
         }
         return token;
+    }
+
+    private RestTemplate getRestTemplateWithAuth() {
+        return new RestTemplateBuilder()
+                .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken())
+                .build();
     }
 }
