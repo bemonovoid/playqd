@@ -5,11 +5,10 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import com.bemonovoid.playqd.core.exception.PlayqdUnsupportedAudioFormatException;
-import com.bemonovoid.playqd.core.model.ImageTarget;
 import com.bemonovoid.playqd.core.model.Image;
 import com.bemonovoid.playqd.core.model.ImageSize;
+import com.bemonovoid.playqd.core.model.ImageTarget;
 import com.bemonovoid.playqd.core.service.AlbumService;
-import com.bemonovoid.playqd.core.service.ArtistService;
 import com.bemonovoid.playqd.core.service.SongService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
@@ -31,12 +30,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/resource")
 class BinaryResourceController {
 
-    private final ArtistService artistService;
     private final AlbumService albumService;
     private final SongService songService;
 
-    BinaryResourceController(ArtistService artistService, AlbumService albumService, SongService songService) {
-        this.artistService = artistService;
+    BinaryResourceController(AlbumService albumService, SongService songService) {
         this.albumService = albumService;
         this.songService = songService;
     }
@@ -47,7 +44,8 @@ class BinaryResourceController {
                                           @RequestParam(defaultValue = "SMALL") ImageSize size) {
         Optional<Image> imageOpt;
         if (ImageTarget.ARTIST == target) {
-            imageOpt = artistService.getImage(resourceId, size, false);
+//            imageOpt = artistService.getImage(resourceId, size, false);
+            imageOpt = Optional.empty();
         } else if (ImageTarget.ALBUM == target) {
             imageOpt = albumService.getImage(resourceId, size, false);
         } else {

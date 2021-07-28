@@ -1,11 +1,14 @@
 package com.bemonovoid.playqd.controller;
 
+import java.util.List;
 import java.util.Optional;
 
 import com.bemonovoid.playqd.core.model.Artist;
 import com.bemonovoid.playqd.core.model.Image;
+import com.bemonovoid.playqd.core.model.ImageInfo;
 import com.bemonovoid.playqd.core.model.ImageSize;
 import com.bemonovoid.playqd.core.model.UpdateArtist;
+import com.bemonovoid.playqd.core.model.UpdateArtistGroup;
 import com.bemonovoid.playqd.core.model.UpdateOptions;
 import com.bemonovoid.playqd.core.model.pageable.FindArtistsRequest;
 import com.bemonovoid.playqd.core.model.pageable.PageableArtistsResponse;
@@ -15,7 +18,9 @@ import com.bemonovoid.playqd.core.service.ArtistService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -48,16 +53,22 @@ class ArtistController {
         return new PageableArtistsResponse(artistService.getAllBasicArtists());
     }
 
-    @GetMapping("/{artistId}/image/src")
-    ResponseEntity<String> getArtistImageSrc(@PathVariable String artistId) {
-        Optional<Image> artistImageOpt = artistService.getImage(artistId, ImageSize.SMALL, true);
-        return artistImageOpt
-                .map(artistImage -> ResponseEntity.ok(artistImage.getUrl()))
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    @GetMapping("/{artistId}/images")
+    ResponseEntity<List<Image>> getArtistImageSrc(@PathVariable String artistId) {
+        List<Image> images = artistService.findImages(artistId);
+        if (images.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(images);
     }
 
-    @PutMapping("/{artistId}")
-    Artist updateArtist(@PathVariable String artistId, @RequestBody UpdateArtist updateArtist) {
+    @PutMapping("/{artistId}/images")
+    void addImages(@PathVariable String artistId, @RequestBody List<ImageInfo> images) {
+        artistService.addImages(artistId, images);
+    }
+
+    @PatchMapping("/{artistId}")
+    Artist updateArtistDetails(@PathVariable String artistId, @RequestBody UpdateArtist updateArtist) {
         Artist artist = Artist.builder()
                 .id(artistId)
                 .spotifyId(updateArtist.getSpotifyArtistId())
@@ -66,6 +77,11 @@ class ArtistController {
                 .build();
         UpdateOptions updateOptions = UpdateOptions.builder().updateAudioTags(updateArtist.isUpdateAudioTags()).build();
         return artistService.updateArtist(artist, updateOptions);
+    }
+
+    @PatchMapping("/group")
+    void updateGroupOfArtists(@RequestBody UpdateArtistGroup artistsGroup) {
+
     }
 
     @PutMapping("/moved")

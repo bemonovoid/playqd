@@ -14,9 +14,9 @@ public enum SortBy {
 
     RECENTLY_PLAYED,
 
-    TOTAL_ALBUMS,
+    ALBUM_COUNT,
 
-    TOTAL_SONGS,
+    SONG_COUNT,
 
     TRACK_ID;
 }

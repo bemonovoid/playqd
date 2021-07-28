@@ -2,22 +2,29 @@ package com.bemonovoid.playqd.datasource.jdbc.dao;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import com.bemonovoid.playqd.core.dao.ArtistDao;
 import com.bemonovoid.playqd.core.exception.PlayqdEntityNotFoundException;
 import com.bemonovoid.playqd.core.model.Artist;
+import com.bemonovoid.playqd.core.model.ImageInfo;
 import com.bemonovoid.playqd.core.model.MoveResult;
 import com.bemonovoid.playqd.core.model.SortDirection;
 import com.bemonovoid.playqd.core.model.pageable.PageableRequest;
 import com.bemonovoid.playqd.core.model.pageable.PageableResult;
 import com.bemonovoid.playqd.datasource.jdbc.entity.AlbumEntity;
 import com.bemonovoid.playqd.datasource.jdbc.entity.ArtistEntity;
+import com.bemonovoid.playqd.datasource.jdbc.entity.ArtistImageEntity;
 import com.bemonovoid.playqd.datasource.jdbc.entity.SongEntity;
 import com.bemonovoid.playqd.datasource.jdbc.projection.CountProjection;
 import com.bemonovoid.playqd.datasource.jdbc.repository.AlbumRepository;
+import com.bemonovoid.playqd.datasource.jdbc.repository.ArtistImageRepository;
 import com.bemonovoid.playqd.datasource.jdbc.repository.ArtistRepository;
 import com.bemonovoid.playqd.datasource.jdbc.repository.SongRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -33,16 +40,19 @@ import org.springframework.util.StringUtils;
 class ArtistDaoImpl implements ArtistDao {
 
     private final ArtistRepository artistRepository;
+    private final ArtistImageRepository artistImageRepository;
     private final AlbumRepository albumRepository;
     private final SongRepository songRepository;
 
     private final JdbcTemplate jdbcTemplate;
 
     ArtistDaoImpl(ArtistRepository artistRepository,
+                  ArtistImageRepository artistImageRepository,
                   AlbumRepository albumRepository,
                   SongRepository songRepository,
                   JdbcTemplate jdbcTemplate) {
         this.artistRepository = artistRepository;
+        this.artistImageRepository = artistImageRepository;
         this.albumRepository = albumRepository;
         this.songRepository = songRepository;
         this.jdbcTemplate = jdbcTemplate;
@@ -119,6 +129,23 @@ class ArtistDaoImpl implements ArtistDao {
         artistRepository.save(entity);
 
         log.info("Artist with id='{} updated.'", artist.getId());
+    }
+
+    @Override
+    public void addImages(String artistId, List<ImageInfo> images) {
+        ArtistEntity artistEntity = artistRepository.findOne(UUID.fromString(artistId));
+        List<ArtistImageEntity> imageEntities = images.stream()
+                .map(imageInfo -> {
+                    ArtistImageEntity imageEntity = new ArtistImageEntity();
+                    imageEntity.setArtist(artistEntity);
+                    imageEntity.setUrl(imageInfo.getUrl());
+                    imageEntity.setHeight(imageInfo.getDimensions().getHeight());
+                    imageEntity.setWidth(imageInfo.getDimensions().getWidth());
+                    imageEntity.setImage(null);
+                    return imageEntity;
+                })
+                .collect(Collectors.toList());
+        artistImageRepository.saveAll(imageEntities);
     }
 
     @Override

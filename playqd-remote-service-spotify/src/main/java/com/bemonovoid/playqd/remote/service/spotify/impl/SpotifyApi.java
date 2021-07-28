@@ -40,7 +40,7 @@ public class SpotifyApi {
     }
 
     SpotifyLibraryItem searchArtistById(String artistId) {
-        String httpUrl = String.format("%s/artist/%s", apiBaseUrl, artistId);
+        String httpUrl = String.format("%s/artists/%s", apiBaseUrl, artistId);
         try {
             ResponseEntity<SpotifyLibraryItem> response =
                     getRestTemplateWithAuth().getForEntity(httpUrl, SpotifyLibraryItem.class);

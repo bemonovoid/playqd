@@ -19,9 +19,9 @@ public interface AlbumRepository extends JpaRepository<AlbumEntity, UUID> {
 
     Page<AlbumEntity> findByArtistId(UUID artistId, Pageable pageable);
 
-    Page<AlbumEntity> findByNameContaining(String name, Pageable pageable);
+    Page<AlbumEntity> findByNameIgnoreCaseContaining(String name, Pageable pageable);
 
-    Page<AlbumEntity> findByArtistIdAndNameContaining(UUID artistId, String name, Pageable pageable);
+    Page<AlbumEntity> findByArtistIdAndNameIgnoreCaseContaining(UUID artistId, String name, Pageable pageable);
 
     Page<AlbumEntity> findByGenreEquals(String genre, Pageable pageable);
 

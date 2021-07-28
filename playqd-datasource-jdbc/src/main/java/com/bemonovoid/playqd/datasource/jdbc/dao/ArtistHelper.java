@@ -1,6 +1,11 @@
 package com.bemonovoid.playqd.datasource.jdbc.dao;
 
+import java.util.Comparator;
+import java.util.stream.Collectors;
+
 import com.bemonovoid.playqd.core.model.Artist;
+import com.bemonovoid.playqd.core.model.Dimensions;
+import com.bemonovoid.playqd.core.model.ImageInfo;
 import com.bemonovoid.playqd.datasource.jdbc.entity.ArtistEntity;
 import com.bemonovoid.playqd.datasource.jdbc.projection.ArtistIdAndNameProjection;
 import com.bemonovoid.playqd.datasource.jdbc.projection.CountProjection;
@@ -17,6 +22,12 @@ abstract class ArtistHelper {
                 .name(artistEntity.getName())
                 .country(artistEntity.getCountry())
                 .spotifyId(artistEntity.getSpotifyArtistId());
+        if (!artistEntity.getImages().isEmpty()) {
+            artistBuilder.images(artistEntity.getImages().stream()
+                    .map(entity -> new ImageInfo(entity.getUrl(), new Dimensions(entity.getHeight(), entity.getWidth())))
+                    .sorted(Comparator.comparing(ImageInfo::getDimensions))
+                    .collect(Collectors.toList()));
+        }
         if (countProjection != null) {
             artistBuilder
                     .albumCount(countProjection.getAlbumCount())

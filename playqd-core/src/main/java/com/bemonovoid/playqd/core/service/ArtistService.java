@@ -1,15 +1,17 @@
 package com.bemonovoid.playqd.core.service;
 
-import java.util.Optional;
+import java.util.List;
 
 import com.bemonovoid.playqd.core.model.Artist;
 import com.bemonovoid.playqd.core.model.Image;
-import com.bemonovoid.playqd.core.model.ImageSize;
+import com.bemonovoid.playqd.core.model.ImageInfo;
 import com.bemonovoid.playqd.core.model.UpdateOptions;
 import com.bemonovoid.playqd.core.model.pageable.FindArtistsRequest;
 import com.bemonovoid.playqd.core.model.pageable.PageableResult;
 
 public interface ArtistService {
+
+    void addImages(String artistId, List<ImageInfo> images);
 
     Artist getArtist(String artistId);
 
@@ -17,7 +19,7 @@ public interface ArtistService {
 
     PageableResult<Artist> getArtists(FindArtistsRequest pageableRequest);
 
-    Optional<Image> getImage(String artistId, ImageSize size, boolean findRemotely);
+    List<Image> findImages(String artistId);
 
     Artist updateArtist(Artist artist, UpdateOptions updateOptions);
 

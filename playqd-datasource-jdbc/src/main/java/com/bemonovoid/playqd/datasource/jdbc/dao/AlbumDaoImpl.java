@@ -81,7 +81,7 @@ class AlbumDaoImpl implements AlbumDao {
             }
         }
         PageRequest pageRequest = PageRequest.of(pageableRequest.getPage(), pageableRequest.getSize(), sort);
-        return new PageableResultWrapper<>(albumRepository.findByNameContaining(
+        return new PageableResultWrapper<>(albumRepository.findByNameIgnoreCaseContaining(
                 albumName, pageRequest).map(AlbumHelper::fromEntity));
     }
 
@@ -97,7 +97,7 @@ class AlbumDaoImpl implements AlbumDao {
             }
         }
         PageRequest pageRequest = PageRequest.of(pageableRequest.getPage(), pageableRequest.getSize(), sort);
-        return new PageableResultWrapper<>(albumRepository.findByArtistIdAndNameContaining(
+        return new PageableResultWrapper<>(albumRepository.findByArtistIdAndNameIgnoreCaseContaining(
                 UUID.fromString(artistId), albumName, pageRequest).map(AlbumHelper::fromEntity));
     }
 

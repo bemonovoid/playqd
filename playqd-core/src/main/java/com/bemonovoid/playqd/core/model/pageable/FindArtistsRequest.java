@@ -30,8 +30,8 @@ public class FindArtistsRequest {
 
         MOST_PLAYED,
 
-        TOTAL_ALBUMS,
+        ALBUM_COUNT,
 
-        TOTAL_SONGS;
+        SONG_COUNT;
     }
 }

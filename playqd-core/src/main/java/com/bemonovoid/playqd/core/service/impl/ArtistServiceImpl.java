@@ -1,5 +1,6 @@
 package com.bemonovoid.playqd.core.service.impl;
 
+import java.util.List;
 import java.util.Optional;
 
 import com.bemonovoid.playqd.core.dao.ArtistDao;
@@ -7,6 +8,7 @@ import com.bemonovoid.playqd.core.dao.SongDao;
 import com.bemonovoid.playqd.core.handler.AudioFileTagUpdater;
 import com.bemonovoid.playqd.core.model.Artist;
 import com.bemonovoid.playqd.core.model.Image;
+import com.bemonovoid.playqd.core.model.ImageInfo;
 import com.bemonovoid.playqd.core.model.ImageSize;
 import com.bemonovoid.playqd.core.model.MoveResult;
 import com.bemonovoid.playqd.core.model.UpdateOptions;
@@ -33,6 +35,11 @@ class ArtistServiceImpl implements ArtistService {
         this.imageService = imageService;
         this.artistDao = artistDao;
         this.songDao = songDao;
+    }
+
+    @Override
+    public void addImages(String artistId, List<ImageInfo> images) {
+        artistDao.addImages(artistId, images);
     }
 
     @Override
@@ -66,12 +73,11 @@ class ArtistServiceImpl implements ArtistService {
         } else {
             return artistDao.getArtists(pageableRequest);
         }
-
     }
 
     @Override
-    public Optional<Image> getImage(String artistId, ImageSize size, boolean findRemotely) {
-        return imageService.getArtistImage(artistDao.getOne(artistId), size, findRemotely);
+    public List<Image> findImages(String artistId) {
+        return imageService.findArtistImages(artistDao.getOne(artistId));
     }
 
     @Override

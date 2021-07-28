@@ -1,5 +1,6 @@
 package com.bemonovoid.playqd.core.service;
 
+import java.util.List;
 import java.util.Optional;
 
 import com.bemonovoid.playqd.core.model.Album;
@@ -11,5 +12,5 @@ public interface ImageService {
 
     Optional<Image> getAlbumImage(Album album, ImageSize size, boolean findRemotely);
 
-    Optional<Image> getArtistImage(Artist artist, ImageSize size, boolean findRemotely);
+    List<Image> findArtistImages(Artist artist);
 }

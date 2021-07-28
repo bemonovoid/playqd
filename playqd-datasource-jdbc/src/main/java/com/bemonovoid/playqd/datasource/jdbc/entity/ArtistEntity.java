@@ -29,8 +29,6 @@ public class ArtistEntity extends PersistentAuditableEntity {
     public static final String COL_COUNTRY = "COUNTRY";
     public static final String COL_SPOTIFY_ARTIST_ID = "SPOTIFY_ARTIST_ID";
 
-    public static final String FLD_NAME = "name";
-
     @Column(name = COL_NAME)
     private String name;
 
@@ -43,4 +41,8 @@ public class ArtistEntity extends PersistentAuditableEntity {
     @OneToMany(mappedBy = "artist")
     @LazyCollection(LazyCollectionOption.EXTRA)
     private List<AlbumEntity> albums;
+
+    @OneToMany(mappedBy = "artist")
+    @LazyCollection(LazyCollectionOption.EXTRA)
+    private List<ArtistImageEntity> images;
 }
